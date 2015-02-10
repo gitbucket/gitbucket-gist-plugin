@@ -1,0 +1,47 @@
+@(i: Int, fileName: String, content: util.JGitUtil.ContentInfo)(implicit context: app.Context)
+@import context._
+@import view.helpers._
+<table class="table table-bordered">
+  <tr>
+    <th>
+      <div class="pull-right">
+        <select id="wrap-@i" class="input-medium" style="margin-bottom: 0px; height: 26px; padding: 0px;">
+          <optgroup label="Line Wrap Mode">
+            <option value="false">No wrap</option>
+            <option value="true">Soft wrap</option>
+          </optgroup>
+        </select>
+      </div>
+      <input type="text" id="fileName-@i" name="fileName-@i" class="input-medium" value="@fileName" placeholder="Name this file..." style="margin-bottom: 0px;">
+    </th>
+  </tr>
+  <tr>
+    <td>
+      <div id="editor-@i" class="editor" data-index="@i" style="width: 100%; height: 400px;"></div>
+    </td>
+  </tr>
+</table>
+<input type="hidden" id="content-@i" name="content-@i" value=""/>
+<input type="hidden" id="charset-@i" name="charset-@i" value="@content.charset"/>
+<input type="hidden" id="lineSeparator-@i" name="lineSeparator-@i" value="@content.lineSeparator"/>
+<input type="hidden" id="initial-@i" value="@content.content"/>
+<script>
+$(function(){
+  $('#editor-@i').text($('#initial-@i').val());
+
+  var editor = ace.edit('editor-@i');
+  editor.setTheme("ace/theme/monokai");
+
+  @if(fileName.nonEmpty){
+    editor.getSession().setMode("ace/mode/@editorType(fileName)");
+  }
+
+  $('#wrap-@i').change(function(){
+    if($('#wrap-@i option:selected').val() == 'true'){
+      editor.getSession().setUseWrapMode(true);
+    } else {
+      editor.getSession().setUseWrapMode(false);
+    }
+  });
+});
+</script>

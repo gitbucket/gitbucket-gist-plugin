@@ -1,0 +1,47 @@
+@(gistUser: Option[model.GistUser], gists: Seq[(model.Gist, String)], page: Int, hasNext: Boolean)(implicit context: app.Context)
+@import context._
+@import view.helpers._
+<div class="container">
+@if(gistUser.isEmpty){
+  <div class="head">GitBucket Snippets</div>
+} else {
+  <div class="head">
+    @avatar(gistUser.get.userName, 24)
+    <span class="strong">@gistUser.get.fullName</span>
+    <div class="pull-right">
+      <a href="@path/@gistUser.get.userName" class="btn">@gistUser.get.userName on GitBucket</a>
+    </div>
+  </div>
+  <div class="muted" style="margin-top: -10px; margin-left: 30px;">
+    @gistUser.get.userName
+  </div>
+}
+</div>
+<hr style="margin-bottom: 20px;"/>
+<div class="container body">
+  @gists.map { case (gist, code) =>
+    <div>
+      <div>
+        @avatar(gist.userName, 20)
+        <a class="strong" href="/gist/@gist.userName">@gist.userName</a> /
+        <a class="strong" href="/gist/@gist.userName/@gist.repositoryName">@gist.title</a>
+        @if(gist.isPrivate){
+          <span class="label label-warning">Secret</span>
+        }
+      </div>
+      <div class="muted" style="margin-left: 22px;">
+        Created at @gist.registeredDate
+      </div>
+      <div style="margin-left: 22px; margin-top: 10px; margin-bottom: 10px;">
+        @gist.description
+      </div>
+      <div>
+        <pre class="prettyprint linenums" style="padding-left: 25px;">@Html(code)</pre>
+      </div>
+    </div>
+  }
+  <div class="btn-group">
+    <button class="btn" onclick="location.href='?page=@{page - 1}'"@if(page <= 1){ disabled="true"}>Newer</button>
+    <button class="btn" onclick="location.href='?page=@{page + 1}'"@if(!hasNext){ disabled="true"}>Older</button>
+  </div>
+</div>

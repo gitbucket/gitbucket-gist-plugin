@@ -1,0 +1,112 @@
+@(recent: Seq[model.Gist], gist: Option[model.Gist], files: Seq[(String, util.JGitUtil.ContentInfo)])(implicit context: app.Context)
+@import context._
+@import view.helpers._
+<div class="container">
+  @if(gist.isEmpty){
+    <div>
+      <ul style="list-style: none; margin-left: 0px;">
+      @recent.map { gist =>
+        <li style="float: left; width: 200px;">
+          <a class="strong" href="@path/gist/@gist.userName/@gist.repositoryName">@gist.title</a>
+          <div class="muted">@gist.description</div>
+        </li>
+      }
+      </ul>
+      <div class="pull-right">
+        <a href="@path/gist/@context.loginAccount.get.userName" class="btn">Your Snippets</a>
+      </div>
+    </div>
+  } else {
+    @gist.map { x =>
+      <div class="head">
+        @avatar(gist.get.userName, 24)
+        Editing
+        <a class="strong" href="@path/gist/@gist.get.userName/@gist.get.repositoryName">@gist.get.title</a>
+        @if(gist.get.isPrivate){
+          <span class="label label-warning">Secret</span>
+        }
+        <div class="pull-right">
+          @if(gist.get.isPrivate){
+            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/public" class="btn">Make public</a>
+          } else {
+            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/secret" class="btn">Make secret</a>
+          }
+          <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn" id="delete">Delete</a>
+        </div>
+      </div>
+      <div class="muted" style="margin-top: -10px; margin-left: 30px;">
+        Created at @gist.get.registeredDate
+      </div>
+    }
+  }
+</div>
+<hr style="margin-bottom: 20px;"/>
+<div class="container body">
+    <form id="form" method="POST" action="#">
+      <input type="text" name="description" id="description" style="width: 900px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
+      <div id="editors">
+        @files.zipWithIndex.map { case ((fileName, content), i) =>
+          @editor(i, fileName, content)
+        }
+      </div>
+      <div>
+        <input type="button" value="Add file" class="btn" id="add_file">
+        <div class="pull-right">
+          @if(gist.isDefined){
+            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn">Cancel</a>
+            <input type="submit" value="Update" class="btn btn-success submit_snippet" id="update_snippet">
+          } else {
+            <input type="submit" value="Create private Snippet" class="btn submit_snippet" id="create_private_snippet">
+            <input type="submit" value="Create public Snippet" class="btn submit_snippet" id="create_public_snippet">
+          }
+        </div>
+      </div>
+      @if(gist.isEmpty){
+        <input type="hidden" id="private" name="private" value="false"/>
+      }
+      <input type="hidden" id="count" name="count" value="@files.size"/>
+    </form>
+</div>
+
+<script src="@assets/vendors/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="@assets/vendors/jsdifflib/difflib.js"></script>
+<script type="text/javascript" src="@assets/vendors/jsdifflib/diffview.js"></script>
+<link href="@assets/vendors/jsdifflib/diffview.css" type="text/css" rel="stylesheet" />
+<script>
+$(function(){
+  $('#create_private_snippet').click(function(){
+    $('#form').attr('action', '@path/gist/_new')
+    $('#private').val('true');
+  });
+
+  $('#create_public_snippet').click(function(){
+    $('#form').attr('action', '@path/gist/_new')
+    $('#private').val('false');
+  });
+
+  $('#add_file').click(function(){
+    var count = $('#count').val();
+    $.get('@path/gist/_add?count=' + count, function(html){
+      $('#editors').append(html);
+      $('#count').val(count + 1);
+    });
+  });
+
+  $('#update_snippet').click(function(){
+    @gist.map { gist =>
+      $('#form').attr('action', '@path/gist/@gist.userName/@gist.repositoryName/edit')
+    }
+  });
+
+  $('.submit_snippet').click(function(){
+    @files.zipWithIndex.map { case ((fileName, content), i) =>
+      var editor = ace.edit('editor-@i');
+      $('#content-@i').val(editor.getValue());
+    }
+  });
+
+  $('#delete').click(function(){
+    return confirm('Are you positive you want to delete this Gist?');
+  });
+});
+</script>
