@@ -22,9 +22,6 @@ class Plugin extends plugin.Plugin {
       rootdir.mkdirs()
     }
 
-    /**
-     * Displays new Gist creation form
-     */
     registry.addGlobalAction("GET" , "/gist"          )(GistController.list)
     registry.addGlobalAction("GET" , "/gist/.*/edit"  )(GistController.edit)
     registry.addGlobalAction("GET" , "/gist/_add"     )(GistController.add)
