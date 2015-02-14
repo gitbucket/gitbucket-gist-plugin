@@ -1,5 +1,23 @@
 package model
 
+trait GistComponent { self: Profile =>
+  import profile.simple._
+  import self._
+
+  lazy val Gists = TableQuery[Gists]
+
+  class Gists(tag: Tag) extends Table[Gist](tag, "GIST") {
+    val userName       = column[String]("USER_NAME")
+    val repositoryName = column[String]("REPOSITORY_NAME")
+    val isPrivate      = column[Boolean]("IS_PRIVATE")
+    val title          = column[String]("TITLE")
+    val description    = column[String]("DESCRIPTION")
+    val registeredDate = column[String]("REGISTERED_DATE")
+    val updatedDate    = column[String]("UPDATED_DATE")
+    def * = (userName, repositoryName, isPrivate, title, description, registeredDate, updatedDate) <> (Gist.tupled, Gist.unapply)
+  }
+}
+
 case class Gist(
   userName: String,
   repositoryName: String,
@@ -10,15 +28,7 @@ case class Gist(
   updatedDate: String
 )
 
-object Gist {
-  def apply(rs: java.sql.ResultSet): Gist =
-    Gist(
-      userName       = rs.getString("USER_NAME"),
-      repositoryName = rs.getString("REPOSITORY_NAME"),
-      isPrivate      = rs.getBoolean("PRIVATE"),
-      title          = rs.getString("TITLE"),
-      description    = rs.getString("DESCRIPTION"),
-      registeredDate = rs.getString("REGISTERED_DATE"),
-      updatedDate    = rs.getString("UPDATED_DATE")
-    )
-}
+
+
+
+

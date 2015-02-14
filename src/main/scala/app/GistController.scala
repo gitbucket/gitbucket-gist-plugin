@@ -1,48 +1,44 @@
 package app
 
 import java.io.File
-import model.{GistUser, Gist, Account}
-import util.{Keys, JGitUtil, StringUtil}
+import model.{Profile, GistUser, Gist, Account}
+import service.{AccountService, GistService}
+import servlet.Database
+import util.{JGitUtil, StringUtil}
 import util.ControlUtil._
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib._
 import org.eclipse.jgit.dircache.DirCache
 import util.Configurations._
-import util.JDBCUtil._
 import plugin.Results._
 
-object GistController {
+import scala.slick.jdbc.JdbcBackend
+
+object GistController extends GistService with AccountService with model.Profile {
+
+  val profile = slick.driver.H2Driver
+  implicit def request2Session(request: HttpServletRequest): JdbcBackend#Session = Database.getSession(request)
 
   def list(request: HttpServletRequest, response: HttpServletResponse, context: Context) = {
-    val conn = getConnection(request)
 
     if(context.loginAccount.isDefined){
-      val gists = conn.select(
-        "SELECT * FROM GIST WHERE USER_NAME = ? ORDER BY REGISTERED_DATE DESC LIMIT 4",
-        context.loginAccount.get.userName
-      )(Gist.apply)
-
+      val gists = getRecentGists(context.loginAccount.get.userName, 0, 4)(Database.getSession(request)) // TODO Why implicit conversion does not work?
       gist.html.edit(gists, None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))(context)
-
     } else {
       val page = request.getParameter("page") match {
         case ""|null => 1
         case s => s.toInt
       }
-      val result = conn.select(
-        "SELECT * FROM GIST WHERE PRIVATE = FALSE ORDER BY REGISTERED_DATE DESC LIMIT ? OFFSET ?",
-        Limit, (page - 1) * Limit)(Gist.apply)
-
-      val count = conn.selectInt("SELECT COUNT(*) AS COUNT FROM GIST WHERE PRIVATE = FALSE")
+      val result = getPublicGists((page - 1) * Limit, Limit)(Database.getSession(request))
+      val count  = countPublicGists()(Database.getSession(request))
 
       val gists: Seq[(Gist, String)] = result.map { gist =>
         val gitdir = new File(GistRepoDir, gist.userName + "/" + gist.repositoryName)
         if(gitdir.exists){
           using(Git.open(gitdir)){ git =>
             val source: String = JGitUtil.getFileList(git, "master", ".").map { file =>
-              StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
-                .split("\n").take(9).mkString("\n")
+              StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
             }.head
 
             (gist, source)
@@ -65,15 +61,10 @@ object GistController {
       val gitdir = new File(GistRepoDir, userName + "/" + repoName)
       if(gitdir.exists){
         using(Git.open(gitdir)){ git =>
-          val gist = getConnection(request).find("""
-            SELECT * FROM GIST WHERE USER_NAME = ? AND REPOSITORY_NAME = ?
-          """, userName, repoName)(Gist.apply).get
-
           val files: Seq[(String, JGitUtil.ContentInfo)] = JGitUtil.getFileList(git, "master", ".").map { file =>
             file.name -> JGitUtil.getContentInfo(git, file.name, file.id)
           }
-
-          _root_.gist.html.edit(Nil, Some(gist), files)(context)
+          _root_.gist.html.edit(Nil, getGist(userName, repoName)(Database.getSession(request)), files)(context)
         }
       }
     } else {
@@ -90,7 +81,7 @@ object GistController {
     if(context.loginAccount.isDefined){
       val loginAccount = context.loginAccount.get
       val files        = getFileParameters(request, true)
-      val isPrivate    = request.getParameter("private")
+      val isPrivate    = request.getParameter("private").toBoolean
       val description  = request.getParameter("description")
 
       // Create new repository
@@ -100,23 +91,13 @@ object GistController {
       JGitUtil.initRepository(gitdir)
 
       // Insert record
-      getConnection(request).update("""INSERT INTO GIST (
-        USER_NAME,
-        REPOSITORY_NAME,
-        PRIVATE,
-        TITLE,
-        DESCRIPTION,
-        REGISTERED_DATE,
-        UPDATED_DATE
-      ) VALUES (
-        ?, -- USER_NAME
-        ?, -- REPOSITORY_NAME
-        ?, -- PRIVATE
-        ?, -- TITLE
-        ?, -- DESCRIPTION
-        CURRENT_TIMESTAMP(),
-        CURRENT_TIMESTAMP()
-      )""", loginAccount.userName, repoName, isPrivate, files.head._1, description)
+      registerGist(
+        loginAccount.userName,
+        repoName,
+        isPrivate,
+        files.head._1,
+        description
+      )(Database.getSession(request))
 
       // Commit files
       using(Git.open(gitdir)){ git =>
@@ -138,12 +119,6 @@ object GistController {
       val isPrivate    = request.getParameter("private")
       val description  = request.getParameter("description")
       val gitdir       = new File(GistRepoDir, userName + "/" + repoName)
-
-      // Update record
-      getConnection(request).update("""
-        UPDATE GIST SET TITLE = ?, DESCRIPTION  = ?, UPDATED_DATE = CURRENT_TIMESTAMP()
-        WHERE USER_NAME = ? AND REPOSITORY_NAME = ?
-      """, files.head._1, description, userName, repoName)
 
       // Commit files
       using(Git.open(gitdir)){ git =>
@@ -173,9 +148,10 @@ object GistController {
       val loginAccount = context.loginAccount.get
       val gitdir = new File(GistRepoDir, userName + "/" + repoName)
 
-      val conn = getConnection(request)
-      conn.update("DELETE FROM GIST_COMMENT WHERE USER_NAME = ? AND REPOSITORY_NAME = ?", userName, repoName)
-      conn.update("DELETE FROM GIST WHERE USER_NAME = ? AND REPOSITORY_NAME = ?", userName, repoName)
+      // TODO
+//      val conn = getConnection(request)
+//      conn.update("DELETE FROM GIST_COMMENT WHERE USER_NAME = ? AND REPOSITORY_NAME = ?", userName, repoName)
+//      conn.update("DELETE FROM GIST WHERE USER_NAME = ? AND REPOSITORY_NAME = ?", userName, repoName)
 
       org.apache.commons.io.FileUtils.deleteDirectory(gitdir)
 
@@ -189,7 +165,7 @@ object GistController {
     val repoName = dim(3)
 
     if(isEditable(userName, context)){
-      getConnection(request).update("UPDATE GIST SET PRIVATE = TRUE WHERE USER_NAME = ? AND REPOSITORY_NAME = ?", userName, repoName)
+      updateGistAccessibility(userName, repoName, true)(Database.getSession(request))
     }
 
     Redirect(s"${context.path}/gist/${userName}/${repoName}")
@@ -201,15 +177,13 @@ object GistController {
     val repoName = dim(3)
 
     if(isEditable(userName, context)){
-      getConnection(request).update("UPDATE GIST SET PRIVATE = FALSE WHERE USER_NAME = ? AND REPOSITORY_NAME = ?", userName, repoName)
+      updateGistAccessibility(userName, repoName, false)(Database.getSession(request))
     }
 
     Redirect(s"${context.path}/gist/${userName}/${repoName}")
   }
 
   def _gist(request: HttpServletRequest, response: HttpServletResponse, context: Context) = {
-    val conn = getConnection(request)
-
     val dim = request.getRequestURI.split("/")
     if(dim.length == 3){
       val userName = dim(2)
@@ -219,30 +193,10 @@ object GistController {
         case s => s.toInt
       }
 
-      val result: (Seq[Gist], Int)  = if(context.loginAccount.isDefined){
-        val gists = conn.select("""
-          SELECT * FROM GIST WHERE USER_NAME = ? AND (USER_NAME = ? OR PRIVATE = FALSE)
-          ORDER BY REGISTERED_DATE DESC LIMIT ? OFFSET ?
-        """, userName, context.loginAccount.get.userName, Limit, (page - 1) * Limit)(Gist.apply)
-
-        val count = conn.selectInt("""
-          SELECT COUNT(*) AS COUNT FROM GIST WHERE USER_NAME = ? AND (USER_NAME = ? OR PRIVATE = FALSE)
-        """, userName, context.loginAccount.get.userName)
-
-        (gists, count)
-
-      } else {
-        val gists = conn.select("""
-          SELECT * FROM GIST WHERE USER_NAME = ? AND PRIVATE = FALSE ORDER BY REGISTERED_DATE DESC
-          LIMIT ? OFFSET ?
-        """, userName, Limit, (page - 1) * Limit)(Gist.apply)
-
-        val count = conn.selectInt("""
-          SELECT COUNT(*) AS COUNT FROM GIST WHERE USER_NAME = ? AND PRIVATE = FALSE
-        """, userName)
-
-        (gists, count)
-      }
+      val result: (Seq[Gist], Int)  = (
+        getUserGists(userName, context.loginAccount.map(_.userName), (page - 1) * Limit, Limit)(Database.getSession(request)),
+        countUserGists(userName, context.loginAccount.map(_.userName))(Database.getSession(request))
+      )
 
       val gists: Seq[(Gist, String)] = result._1.map { gist =>
         val repoName = gist.repositoryName
@@ -250,8 +204,7 @@ object GistController {
         if(gitdir.exists){
           using(Git.open(gitdir)){ git =>
             val source: String = JGitUtil.getFileList(git, "master", ".").map { file =>
-              StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
-                .split("\n").take(9).mkString("\n")
+              StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
             }.head
 
             (gist, source)
@@ -261,8 +214,7 @@ object GistController {
         }
       }
 
-      val fullName = conn.select("SELECT FULL_NAME FROM ACCOUNT WHERE USER_NAME = ?", userName)(_.getString("FULL_NAME")).head
-
+      val fullName = getAccountByUserName(userName)(Database.getSession(request)).get.fullName
       gist.html.list(Some(GistUser(userName, fullName)), gists, page, page * Limit < result._2)(context) // TODO Paging
 
     } else {
@@ -271,8 +223,7 @@ object GistController {
       val gitdir = new File(GistRepoDir, userName + "/" + repoName)
       if(gitdir.exists){
         using(Git.open(gitdir)){ git =>
-          val gist = conn.select(
-            "SELECT * FROM GIST WHERE USER_NAME = ? AND REPOSITORY_NAME = ?", userName, repoName)(Gist.apply).head
+          val gist = getGist(userName, repoName)(Database.getSession(request)).get
 
           if(!gist.isPrivate || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
             val files: Seq[(String, String)] = JGitUtil.getFileList(git, "master", ".").map { file =>
@@ -287,10 +238,6 @@ object GistController {
       }
     }
   }
-
-  // TODO Provide from GitBucket core
-  private def getConnection(request: HttpServletRequest): java.sql.Connection =
-    request.getAttribute(Keys.Request.DBSession).asInstanceOf[slick.jdbc.JdbcBackend.Session].conn
 
   private def isEditable(userName: String, context: app.Context): Boolean = {
     context.loginAccount.map { loginAccount =>
