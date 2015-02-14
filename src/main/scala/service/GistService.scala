@@ -1,10 +1,10 @@
 package service
 
-import model.{Profile, GistComponent, Gist}
-import model.Profile._
+import model.Gist
+import model.GistProfile._
 import profile.simple._
 
-trait GistService extends GistComponent { self: Profile =>
+trait GistService {
 
   def getRecentGists(userName: String, offset: Int, limit: Int)(implicit s: Session): List[Gist] =
     Gists.filter(_.userName === userName.bind).sortBy(_.registeredDate desc).drop(offset).take(limit).list
@@ -34,13 +34,13 @@ trait GistService extends GistComponent { self: Profile =>
     Gists.filter(t => (t.userName === userName.bind) && (t.repositoryName === repositoryName.bind)).firstOption
 
   def registerGist(userName: String, repositoryName: String, isPrivate: Boolean, title: String, description: String)(implicit s: Session): Unit =
-    Gists.insert(Gist(userName, repositoryName, isPrivate, title, description, "", ""))
+    Gists.insert(Gist(userName, repositoryName, isPrivate, title, description, new java.util.Date(), new java.util.Date()))
 
   def updateGist(userName: String, repositoryName: String, isPrivate: Boolean, title: String, description: String)(implicit s: Session): Unit =
     Gists
       .filter(t => (t.userName === userName.bind) && (t.repositoryName === repositoryName.bind))
       .map(t => (t.title, t.description, t.updatedDate))
-      .update(title, description, "")
+      .update(title, description, new java.util.Date())
 
   def updateGistAccessibility(userName: String, repositoryName: String, isPrivate: Boolean)(implicit s: Session): Unit =
     Gists
@@ -49,7 +49,7 @@ trait GistService extends GistComponent { self: Profile =>
       .update(isPrivate)
 
 
-//  def deleteGist(userName: String, repositoryName: String, isPrivate: Boolean, title: String, description: String): Unit =
-//    Gists.filter(t => (t.userName === userName.bind) && (t.repositoryName === repositoryName.bind)).delete
+  def deleteGist(userName: String, repositoryName: String)(implicit s: Session): Unit =
+    Gists.filter(t => (t.userName === userName.bind) && (t.repositoryName === repositoryName.bind)).delete
 
 }

@@ -1,7 +1,7 @@
 package app
 
 import java.io.File
-import model.{Profile, GistUser, Gist, Account}
+import model.{GistUser, Gist, Account}
 import service.{AccountService, GistService}
 import servlet.Database
 import util.{JGitUtil, StringUtil}
@@ -15,9 +15,8 @@ import plugin.Results._
 
 import scala.slick.jdbc.JdbcBackend
 
-object GistController extends GistService with AccountService with model.Profile {
+object GistController extends GistService with AccountService {
 
-  val profile = slick.driver.H2Driver
   implicit def request2Session(request: HttpServletRequest): JdbcBackend#Session = Database.getSession(request)
 
   def list(request: HttpServletRequest, response: HttpServletResponse, context: Context) = {
