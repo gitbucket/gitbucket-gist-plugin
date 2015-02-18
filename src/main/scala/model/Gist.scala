@@ -9,7 +9,7 @@ trait GistComponent { self: Profile =>
   class Gists(tag: Tag) extends Table[Gist](tag, "GIST") {
     val userName       = column[String]("USER_NAME")
     val repositoryName = column[String]("REPOSITORY_NAME")
-    val isPrivate      = column[Boolean]("IS_PRIVATE")
+    val isPrivate      = column[Boolean]("PRIVATE")
     val title          = column[String]("TITLE")
     val description    = column[String]("DESCRIPTION")
     val registeredDate = column[java.util.Date]("REGISTERED_DATE")
