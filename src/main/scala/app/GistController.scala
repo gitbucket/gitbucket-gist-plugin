@@ -4,7 +4,7 @@ import java.io.File
 import jp.sf.amateras.scalatra.forms._
 import model.{GistUser, Gist, Account}
 import service.{AccountService, GistService}
-import util.{JGitUtil, StringUtil}
+import util.{UsersAuthenticator, GistEditorAuthenticator, JGitUtil, StringUtil}
 import util.ControlUtil._
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib._
@@ -13,12 +13,12 @@ import util.Implicits._
 import util.Configurations._
 
 class GistController extends GistControllerBase with GistService with AccountService
+  with GistEditorAuthenticator with UsersAuthenticator
 
 trait GistControllerBase extends ControllerBase {
-  self: GistService with AccountService =>
+  self: GistService with AccountService with GistEditorAuthenticator with UsersAuthenticator =>
 
   get("/gist"){
-    println("/gist")
     if(context.loginAccount.isDefined){
       val gists = getRecentGists(context.loginAccount.get.userName, 0, 4)
       gist.html.edit(gists, None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))(context)
@@ -49,29 +49,21 @@ trait GistControllerBase extends ControllerBase {
     }
   }
 
-  get("/gist/:userName/:repoName/edit"){
-    println("/edit")
-    val dim = request.getRequestURI.split("/")
+  get("/gist/:userName/:repoName/edit")(editorOnly {
     val userName = params("userName")
     val repoName = params("repoName")
-
-    if(isEditable(userName)){
-      val gitdir = new File(GistRepoDir, userName + "/" + repoName)
-      if(gitdir.exists){
-        using(Git.open(gitdir)){ git =>
-          val files: Seq[(String, JGitUtil.ContentInfo)] = JGitUtil.getFileList(git, "master", ".").map { file =>
-            file.name -> JGitUtil.getContentInfo(git, file.name, file.id)
-          }
-          _root_.gist.html.edit(Nil, getGist(userName, repoName), files)
+    val gitdir   = new File(GistRepoDir, userName + "/" + repoName)
+    if(gitdir.exists){
+      using(Git.open(gitdir)){ git =>
+        val files: Seq[(String, JGitUtil.ContentInfo)] = JGitUtil.getFileList(git, "master", ".").map { file =>
+          file.name -> JGitUtil.getContentInfo(git, file.name, file.id)
         }
+        _root_.gist.html.edit(Nil, getGist(userName, repoName), files)
       }
-    } else {
-      // TODO Permission Error
     }
-  }
+  })
 
-  post("/gist/_new"){
-    println("/_new")
+  post("/gist/_new")(usersOnly {
     if(context.loginAccount.isDefined){
       val loginAccount = context.loginAccount.get
       val files        = getFileParameters(true)
@@ -100,10 +92,9 @@ trait GistControllerBase extends ControllerBase {
 
       redirect(s"/gist/${loginAccount.userName}/${repoName}")
     }
-  }
+  })
 
-  post("/gist/:userName/:repoName/edit"){
-    val dim = request.getRequestURI.split("/")
+  post("/gist/:userName/:repoName/edit")(editorOnly {
     val userName = params("userName")
     val repoName = params("repoName")
 
@@ -132,10 +123,9 @@ trait GistControllerBase extends ControllerBase {
     } else {
       // TODO Permission Error
     }
-  }
+  })
 
-  get("/gist/:userName/:repoName/delete"){
-    println("/delete")
+  get("/gist/:userName/:repoName/delete")(editorOnly {
     val userName = params("userName")
     val repoName = params("repoName")
 
@@ -152,10 +142,9 @@ trait GistControllerBase extends ControllerBase {
 
       redirect(s"${context.path}/gist/${userName}")
     }
-  }
+  })
 
-  get("/gist/:userName/:repoName/secret"){
-    println("/secret")
+  get("/gist/:userName/:repoName/secret")(editorOnly {
     val userName = params("userName")
     val repoName = params("repoName")
 
@@ -164,10 +153,9 @@ trait GistControllerBase extends ControllerBase {
     }
 
     redirect(s"${context.path}/gist/${userName}/${repoName}")
-  }
+  })
 
-  get("/gist/:userName/:repoName/public"){
-    println("/public")
+  get("/gist/:userName/:repoName/public")(editorOnly {
     val userName = params("userName")
     val repoName = params("repoName")
 
@@ -176,20 +164,17 @@ trait GistControllerBase extends ControllerBase {
     }
 
     redirect(s"${context.path}/gist/${userName}/${repoName}")
-  }
+  })
 
   get("/gist/:userName/:repoName"){
-    println("/user/repo")
     _gist(params("userName"), Some(params("repoName")))
   }
 
   get("/gist/:userName"){
-    println("/user")
     _gist(params("userName"))
   }
 
   get("/gist/_add"){
-    println("/_add")
     val count = params("count").toInt
     gist.html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))
   }
