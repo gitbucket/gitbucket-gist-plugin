@@ -66,31 +66,37 @@ trait GistControllerBase extends ControllerBase {
   post("/gist/_new")(usersOnly {
     if(context.loginAccount.isDefined){
       val loginAccount = context.loginAccount.get
-      val files        = getFileParameters(true)
-      val isPrivate    = params("private").toBoolean
-      val description  = params("description")
+      val files = getFileParameters(true)
 
-      // Create new repository
-      val repoName = StringUtil.md5(loginAccount.userName + " " + view.helpers.datetime(new java.util.Date()))
-      val gitdir   = new File(GistRepoDir, loginAccount.userName + "/" + repoName)
-      gitdir.mkdirs()
-      JGitUtil.initRepository(gitdir)
+      if(files.isEmpty){
+        redirect(s"/gist")
 
-      // Insert record
-      registerGist(
-        loginAccount.userName,
-        repoName,
-        isPrivate,
-        files.head._1,
-        description
-      )
+      } else {
+        val isPrivate    = params("private").toBoolean
+        val description  = params("description")
 
-      // Commit files
-      using(Git.open(gitdir)){ git =>
-        commitFiles(git, loginAccount, "Initial commit", files)
+        // Create new repository
+        val repoName = StringUtil.md5(loginAccount.userName + " " + view.helpers.datetime(new java.util.Date()))
+        val gitdir   = new File(GistRepoDir, loginAccount.userName + "/" + repoName)
+        gitdir.mkdirs()
+        JGitUtil.initRepository(gitdir)
+
+        // Insert record
+        registerGist(
+          loginAccount.userName,
+          repoName,
+          isPrivate,
+          files.head._1,
+          description
+        )
+
+        // Commit files
+        using(Git.open(gitdir)){ git =>
+          commitFiles(git, loginAccount, "Initial commit", files)
+        }
+
+        redirect(s"/gist/${loginAccount.userName}/${repoName}")
       }
-
-      redirect(s"/gist/${loginAccount.userName}/${repoName}")
     }
   })
 
@@ -239,15 +245,12 @@ trait GistControllerBase extends ControllerBase {
   }
 
   private def getFileParameters(flatten: Boolean): Seq[(String, String)] = {
-    val count = request.getParameter("count").toInt
+    val count = params("count").toInt
     if(flatten){
       (0 to count - 1).flatMap { i =>
-        val fileName = request.getParameter(s"fileName-${i}")
-        val content  = request.getParameter(s"content-${i}")
-        if(fileName.nonEmpty && content.nonEmpty){
-          Some((fileName, content))
-        } else {
-          None
+        (params.get(s"fileName-${i}"), params.get(s"content-${i}")) match {
+          case (Some(fileName), Some(content)) if(fileName.nonEmpty && content.nonEmpty) => Some((fileName, content))
+          case _ => None
         }
       }
     } else {

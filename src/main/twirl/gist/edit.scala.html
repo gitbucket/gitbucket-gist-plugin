@@ -100,9 +100,10 @@
     });
 
     $('.submit_snippet').click(function(){
-      @files.zipWithIndex.map { case ((fileName, content), i) =>
-        var editor = ace.edit('editor-@i');
-        $('#content-@i').val(editor.getValue());
+      var count = $('#count').val();
+      var editor = null;
+      for(var i = 0; i < count; i++){
+        $('#content-' + i).val(ace.edit('editor-' + i).getValue());
       }
     });
 
