@@ -249,7 +249,7 @@ trait GistControllerBase extends ControllerBase {
     if(flatten){
       (0 to count - 1).flatMap { i =>
         (params.get(s"fileName-${i}"), params.get(s"content-${i}")) match {
-          case (Some(fileName), Some(content)) if(fileName.nonEmpty && content.nonEmpty) => Some((fileName, content))
+          case (Some(fileName), Some(content)) if(content.nonEmpty) => Some((if(fileName.isEmpty) s"gistfile${i + 1}.txt" else fileName, content))
           case _ => None
         }
       }
@@ -257,11 +257,7 @@ trait GistControllerBase extends ControllerBase {
       (0 to count - 1).map { i =>
         val fileName = request.getParameter(s"fileName-${i}")
         val content  = request.getParameter(s"content-${i}")
-        if(fileName.nonEmpty && content.nonEmpty){
-          (fileName, content)
-        } else {
-          ("", "")
-        }
+        (if(fileName.isEmpty) s"gistfile${i + 1}.txt" else fileName, content)
       }
     }
   }
