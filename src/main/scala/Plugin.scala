@@ -13,7 +13,7 @@ class Plugin extends plugin.Plugin {
   override val description: String = "Provides Gist feature on GitBucket."
   override val versions: List[Version] = List(Version(1, 0))
 
-  override def initialize(context: ServletContext, registry: PluginRegistry): Unit = {
+  override def initialize(registry: PluginRegistry): Unit = {
     // Add Snippet link to the header
     registry.addJavaScript(".*",
       """
@@ -26,11 +26,11 @@ class Plugin extends plugin.Plugin {
     }
 
     // Mount controller
-    context.mount(new GistController, "/*")
+    registry.addController(new GistController, "/*")
 
     println("-- Gist plug-in initialized --")
   }
 
-  override def shutdown(context: ServletContext, registry: PluginRegistry): Unit = {
+  override def shutdown(registry: PluginRegistry): Unit = {
   }
 }
