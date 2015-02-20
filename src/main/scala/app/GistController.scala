@@ -1,36 +1,34 @@
 package app
 
 import java.io.File
+import jp.sf.amateras.scalatra.forms._
 import model.{GistUser, Gist, Account}
 import service.{AccountService, GistService}
-import servlet.Database
 import util.{JGitUtil, StringUtil}
 import util.ControlUtil._
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib._
 import org.eclipse.jgit.dircache.DirCache
+import util.Implicits._
 import util.Configurations._
 import plugin.Results._
 
-import scala.slick.jdbc.JdbcBackend
+class GistController extends GistControllerBase with GistService with AccountService
 
-object GistController extends GistService with AccountService {
+trait GistControllerBase extends ControllerBase {
+  self: GistService with AccountService =>
 
-  implicit def request2Session(request: HttpServletRequest): JdbcBackend#Session = Database.getSession(request)
-
-  def list(request: HttpServletRequest, response: HttpServletResponse, context: Context) = {
-
+  get("/gist"){
     if(context.loginAccount.isDefined){
-      val gists = getRecentGists(context.loginAccount.get.userName, 0, 4)(Database.getSession(request)) // TODO Why implicit conversion does not work?
+      val gists = getRecentGists(context.loginAccount.get.userName, 0, 4)
       gist.html.edit(gists, None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))(context)
     } else {
       val page = request.getParameter("page") match {
         case ""|null => 1
         case s => s.toInt
       }
-      val result = getPublicGists((page - 1) * Limit, Limit)(Database.getSession(request))
-      val count  = countPublicGists()(Database.getSession(request))
+      val result = getPublicGists((page - 1) * Limit, Limit)
+      val count  = countPublicGists()
 
       val gists: Seq[(Gist, String)] = result.map { gist =>
         val gitdir = new File(GistRepoDir, gist.userName + "/" + gist.repositoryName)
@@ -51,19 +49,19 @@ object GistController extends GistService with AccountService {
     }
   }
 
-  def edit(request: HttpServletRequest, response: HttpServletResponse, context: Context) = {
+  get("/gist/:userName/:repoName/edit"){
     val dim = request.getRequestURI.split("/")
-    val userName = dim(2)
-    val repoName = dim(3)
+    val userName = params("userName")
+    val repoName = params("repoName")
 
-    if(isEditable(userName, context)){
+    if(isEditable(userName)){
       val gitdir = new File(GistRepoDir, userName + "/" + repoName)
       if(gitdir.exists){
         using(Git.open(gitdir)){ git =>
           val files: Seq[(String, JGitUtil.ContentInfo)] = JGitUtil.getFileList(git, "master", ".").map { file =>
             file.name -> JGitUtil.getContentInfo(git, file.name, file.id)
           }
-          _root_.gist.html.edit(Nil, getGist(userName, repoName)(Database.getSession(request)), files)(context)
+          _root_.gist.html.edit(Nil, getGist(userName, repoName), files)(context)
         }
       }
     } else {
@@ -71,17 +69,17 @@ object GistController extends GistService with AccountService {
     }
   }
 
-  def add(request: HttpServletRequest, response: HttpServletResponse, context: Context) = {
-    val count = request.getParameter("count").toInt
+  get("/gist/_add"){
+    val count = params("count").toInt
     Fragment(gist.html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))(context))
   }
 
-  def _new(request: HttpServletRequest, response: HttpServletResponse, context: Context) = {
+  get("/gist/_new"){
     if(context.loginAccount.isDefined){
       val loginAccount = context.loginAccount.get
-      val files        = getFileParameters(request, true)
-      val isPrivate    = request.getParameter("private").toBoolean
-      val description  = request.getParameter("description")
+      val files        = getFileParameters(true)
+      val isPrivate    = params("private").toBoolean
+      val description  = params("description")
 
       // Create new repository
       val repoName = StringUtil.md5(loginAccount.userName + " " + view.helpers.datetime(new java.util.Date()))
@@ -96,7 +94,7 @@ object GistController extends GistService with AccountService {
         isPrivate,
         files.head._1,
         description
-      )(Database.getSession(request))
+      )
 
       // Commit files
       using(Git.open(gitdir)){ git =>
@@ -107,16 +105,17 @@ object GistController extends GistService with AccountService {
     }
   }
 
-  def _edit(request: HttpServletRequest, response: HttpServletResponse, context: Context) = {
+  post("/gist/:userName/:repoName/edit"){
     val dim = request.getRequestURI.split("/")
-    val userName = dim(2)
-    val repoName = dim(3)
+    val userName = params("userName")
+    val repoName = params("repoName")
 
-    if(isEditable(userName, context)){
+    if(isEditable(userName)){
       val loginAccount = context.loginAccount.get
-      val files        = getFileParameters(request, true)
-      val isPrivate    = request.getParameter("private")
-      val description  = request.getParameter("description")
+      val files        = getFileParameters(true)
+      // TODO Save isPrivate and description
+      val isPrivate    = params("private")
+      val description  = params("description")
       val gitdir       = new File(GistRepoDir, userName + "/" + repoName)
 
       // Commit files
@@ -138,12 +137,11 @@ object GistController extends GistService with AccountService {
     }
   }
 
-  def delete(request: HttpServletRequest, response: HttpServletResponse, context: Context) = {
-    val dim = request.getRequestURI.split("/")
-    val userName = dim(2)
-    val repoName = dim(3)
+  get("/gist/:userName/:repoName/delete"){
+    val userName = params("userName")
+    val repoName = params("repoName")
 
-    if(isEditable(userName, context)){
+    if(isEditable(userName)){
       val loginAccount = context.loginAccount.get
       val gitdir = new File(GistRepoDir, userName + "/" + repoName)
 
@@ -158,93 +156,96 @@ object GistController extends GistService with AccountService {
     }
   }
 
-  def secret(request: HttpServletRequest, response: HttpServletResponse, context: Context) = {
-    val dim = request.getRequestURI.split("/")
-    val userName = dim(2)
-    val repoName = dim(3)
+  get("/gist/:userName/:repoName/secret"){
+    val userName = params("userName")
+    val repoName = params("repoName")
 
-    if(isEditable(userName, context)){
-      updateGistAccessibility(userName, repoName, true)(Database.getSession(request))
+    if(isEditable(userName)){
+      updateGistAccessibility(userName, repoName, true)
     }
 
     Redirect(s"${context.path}/gist/${userName}/${repoName}")
   }
 
-  def public(request: HttpServletRequest, response: HttpServletResponse, context: Context) = {
-    val dim = request.getRequestURI.split("/")
-    val userName = dim(2)
-    val repoName = dim(3)
+  get("/gist/:userName/:repoName/public"){
+    val userName = params("userName")
+    val repoName = params("repoName")
 
-    if(isEditable(userName, context)){
-      updateGistAccessibility(userName, repoName, false)(Database.getSession(request))
+    if(isEditable(userName)){
+      updateGistAccessibility(userName, repoName, false)
     }
 
     Redirect(s"${context.path}/gist/${userName}/${repoName}")
   }
 
-  def _gist(request: HttpServletRequest, response: HttpServletResponse, context: Context) = {
-    val dim = request.getRequestURI.split("/")
-    if(dim.length == 3){
-      val userName = dim(2)
+  get("/gist/:userName/:repoName"){
+    _gist(params("userName"), Some(params("repoName")))
+  }
 
-      val page = request.getParameter("page") match {
-        case ""|null => 1
-        case s => s.toInt
+  get("/gist/:userName"){
+    _gist(params("userName"))
+  }
+
+  private def _gist(userName: String, repoName: Option[String] = None) = {
+    repoName match {
+      case None => {
+        val page = params("page") match {
+          case ""|null => 1
+          case s => s.toInt
+        }
+
+        val result: (Seq[Gist], Int)  = (
+          getUserGists(userName, context.loginAccount.map(_.userName), (page - 1) * Limit, Limit),
+          countUserGists(userName, context.loginAccount.map(_.userName))
+        )
+
+        val gists: Seq[(Gist, String)] = result._1.map { gist =>
+          val repoName = gist.repositoryName
+          val gitdir = new File(GistRepoDir, userName + "/" + repoName)
+          if(gitdir.exists){
+            using(Git.open(gitdir)){ git =>
+              val source: String = JGitUtil.getFileList(git, "master", ".").map { file =>
+                StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
+              }.head
+
+              (gist, source)
+            }
+          } else {
+            (gist, "Repository is not found!")
+          }
+        }
+
+        val fullName = getAccountByUserName(userName).get.fullName
+        gist.html.list(Some(GistUser(userName, fullName)), gists, page, page * Limit < result._2)(context) // TODO Paging
       }
-
-      val result: (Seq[Gist], Int)  = (
-        getUserGists(userName, context.loginAccount.map(_.userName), (page - 1) * Limit, Limit)(Database.getSession(request)),
-        countUserGists(userName, context.loginAccount.map(_.userName))(Database.getSession(request))
-      )
-
-      val gists: Seq[(Gist, String)] = result._1.map { gist =>
-        val repoName = gist.repositoryName
+      case Some(repoName) => {
         val gitdir = new File(GistRepoDir, userName + "/" + repoName)
         if(gitdir.exists){
           using(Git.open(gitdir)){ git =>
-            val source: String = JGitUtil.getFileList(git, "master", ".").map { file =>
-              StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
-            }.head
+            val gist = getGist(userName, repoName).get
 
-            (gist, source)
-          }
-        } else {
-          (gist, "Repository is not found!")
-        }
-      }
+            if(!gist.isPrivate || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
+              val files: Seq[(String, String)] = JGitUtil.getFileList(git, "master", ".").map { file =>
+                file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
+              }
 
-      val fullName = getAccountByUserName(userName)(Database.getSession(request)).get.fullName
-      gist.html.list(Some(GistUser(userName, fullName)), gists, page, page * Limit < result._2)(context) // TODO Paging
-
-    } else {
-      val userName = dim(2)
-      val repoName = dim(3)
-      val gitdir = new File(GistRepoDir, userName + "/" + repoName)
-      if(gitdir.exists){
-        using(Git.open(gitdir)){ git =>
-          val gist = getGist(userName, repoName)(Database.getSession(request)).get
-
-          if(!gist.isPrivate || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
-            val files: Seq[(String, String)] = JGitUtil.getFileList(git, "master", ".").map { file =>
-              file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
+              _root_.gist.html.detail("code", gist, files, isEditable(userName))(context)
+            } else {
+              // TODO Permission Error
             }
-
-            _root_.gist.html.detail("code", gist, files, isEditable(userName, context))(context)
-          } else {
-            // TODO Permission Error
           }
         }
       }
     }
   }
 
-  private def isEditable(userName: String, context: app.Context): Boolean = {
+  private def isEditable(userName: String): Boolean = {
     context.loginAccount.map { loginAccount =>
       loginAccount.isAdmin || loginAccount.userName == userName
     }.getOrElse(false)
   }
 
-  private def getFileParameters(request: javax.servlet.http.HttpServletRequest, flatten: Boolean): Seq[(String, String)] = {
+  private def getFileParameters(flatten: Boolean): Seq[(String, String)] = {
     val count = request.getParameter("count").toInt
     if(flatten){
       (0 to count - 1).flatMap { i =>
