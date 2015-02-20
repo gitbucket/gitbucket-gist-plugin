@@ -5,7 +5,6 @@ import plugin.PluginRegistry
 import util.Version
 import java.io.File
 import util.Configurations._
-import org.scalatra.servlet.ServletApiImplicits._
 
 class Plugin extends plugin.Plugin {
   override val pluginId: String = "gist"

@@ -11,7 +11,6 @@ import org.eclipse.jgit.lib._
 import org.eclipse.jgit.dircache.DirCache
 import util.Implicits._
 import util.Configurations._
-import plugin.Results._
 
 class GistController extends GistControllerBase with GistService with AccountService
 
@@ -19,6 +18,7 @@ trait GistControllerBase extends ControllerBase {
   self: GistService with AccountService =>
 
   get("/gist"){
+    println("/gist")
     if(context.loginAccount.isDefined){
       val gists = getRecentGists(context.loginAccount.get.userName, 0, 4)
       gist.html.edit(gists, None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))(context)
@@ -45,11 +45,12 @@ trait GistControllerBase extends ControllerBase {
         }
       }
 
-      gist.html.list(None, gists, page, page * Limit < count)(context)
+      gist.html.list(None, gists, page, page * Limit < count)
     }
   }
 
   get("/gist/:userName/:repoName/edit"){
+    println("/edit")
     val dim = request.getRequestURI.split("/")
     val userName = params("userName")
     val repoName = params("repoName")
@@ -61,7 +62,7 @@ trait GistControllerBase extends ControllerBase {
           val files: Seq[(String, JGitUtil.ContentInfo)] = JGitUtil.getFileList(git, "master", ".").map { file =>
             file.name -> JGitUtil.getContentInfo(git, file.name, file.id)
           }
-          _root_.gist.html.edit(Nil, getGist(userName, repoName), files)(context)
+          _root_.gist.html.edit(Nil, getGist(userName, repoName), files)
         }
       }
     } else {
@@ -69,12 +70,8 @@ trait GistControllerBase extends ControllerBase {
     }
   }
 
-  get("/gist/_add"){
-    val count = params("count").toInt
-    Fragment(gist.html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))(context))
-  }
-
-  get("/gist/_new"){
+  post("/gist/_new"){
+    println("/_new")
     if(context.loginAccount.isDefined){
       val loginAccount = context.loginAccount.get
       val files        = getFileParameters(true)
@@ -101,7 +98,7 @@ trait GistControllerBase extends ControllerBase {
         commitFiles(git, loginAccount, "Initial commit", files)
       }
 
-      Redirect(s"/gist/${loginAccount.userName}/${repoName}")
+      redirect(s"/gist/${loginAccount.userName}/${repoName}")
     }
   }
 
@@ -114,7 +111,7 @@ trait GistControllerBase extends ControllerBase {
       val loginAccount = context.loginAccount.get
       val files        = getFileParameters(true)
       // TODO Save isPrivate and description
-      val isPrivate    = params("private")
+      //val isPrivate    = params("private")
       val description  = params("description")
       val gitdir       = new File(GistRepoDir, userName + "/" + repoName)
 
@@ -131,13 +128,14 @@ trait GistControllerBase extends ControllerBase {
         refUpdate.update()
       }
 
-      Redirect(s"${context.path}/gist/${loginAccount.userName}/${repoName}")
+      redirect(s"${context.path}/gist/${loginAccount.userName}/${repoName}")
     } else {
       // TODO Permission Error
     }
   }
 
   get("/gist/:userName/:repoName/delete"){
+    println("/delete")
     val userName = params("userName")
     val repoName = params("repoName")
 
@@ -152,11 +150,12 @@ trait GistControllerBase extends ControllerBase {
 
       org.apache.commons.io.FileUtils.deleteDirectory(gitdir)
 
-      Redirect(s"${context.path}/gist/${userName}")
+      redirect(s"${context.path}/gist/${userName}")
     }
   }
 
   get("/gist/:userName/:repoName/secret"){
+    println("/secret")
     val userName = params("userName")
     val repoName = params("repoName")
 
@@ -164,10 +163,11 @@ trait GistControllerBase extends ControllerBase {
       updateGistAccessibility(userName, repoName, true)
     }
 
-    Redirect(s"${context.path}/gist/${userName}/${repoName}")
+    redirect(s"${context.path}/gist/${userName}/${repoName}")
   }
 
   get("/gist/:userName/:repoName/public"){
+    println("/public")
     val userName = params("userName")
     val repoName = params("repoName")
 
@@ -175,23 +175,31 @@ trait GistControllerBase extends ControllerBase {
       updateGistAccessibility(userName, repoName, false)
     }
 
-    Redirect(s"${context.path}/gist/${userName}/${repoName}")
+    redirect(s"${context.path}/gist/${userName}/${repoName}")
   }
 
   get("/gist/:userName/:repoName"){
+    println("/user/repo")
     _gist(params("userName"), Some(params("repoName")))
   }
 
   get("/gist/:userName"){
+    println("/user")
     _gist(params("userName"))
+  }
+
+  get("/gist/_add"){
+    println("/_add")
+    val count = params("count").toInt
+    gist.html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))
   }
 
   private def _gist(userName: String, repoName: Option[String] = None) = {
     repoName match {
       case None => {
-        val page = params("page") match {
-          case ""|null => 1
-          case s => s.toInt
+        val page = params.get("page") match {
+          case Some("")|None => 1
+          case Some(s) => s.toInt
         }
 
         val result: (Seq[Gist], Int)  = (

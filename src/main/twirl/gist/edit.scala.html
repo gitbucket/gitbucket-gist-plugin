@@ -43,30 +43,30 @@
   </div>
   <hr style="margin-bottom: 20px;"/>
   <div class="container body">
-      <form id="form" method="POST" action="#">
-        <input type="text" name="description" id="description" style="width: 900px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
-        <div id="editors">
-          @files.zipWithIndex.map { case ((fileName, content), i) =>
-            @editor(i, fileName, content)
+    <form id="form" method="POST" action="#">
+      <input type="text" name="description" id="description" style="width: 900px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
+      <div id="editors">
+        @files.zipWithIndex.map { case ((fileName, content), i) =>
+          @editor(i, fileName, content)
+        }
+      </div>
+      <div>
+        <input type="button" value="Add file" class="btn" id="add_file">
+        <div class="pull-right">
+          @if(gist.isDefined){
+            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn">Cancel</a>
+            <input type="submit" value="Update" class="btn btn-success submit_snippet" id="update_snippet">
+          } else {
+            <input type="submit" value="Create private Snippet" class="btn submit_snippet" id="create_private_snippet">
+            <input type="submit" value="Create public Snippet" class="btn submit_snippet" id="create_public_snippet">
           }
         </div>
-        <div>
-          <input type="button" value="Add file" class="btn" id="add_file">
-          <div class="pull-right">
-            @if(gist.isDefined){
-              <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn">Cancel</a>
-              <input type="submit" value="Update" class="btn btn-success submit_snippet" id="update_snippet">
-            } else {
-              <input type="submit" value="Create private Snippet" class="btn submit_snippet" id="create_private_snippet">
-              <input type="submit" value="Create public Snippet" class="btn submit_snippet" id="create_public_snippet">
-            }
-          </div>
-        </div>
-        @if(gist.isEmpty){
-          <input type="hidden" id="private" name="private" value="false"/>
-        }
-        <input type="hidden" id="count" name="count" value="@files.size"/>
-      </form>
+      </div>
+      @if(gist.isEmpty){
+        <input type="hidden" id="private" name="private" value="false"/>
+      }
+      <input type="hidden" id="count" name="count" value="@files.size"/>
+    </form>
   </div>
 
   <script src="@assets/vendors/ace/ace.js" type="text/javascript" charset="utf-8"></script>
