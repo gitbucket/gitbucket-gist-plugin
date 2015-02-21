@@ -4,6 +4,7 @@ import java.io.File
 import jp.sf.amateras.scalatra.forms._
 import model.{GistUser, Gist, Account}
 import service.{AccountService, GistService}
+import util.Directory._
 import util.{UsersAuthenticator, GistEditorAuthenticator, JGitUtil, StringUtil}
 import util.ControlUtil._
 import org.eclipse.jgit.api.Git
@@ -104,31 +105,27 @@ trait GistControllerBase extends ControllerBase {
     val userName = params("userName")
     val repoName = params("repoName")
 
-    if(isEditable(userName)){
-      val loginAccount = context.loginAccount.get
-      val files        = getFileParameters(true)
-      // TODO Save isPrivate and description
-      //val isPrivate    = params("private")
-      val description  = params("description")
-      val gitdir       = new File(GistRepoDir, userName + "/" + repoName)
+    val loginAccount = context.loginAccount.get
+    val files        = getFileParameters(true)
+    // TODO Save isPrivate and description
+    //val isPrivate    = params("private")
+    val description  = params("description")
+    val gitdir       = new File(GistRepoDir, userName + "/" + repoName)
 
-      // Commit files
-      using(Git.open(gitdir)){ git =>
-        val commitId = commitFiles(git, loginAccount, "Update", files)
+    // Commit files
+    using(Git.open(gitdir)){ git =>
+      val commitId = commitFiles(git, loginAccount, "Update", files)
 
-        // update refs
-        val refUpdate = git.getRepository.updateRef(Constants.HEAD)
-        refUpdate.setNewObjectId(commitId)
-        refUpdate.setForceUpdate(false)
-        refUpdate.setRefLogIdent(new org.eclipse.jgit.lib.PersonIdent(loginAccount.fullName, loginAccount.mailAddress))
-        //refUpdate.setRefLogMessage("merged", true)
-        refUpdate.update()
-      }
-
-      redirect(s"${context.path}/gist/${loginAccount.userName}/${repoName}")
-    } else {
-      // TODO Permission Error
+      // update refs
+      val refUpdate = git.getRepository.updateRef(Constants.HEAD)
+      refUpdate.setNewObjectId(commitId)
+      refUpdate.setForceUpdate(false)
+      refUpdate.setRefLogIdent(new org.eclipse.jgit.lib.PersonIdent(loginAccount.fullName, loginAccount.mailAddress))
+      //refUpdate.setRefLogMessage("merged", true)
+      refUpdate.update()
     }
+
+    redirect(s"${context.path}/gist/${loginAccount.userName}/${repoName}")
   })
 
   get("/gist/:userName/:repoName/delete")(editorOnly {
@@ -174,6 +171,28 @@ trait GistControllerBase extends ControllerBase {
 
   get("/gist/:userName/:repoName"){
     _gist(params("userName"), Some(params("repoName")))
+  }
+
+  get("/gist/:userName/:repoName/revisions"){
+    val userName = params("userName")
+    val repoName = params("repoName")
+    val gitdir = new File(GistRepoDir, userName + "/" + repoName)
+
+    using(Git.open(gitdir)){ git =>
+      JGitUtil.getCommitLog(git, "master") match {
+        case Right((revisions, hasNext)) => {
+          val commits = revisions.map { revision =>
+            defining(JGitUtil.getRevCommitFromId(git, git.getRepository.resolve(revision.id))){ revCommit =>
+              JGitUtil.getDiffs(git, revision.id) match { case (diffs, oldCommitId) =>
+                (revision, diffs)
+              }
+            }
+          }
+          gist.html.revisions("revision", getGist(userName, repoName).get, isEditable(userName), commits)
+        }
+        case Left(_) => NotFound
+      }
+    }
   }
 
   get("/gist/:userName"){
@@ -228,7 +247,7 @@ trait GistControllerBase extends ControllerBase {
                 file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
               }
 
-              _root_.gist.html.detail("code", gist, files, isEditable(userName))(context)
+              _root_.gist.html.detail("code", gist, files, isEditable(userName))
             } else {
               // TODO Permission Error
             }
