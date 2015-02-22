@@ -1,6 +1,7 @@
 @(recent: Seq[model.Gist], gist: Option[model.Gist], files: Seq[(String, util.JGitUtil.ContentInfo)])(implicit context: app.Context)
 @import context._
 @import view.helpers._
+@import util.ImageUtil._
 @html.main("Snippet"){
   <div class="container">
     <div id="error"></div>
@@ -9,8 +10,15 @@
         <ul style="list-style: none; margin-left: 0px;">
         @recent.map { gist =>
           <li style="float: left; width: 200px;">
-            <a class="strong" href="@path/gist/@gist.userName/@gist.repositoryName">@gist.title</a>
-            <div class="muted">@gist.description</div>
+            <img src="@dataURI("images/snippet.png")" style="width: 24px; height: 24px;">
+            <div style="margin-left: 26px; font-size: 80%; position: relative; top: -24px; line-height: normal;">
+              <a class="strong" href="@path/gist/@gist.userName/@gist.repositoryName">@gist.title</a><br>
+              @if(gist.description.nonEmpty){
+                <span class="muted">@gist.description</span>
+              } else {
+                <span style="color: #dddddd;">No description.</span>
+              }
+            </div>
           </li>
         }
         </ul>

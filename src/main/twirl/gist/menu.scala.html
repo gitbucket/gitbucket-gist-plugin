@@ -1,16 +1,17 @@
 @(active: String, gist: model.Gist)(implicit context: app.Context)
 @import context._
 @import view.helpers._
+@import util.ImageUtil._
 
-@menuitem(path: String, name: String, label: String, count: Int = 0) = {
+@menuitem(name: String, path: String, activeImage: String, normalImage: String, label: String, count: Int = 0) = {
   <li @if(active == name){class="active"}>
     <div class="@if(active == name){margin} else {gradient} pull-left"></div>
     <a href="@context.path/gist/@path">
       @if(active == name){
-        <img src="@assets/common/images/menu-@{name}-active.png">
+        <img src="@activeImage">
       } else {
-        <img src="@assets/common/images/menu-@{name}-active.png" class="menu-icon-active" style="display:none;">
-        <img src="@assets/common/images/menu-@{name}.png"        class="menu-icon">
+        <img src="@activeImage" class="menu-icon-active" style="display:none;">
+        <img src="@normalImage" class="menu-icon">
       }
       @label
       @if(count > 0){
@@ -23,7 +24,18 @@
 <div style="width: 170px;" class="pull-right">
   <ul class="sidemenu">
     <li style="height: 12px"><div class="gradient pull-left" style="height: 12px"></div></li>
-    @menuitem(s"${gist.userName}/${gist.repositoryName}",           "code"    , "Code")
-    @menuitem(s"${gist.userName}/${gist.repositoryName}/revisions", "revision", "Revision")
+    @menuitem(
+      "code",
+      s"${gist.userName}/${gist.repositoryName}",
+      s"${assets}/common/images/menu-code-active.png",
+      s"${assets}/common/images/menu-code.png",
+      "Code")
+    @menuitem(
+      "revision",
+      s"${gist.userName}/${gist.repositoryName}/revisions",
+      dataURI("images/menu-revisions-active.png"),
+      dataURI("images/menu-revisions.png"),
+      "Revision")
+    <li style="height: 12px"><div class="gradient pull-left" style="height: 12px"></div></li>
   </ul>
 </div>

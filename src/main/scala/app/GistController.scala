@@ -137,6 +137,7 @@ trait GistControllerBase extends ControllerBase {
       val gitdir = new File(GistRepoDir, userName + "/" + repoName)
 
       // TODO
+
 //      val conn = getConnection(request)
 //      conn.update("DELETE FROM GIST_COMMENT WHERE USER_NAME = ? AND REPOSITORY_NAME = ?", userName, repoName)
 //      conn.update("DELETE FROM GIST WHERE USER_NAME = ? AND REPOSITORY_NAME = ?", userName, repoName)
