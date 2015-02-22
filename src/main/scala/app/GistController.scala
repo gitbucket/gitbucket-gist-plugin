@@ -133,15 +133,9 @@ trait GistControllerBase extends ControllerBase {
     val repoName = params("repoName")
 
     if(isEditable(userName)){
-      val loginAccount = context.loginAccount.get
+      deleteGist(userName, repoName)
+
       val gitdir = new File(GistRepoDir, userName + "/" + repoName)
-
-      // TODO
-
-//      val conn = getConnection(request)
-//      conn.update("DELETE FROM GIST_COMMENT WHERE USER_NAME = ? AND REPOSITORY_NAME = ?", userName, repoName)
-//      conn.update("DELETE FROM GIST WHERE USER_NAME = ? AND REPOSITORY_NAME = ?", userName, repoName)
-
       org.apache.commons.io.FileUtils.deleteDirectory(gitdir)
 
       redirect(s"${context.path}/gist/${userName}")

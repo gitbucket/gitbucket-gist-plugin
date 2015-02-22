@@ -49,7 +49,9 @@ trait GistService {
       .update(isPrivate)
 
 
-  def deleteGist(userName: String, repositoryName: String)(implicit s: Session): Unit =
-    Gists.filter(t => (t.userName === userName.bind) && (t.repositoryName === repositoryName.bind)).delete
+  def deleteGist(userName: String, repositoryName: String)(implicit s: Session): Unit = {
+    GistComments.filter(t => (t.userName === userName.bind) && (t.repositoryName === repositoryName.bind)).delete
+    Gists       .filter(t => (t.userName === userName.bind) && (t.repositoryName === repositoryName.bind)).delete
+  }
 
 }

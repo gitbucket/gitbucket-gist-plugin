@@ -28,12 +28,5 @@ case class Gist(
   updatedDate: java.util.Date
 )
 
-object GistProfile extends {
-  val profile = Profile.profile
-
-} with GistComponent
-  with AccountComponent with Profile {
-}
-
 
 
