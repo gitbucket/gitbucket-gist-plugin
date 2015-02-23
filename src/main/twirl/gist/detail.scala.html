@@ -1,4 +1,4 @@
-@(active: String, gist: model.Gist, files: Seq[(String, String)], editable: Boolean)(implicit context: app.Context)
+@(active: String, gist: model.Gist, revision: String, files: Seq[(String, String)], editable: Boolean)(implicit context: app.Context)
 @import context._
 @import view.helpers._
 @html.main("Snippet"){
@@ -15,7 +15,7 @@
             <th style="font-weight: normal;">
               @fileName
               <div class="pull-right">
-                <a href="@path/gist/@gist.userName/@gist.repositoryName/raw/@fileName" class="btn btn-mini">Raw</a>
+                <a href="@path/gist/@gist.userName/@gist.repositoryName/raw/@revision/@fileName" class="btn btn-mini">Raw</a>
               </div>
             </th>
           </tr>

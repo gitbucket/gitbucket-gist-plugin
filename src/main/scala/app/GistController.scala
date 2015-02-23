@@ -5,7 +5,7 @@ import jp.sf.amateras.scalatra.forms._
 import model.{GistUser, Gist, Account}
 import service.{AccountService, GistService}
 import util.Directory._
-import util.{UsersAuthenticator, GistEditorAuthenticator, JGitUtil, StringUtil}
+import util._
 import util.ControlUtil._
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib._
@@ -194,7 +194,25 @@ trait GistControllerBase extends ControllerBase {
     }
   }
 
-  get("/gist/:userName/:repoName/raw/:revision/:file"){
+  get("/gist/:userName/:repoName/raw/:revision/:fileName"){
+    val userName = params("userName")
+    val repoName = params("repoName")
+    val revision = params("revision")
+    val fileName = params("fileName")
+    val gitdir   = new File(GistRepoDir, userName + "/" + repoName)
+    if(gitdir.exists){
+      using(Git.open(gitdir)){ git =>
+        val gist = getGist(userName, repoName).get
+
+        if(!gist.isPrivate || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
+          JGitUtil.getFileList(git, revision, ".").find(_.name == fileName).map { file =>
+            defining(JGitUtil.getContentFromId(git, file.id, false).get){ bytes =>
+              RawData(FileUtil.getContentType(file.name, bytes), bytes)
+            }
+          } getOrElse NotFound
+        } else Unauthorized
+      }
+    } else NotFound
   }
 
   get("/gist/:userName"){
@@ -248,13 +266,10 @@ trait GistControllerBase extends ControllerBase {
               val files: Seq[(String, String)] = JGitUtil.getFileList(git, revision, ".").map { file =>
                 file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
               }
-
-              _root_.gist.html.detail("code", gist, files, isEditable(userName))
-            } else {
-              // TODO Permission Error
-            }
+              _root_.gist.html.detail("code", gist, revision, files, isEditable(userName))
+            } else Unauthorized
           }
-        }
+        } else NotFound
       }
     }
   }
