@@ -50,6 +50,14 @@ trait GistControllerBase extends ControllerBase {
     }
   }
 
+  get("/gist/:userName/:repoName"){
+    _gist(params("userName"), Some(params("repoName")))
+  }
+
+  get("/gist/:userName/:repoName/:revision"){
+    _gist(params("userName"), Some(params("repoName")), params("revision"))
+  }
+
   get("/gist/:userName/:repoName/edit")(editorOnly {
     val userName = params("userName")
     val repoName = params("repoName")
@@ -163,14 +171,6 @@ trait GistControllerBase extends ControllerBase {
 
     redirect(s"${context.path}/gist/${userName}/${repoName}")
   })
-
-  get("/gist/:userName/:repoName"){
-    _gist(params("userName"), Some(params("repoName")))
-  }
-
-  get("/gist/:userName/:repoName/:revision"){
-    _gist(params("userName"), Some(params("repoName")), params("revision"))
-  }
 
   get("/gist/:userName/:repoName/revisions"){
     val userName = params("userName")
