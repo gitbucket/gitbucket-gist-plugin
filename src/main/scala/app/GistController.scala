@@ -22,7 +22,7 @@ trait GistControllerBase extends ControllerBase {
   get("/gist"){
     if(context.loginAccount.isDefined){
       val gists = getRecentGists(context.loginAccount.get.userName, 0, 4)
-      gist.html.edit(gists, None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))(context)
+      gist.html.edit(gists, None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))
     } else {
       val page = request.getParameter("page") match {
         case ""|null => 1
@@ -254,7 +254,7 @@ trait GistControllerBase extends ControllerBase {
         }
 
         val fullName = getAccountByUserName(userName).get.fullName
-        gist.html.list(Some(GistUser(userName, fullName)), gists, page, page * Limit < result._2)(context) // TODO Paging
+        gist.html.list(Some(GistUser(userName, fullName)), gists, page, page * Limit < result._2)
       }
       case Some(repoName) => {
         val gitdir = new File(GistRepoDir, userName + "/" + repoName)
