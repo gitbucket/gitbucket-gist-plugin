@@ -36,7 +36,7 @@ trait GistService {
   def registerGist(userName: String, repositoryName: String, isPrivate: Boolean, title: String, description: String)(implicit s: Session): Unit =
     Gists.insert(Gist(userName, repositoryName, isPrivate, title, description, new java.util.Date(), new java.util.Date()))
 
-  def updateGist(userName: String, repositoryName: String, isPrivate: Boolean, title: String, description: String)(implicit s: Session): Unit =
+  def updateGist(userName: String, repositoryName: String, title: String, description: String)(implicit s: Session): Unit =
     Gists
       .filter(t => (t.userName === userName.bind) && (t.repositoryName === repositoryName.bind))
       .map(t => (t.title, t.description, t.updatedDate))

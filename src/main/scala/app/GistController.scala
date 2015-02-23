@@ -65,7 +65,7 @@ trait GistControllerBase extends ControllerBase {
     if(gitdir.exists){
       using(Git.open(gitdir)){ git =>
         val files: Seq[(String, JGitUtil.ContentInfo)] = JGitUtil.getFileList(git, "master", ".").map { file =>
-          file.name -> JGitUtil.getContentInfo(git, file.name, file.id)
+          (if(isGistFile(file.name)) "" else file.name) -> JGitUtil.getContentInfo(git, file.name, file.id)
         }
         _root_.gist.html.edit(Nil, getGist(userName, repoName), files)
       }
@@ -95,7 +95,7 @@ trait GistControllerBase extends ControllerBase {
           loginAccount.userName,
           repoName,
           isPrivate,
-          files.head._1,
+          getTitle(files.head._1, repoName),
           description
         )
 
@@ -115,12 +115,18 @@ trait GistControllerBase extends ControllerBase {
 
     val loginAccount = context.loginAccount.get
     val files        = getFileParameters(true)
-    // TODO Save isPrivate and description
-    //val isPrivate    = params("private")
     val description  = params("description")
-    val gitdir       = new File(GistRepoDir, userName + "/" + repoName)
+
+    // Update database
+    updateGist(
+      userName,
+      repoName,
+      getTitle(files.head._1, repoName),
+      description
+    )
 
     // Commit files
+    val gitdir = new File(GistRepoDir, userName + "/" + repoName)
     using(Git.open(gitdir)){ git =>
       val commitId = commitFiles(git, loginAccount, "Update", files)
 
@@ -317,5 +323,9 @@ trait GistControllerBase extends ControllerBase {
 
     commitId
   }
+
+  private def isGistFile(fileName: String): Boolean = fileName.matches("gistfile[0-9]+\\.txt")
+
+  private def getTitle(fileName: String, repoName: String): String = if(isGistFile(fileName)) repoName else fileName
 
 }
