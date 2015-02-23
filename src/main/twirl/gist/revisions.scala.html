@@ -13,7 +13,7 @@
           <div style="margin-bottom: 8px;">
             @avatar(revision, 20) <a href="@path/gist/@revision.authorName">@revision.authorName</a> revised this @helper.html.datetimeago(revision.authorTime)
             <div class="pull-right">
-              <a href="#" class="btn btn-mini monospace">@revision.id.substring(0, 7)</a>
+              <a href="@path/gist/@gist.userName/@gist.repositoryName/@revision.id" class="btn btn-mini monospace">@revision.id.substring(0, 7)</a>
             </div>
           </div>
           <div>

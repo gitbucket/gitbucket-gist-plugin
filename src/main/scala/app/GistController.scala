@@ -168,6 +168,10 @@ trait GistControllerBase extends ControllerBase {
     _gist(params("userName"), Some(params("repoName")))
   }
 
+  get("/gist/:userName/:repoName/:revision"){
+    _gist(params("userName"), Some(params("repoName")), params("revision"))
+  }
+
   get("/gist/:userName/:repoName/revisions"){
     val userName = params("userName")
     val repoName = params("repoName")
@@ -190,6 +194,9 @@ trait GistControllerBase extends ControllerBase {
     }
   }
 
+  get("/gist/:userName/:repoName/raw/:revision/:file"){
+  }
+
   get("/gist/:userName"){
     _gist(params("userName"))
   }
@@ -199,7 +206,7 @@ trait GistControllerBase extends ControllerBase {
     gist.html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))
   }
 
-  private def _gist(userName: String, repoName: Option[String] = None) = {
+  private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master") = {
     repoName match {
       case None => {
         val page = params.get("page") match {
@@ -217,7 +224,7 @@ trait GistControllerBase extends ControllerBase {
           val gitdir = new File(GistRepoDir, userName + "/" + repoName)
           if(gitdir.exists){
             using(Git.open(gitdir)){ git =>
-              val source: String = JGitUtil.getFileList(git, "master", ".").map { file =>
+              val source: String = JGitUtil.getFileList(git, revision, ".").map { file =>
                 StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
               }.head
 
@@ -238,7 +245,7 @@ trait GistControllerBase extends ControllerBase {
             val gist = getGist(userName, repoName).get
 
             if(!gist.isPrivate || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
-              val files: Seq[(String, String)] = JGitUtil.getFileList(git, "master", ".").map { file =>
+              val files: Seq[(String, String)] = JGitUtil.getFileList(git, revision, ".").map { file =>
                 file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
               }
 
