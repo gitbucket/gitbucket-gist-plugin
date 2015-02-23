@@ -1,10 +1,10 @@
 @(gistUser: Option[model.GistUser], gists: Seq[(model.Gist, String)], page: Int, hasNext: Boolean)(implicit context: app.Context)
 @import context._
 @import view.helpers._
-@html.main("Snippet"){
+@html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("")){
   <div class="container">
   @if(gistUser.isEmpty){
-    <div class="head">GitBucket Snippets</div>
+    <div class="head">Discover Snippets</div>
   } else {
     <div class="head">
       @avatar(gistUser.get.userName, 24)

@@ -1,7 +1,7 @@
 @(active: String, gist: model.Gist, revision: String, files: Seq[(String, String)], editable: Boolean)(implicit context: app.Context)
 @import context._
 @import view.helpers._
-@html.main("Snippet"){
+@html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
   @header(gist, editable)
   <div class="container body">
     @menu(active, gist)

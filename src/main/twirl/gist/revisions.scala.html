@@ -3,7 +3,7 @@
 @import context._
 @import view.helpers._
 @import org.eclipse.jgit.diff.DiffEntry.ChangeType
-@html.main("Snippet"){
+@html.main(s"Revisions · ${gist.repositoryName}"){
   @header(gist, editable)
   <div class="container body">
     @menu(active, gist)
