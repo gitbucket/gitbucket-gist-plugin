@@ -1,5 +1,3 @@
-import javax.servlet.ServletContext
-
 import app.GistController
 import plugin.PluginRegistry
 import util.Version
@@ -26,6 +24,15 @@ class Plugin extends plugin.Plugin {
 
     // Mount controller
     registry.addController(new GistController, "/*")
+
+    registry.addImage("images/menu-revisions-active.png",
+      getClass.getClassLoader.getResourceAsStream("images/menu-revisions-active.png"))
+
+    registry.addImage("images/menu-revisions.png",
+      getClass.getClassLoader.getResourceAsStream("images/menu-revisions.png"))
+
+    registry.addImage("images/snippet.png",
+      getClass.getClassLoader.getResourceAsStream("images/snippet.png"))
 
     println("-- Gist plug-in initialized --")
   }

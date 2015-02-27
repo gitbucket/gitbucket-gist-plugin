@@ -1,7 +1,7 @@
 @(recent: Seq[model.Gist], gist: Option[model.Gist], files: Seq[(String, util.JGitUtil.ContentInfo)])(implicit context: app.Context)
 @import context._
 @import view.helpers._
-@import util.ImageUtil._
+@import plugin.Images._
 @html.main("Snippets"){
   <div class="container">
     <div id="error"></div>

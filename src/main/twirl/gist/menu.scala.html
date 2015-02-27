@@ -1,7 +1,7 @@
 @(active: String, gist: model.Gist)(implicit context: app.Context)
 @import context._
 @import view.helpers._
-@import util.ImageUtil._
+@import plugin.Images._
 
 @menuitem(name: String, path: String, activeImage: String, normalImage: String, label: String, count: Int = 0) = {
   <li @if(active == name){class="active"}>
