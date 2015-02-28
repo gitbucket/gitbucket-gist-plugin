@@ -250,6 +250,8 @@ trait GistControllerBase extends ControllerBase {
         .setTree(revCommit.getTree)
         .setOutputStream(response.getOutputStream)
         .call()
+
+      Unit
     }
   }
 
