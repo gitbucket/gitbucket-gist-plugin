@@ -11,7 +11,7 @@
         @recent.map { gist =>
           <li style="float: left; width: 200px;">
             <img src="@dataURI("images/snippet.png")" style="width: 24px; height: 24px;">
-            <div style="margin-left: 26px; font-size: 80%; position: relative; top: -24px; line-height: normal;">
+            <div style="margin-left: 26px; font-size: 80%; position: relative; top: -24px; line-height: normal; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
               <a class="strong" href="@path/gist/@gist.userName/@gist.repositoryName">@gist.title</a><br>
               @if(gist.description.nonEmpty){
                 <span class="muted">@gist.description</span>
