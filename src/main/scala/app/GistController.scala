@@ -3,7 +3,9 @@ package app
 import java.io.File
 import jp.sf.amateras.scalatra.forms._
 import model.{GistUser, Gist, Account}
-import service.{AccountService, GistService}
+import org.apache.commons.io.FileUtils
+import org.scalatra.BadRequest
+import service.{RepositoryService, AccountService, GistService}
 import util.Directory._
 import util._
 import util.ControlUtil._
@@ -220,6 +222,37 @@ trait GistControllerBase extends ControllerBase {
       }
     } else NotFound
   }
+
+  get("/gist/:userName/:repoName/download/*"){
+    val format = multiParams("splat").head match {
+      case name if name.endsWith(".zip")    => "zip"
+      case name if name.endsWith(".tar.gz") => "tar.gz"
+    }
+
+    val userName = params("userName")
+    val repoName = params("repoName")
+
+    val workDir = getDownloadWorkDir(userName, repoName, session.getId)
+    if(workDir.exists) {
+      FileUtils.deleteDirectory(workDir)
+    }
+    workDir.mkdirs
+
+    using(Git.open(new File(GistRepoDir, userName + "/" + repoName))){ git =>
+      val revCommit = JGitUtil.getRevCommitFromId(git, git.getRepository.resolve("master"))
+
+      contentType = "application/octet-stream"
+      response.setHeader("Content-Disposition", s"attachment; filename=${repoName}.${format}")
+      response.setBufferSize(1024 * 1024);
+
+      git.archive
+        .setFormat(format)
+        .setTree(revCommit.getTree)
+        .setOutputStream(response.getOutputStream)
+        .call()
+    }
+  }
+
 
   get("/gist/:userName"){
     _gist(params("userName"))

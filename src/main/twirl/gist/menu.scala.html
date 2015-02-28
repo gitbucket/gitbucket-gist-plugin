@@ -38,4 +38,25 @@
       "Revision")
     <li style="height: 12px"><div class="gradient pull-left" style="height: 12px"></div></li>
   </ul>
+  @*
+  <div class="small">
+    <strong id="repository-url-proto">HTTP</strong> <span class="mute">clone URL</span>
+  </div>
+  @helper.html.copy("repository-url-copy", "http://localhost:8080/"){
+    <input type="text" value="http://localhost:8080/" id="repository-url" readonly>
+  }
+  @if(settings.ssh && loginAccount.isDefined){
+    <div class="small">
+      <span class="mute">You can clone <a href="javascript:void(0);" id="repository-url-http">HTTP</a> or <a href="javascript:void(0);" id="repository-url-ssh">SSH</a>.</span>
+    </div>
+  }
+  *@
+  <div style="margin-top: 10px;">
+    <a href="@path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.zip"
+       class="btn btn-small" style="width: 147px;"><i class="icon-download-alt"></i>Download ZIP</a>
+  </div>
+  <div style="margin-top: 10px;">
+    <a href="@path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.tar.gz"
+       class="btn btn-small" style="width: 147px;"><i class="icon-download-alt"></i>Download TAR.GZ</a>
+  </div>
 </div>
