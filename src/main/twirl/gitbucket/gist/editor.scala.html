@@ -1,6 +1,8 @@
-@(i: Int, fileName: String, content: util.JGitUtil.ContentInfo)(implicit context: app.Context)
+@(i: Int,
+  fileName: String,
+  content: gitbucket.core.util.JGitUtil.ContentInfo)(implicit context: gitbucket.core.controller.Context)
 @import context._
-@import view.helpers._
+@import gitbucket.core.view.helpers._
 <table class="table table-bordered">
   <tr>
     <th>

@@ -1,6 +1,6 @@
-package model
+package gitbucket.gist.model
 
-trait GistComponent { self: Profile =>
+trait GistComponent { self: gitbucket.core.model.Profile =>
   import profile.simple._
   import self._
 

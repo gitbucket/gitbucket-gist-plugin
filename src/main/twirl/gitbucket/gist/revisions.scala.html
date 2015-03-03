@@ -1,17 +1,19 @@
-@(active: String, gist: model.Gist, editable: Boolean,
-  revisions: List[(util.JGitUtil.CommitInfo, List[util.JGitUtil.DiffInfo])])(implicit context: app.Context)
+@(active: String,
+  gist: gitbucket.gist.model.Gist, editable: Boolean,
+  revisions: List[(gitbucket.core.util.JGitUtil.CommitInfo, List[gitbucket.core.util.JGitUtil.DiffInfo])])(implicit context: gitbucket.core.controller.Context)
 @import context._
-@import view.helpers._
+@import gitbucket.core.helper.html._
+@import gitbucket.core.view.helpers._
 @import org.eclipse.jgit.diff.DiffEntry.ChangeType
-@html.main(s"Revisions · ${gist.repositoryName}"){
-  @header(gist, editable)
+@gitbucket.core.html.main(s"Revisions · ${gist.repositoryName}"){
+  @gitbucket.gist.html.header(gist, editable)
   <div class="container body">
-    @menu(active, gist)
+    @gitbucket.gist.html.menu(active, gist)
     <div style="margin-right: 180px;">
       @revisions.map { case (revision, diffs) =>
         <div>
           <div style="margin-bottom: 8px;">
-            @avatar(revision, 20) <a href="@path/gist/@revision.authorName">@revision.authorName</a> revised this @helper.html.datetimeago(revision.authorTime)
+            @avatar(revision, 20) <a href="@path/gist/@revision.authorName">@revision.authorName</a> revised this @datetimeago(revision.authorTime)
             <div class="pull-right">
               @if(diffs.isEmpty){
                 <span class="muted">No changes.</span>

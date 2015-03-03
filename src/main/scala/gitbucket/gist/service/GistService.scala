@@ -1,7 +1,7 @@
-package service
+package gitbucket.gist.service
 
-import model.Gist
-import model.GistProfile._
+import gitbucket.gist.model.Gist
+import gitbucket.gist.model.Profile._
 import profile.simple._
 
 trait GistService {

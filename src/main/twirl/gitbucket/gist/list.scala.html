@@ -1,7 +1,10 @@
-@(gistUser: Option[model.GistUser], gists: Seq[(model.Gist, String)], page: Int, hasNext: Boolean)(implicit context: app.Context)
+@(gistUser: Option[gitbucket.gist.model.GistUser],
+  gists: Seq[(gitbucket.gist.model.Gist, String)],
+  page: Int,
+  hasNext: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
-@import view.helpers._
-@html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("")){
+@import gitbucket.core.view.helpers._
+@gitbucket.core.html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("")){
   <div class="container">
   @if(gistUser.isEmpty){
     <div class="head">Discover Snippets</div>

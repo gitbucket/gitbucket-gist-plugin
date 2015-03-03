@@ -1,8 +1,10 @@
-@(recent: Seq[model.Gist], gist: Option[model.Gist], files: Seq[(String, util.JGitUtil.ContentInfo)])(implicit context: app.Context)
+@(recent: Seq[gitbucket.gist.model.Gist],
+  gist: Option[gitbucket.gist.model.Gist],
+  files: Seq[(String, gitbucket.core.util.JGitUtil.ContentInfo)])(implicit context: gitbucket.core.controller.Context)
 @import context._
-@import view.helpers._
-@import plugin.Images._
-@html.main("Snippets"){
+@import gitbucket.core.view.helpers._
+@import gitbucket.core.plugin.Images._
+@gitbucket.core.html.main("Snippets"){
   <div class="container">
     <div id="error"></div>
     @if(gist.isEmpty){
@@ -56,7 +58,7 @@
       <input type="text" name="description" id="description" style="width: 900px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
       <div id="editors">
         @files.zipWithIndex.map { case ((fileName, content), i) =>
-          @editor(i, fileName, content)
+          @gitbucket.gist.html.editor(i, fileName, content)
         }
       </div>
       <div>
@@ -78,10 +80,10 @@
     </form>
   </div>
 
-  <script src="@assets/vendors/ace/ace.js" type="text/javascript" charset="utf-8"></script>
-  <script type="text/javascript" src="@assets/vendors/jsdifflib/difflib.js"></script>
-  <script type="text/javascript" src="@assets/vendors/jsdifflib/diffview.js"></script>
-  <link href="@assets/vendors/jsdifflib/diffview.css" type="text/css" rel="stylesheet" />
+  <script src="@{gitbucket.core.view.helpers.assets}/vendors/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript" src="@{gitbucket.core.view.helpers.assets}/vendors/jsdifflib/difflib.js"></script>
+  <script type="text/javascript" src="@{gitbucket.core.view.helpers.assets}/vendors/jsdifflib/diffview.js"></script>
+  <link href="@{gitbucket.core.view.helpers.assets}/vendors/jsdifflib/diffview.css" type="text/css" rel="stylesheet" />
   <script>
   $(function(){
     $('#create_private_snippet').click(function(){

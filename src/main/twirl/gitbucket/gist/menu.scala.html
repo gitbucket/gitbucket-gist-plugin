@@ -1,7 +1,8 @@
-@(active: String, gist: model.Gist)(implicit context: app.Context)
+@(active: String,
+  gist: gitbucket.gist.model.Gist)(implicit context: gitbucket.core.controller.Context)
 @import context._
-@import view.helpers._
-@import plugin.Images._
+@import gitbucket.core.view.helpers._
+@import gitbucket.core.plugin.Images._
 
 @menuitem(name: String, path: String, activeImage: String, normalImage: String, label: String, count: Int = 0) = {
   <li @if(active == name){class="active"}>

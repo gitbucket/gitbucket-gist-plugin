@@ -1,10 +1,10 @@
-import app.GistController
-import plugin.PluginRegistry
-import util.Version
+import gitbucket.gist.controller.GistController
+import gitbucket.core.plugin.PluginRegistry
+import gitbucket.core.util.Version
 import java.io.File
-import util.Configurations._
+import gitbucket.gist.util.Configurations._
 
-class Plugin extends plugin.Plugin {
+class Plugin extends gitbucket.core.plugin.Plugin {
   override val pluginId: String = "gist"
   override val pluginName: String = "Gist Plugin"
   override val description: String = "Provides Gist feature on GitBucket."

@@ -1,6 +1,7 @@
-@(gist: model.Gist, editable: Boolean)(implicit context: app.Context)
+@(gist: gitbucket.gist.model.Gist,
+  editable: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
-@import view.helpers._
+@import gitbucket.core.view.helpers._
 <div class="container">
   <div class="head">
     @avatar(gist.userName, 24)

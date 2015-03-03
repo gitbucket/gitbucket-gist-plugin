@@ -1,19 +1,28 @@
-package app
+package gitbucket.gist.controller
 
 import java.io.File
 import jp.sf.amateras.scalatra.forms._
-import model.{GistUser, Gist, Account}
+
+import gitbucket.core.model.Account
+import gitbucket.core.controller.ControllerBase
+import gitbucket.core.service.AccountService
+import gitbucket.core.util._
+import gitbucket.core.util.Directory._
+import gitbucket.core.util.ControlUtil._
+import gitbucket.core.util.Implicits._
+import gitbucket.core.view.helpers._
+
+
+import gitbucket.gist.model.{GistUser, Gist}
+import gitbucket.gist.service.GistService
+import gitbucket.gist.util._
+import gitbucket.gist.util.Configurations._
+import gitbucket.gist.html
+
 import org.apache.commons.io.FileUtils
-import org.scalatra.BadRequest
-import service.{RepositoryService, AccountService, GistService}
-import util.Directory._
-import util._
-import util.ControlUtil._
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib._
 import org.eclipse.jgit.dircache.DirCache
-import util.Implicits._
-import util.Configurations._
 
 class GistController extends GistControllerBase with GistService with AccountService
   with GistEditorAuthenticator with UsersAuthenticator
@@ -24,7 +33,7 @@ trait GistControllerBase extends ControllerBase {
   get("/gist"){
     if(context.loginAccount.isDefined){
       val gists = getRecentGists(context.loginAccount.get.userName, 0, 4)
-      gist.html.edit(gists, None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))
+      html.edit(gists, None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))
     } else {
       val page = request.getParameter("page") match {
         case ""|null => 1
@@ -48,7 +57,7 @@ trait GistControllerBase extends ControllerBase {
         }
       }
 
-      gist.html.list(None, gists, page, page * Limit < count)
+      html.list(None, gists, page, page * Limit < count)
     }
   }
 
@@ -69,7 +78,7 @@ trait GistControllerBase extends ControllerBase {
         val files: Seq[(String, JGitUtil.ContentInfo)] = JGitUtil.getFileList(git, "master", ".").map { file =>
           (if(isGistFile(file.name)) "" else file.name) -> JGitUtil.getContentInfo(git, file.name, file.id)
         }
-        _root_.gist.html.edit(Nil, getGist(userName, repoName), files)
+        html.edit(Nil, getGist(userName, repoName), files)
       }
     }
   })
@@ -87,7 +96,7 @@ trait GistControllerBase extends ControllerBase {
         val description  = params("description")
 
         // Create new repository
-        val repoName = StringUtil.md5(loginAccount.userName + " " + view.helpers.datetime(new java.util.Date()))
+        val repoName = StringUtil.md5(loginAccount.userName + " " + datetime(new java.util.Date()))
         val gitdir   = new File(GistRepoDir, loginAccount.userName + "/" + repoName)
         gitdir.mkdirs()
         JGitUtil.initRepository(gitdir)
@@ -195,7 +204,7 @@ trait GistControllerBase extends ControllerBase {
               }
             }
           }
-          gist.html.revisions("revision", getGist(userName, repoName).get, isEditable(userName), commits)
+          html.revisions("revision", getGist(userName, repoName).get, isEditable(userName), commits)
         }
         case Left(_) => NotFound
       }
@@ -262,7 +271,7 @@ trait GistControllerBase extends ControllerBase {
 
   get("/gist/_add"){
     val count = params("count").toInt
-    gist.html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))
+    html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))
   }
 
   private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master") = {
@@ -295,7 +304,7 @@ trait GistControllerBase extends ControllerBase {
         }
 
         val fullName = getAccountByUserName(userName).get.fullName
-        gist.html.list(Some(GistUser(userName, fullName)), gists, page, page * Limit < result._2)
+        html.list(Some(GistUser(userName, fullName)), gists, page, page * Limit < result._2)
       }
       case Some(repoName) => {
         val gitdir = new File(GistRepoDir, userName + "/" + repoName)
@@ -307,7 +316,7 @@ trait GistControllerBase extends ControllerBase {
               val files: Seq[(String, String)] = JGitUtil.getFileList(git, revision, ".").map { file =>
                 file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
               }
-              _root_.gist.html.detail("code", gist, revision, files, isEditable(userName))
+              html.detail("code", gist, revision, files, isEditable(userName))
             } else Unauthorized
           }
         } else NotFound

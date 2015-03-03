@@ -1,8 +1,8 @@
-package util
+package gitbucket.gist.util
 
-import app.ControllerBase
-import util.ControlUtil._
-import util.Implicits._
+import gitbucket.core.controller.ControllerBase
+import gitbucket.core.util.ControlUtil._
+import gitbucket.core.util.Implicits._
 
 /**
  * Allows only editor of the accessed snippet.

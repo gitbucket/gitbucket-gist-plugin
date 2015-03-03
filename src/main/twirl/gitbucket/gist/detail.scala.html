@@ -1,10 +1,13 @@
-@(active: String, gist: model.Gist, revision: String, files: Seq[(String, String)], editable: Boolean)(implicit context: app.Context)
+@(active: String,
+  gist: gitbucket.gist.model.Gist,
+  revision: String,
+  files: Seq[(String, String)],
+  editable: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
-@import view.helpers._
-@html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
-  @header(gist, editable)
+@gitbucket.core.html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
+  @gitbucket.gist.html.header(gist, editable)
   <div class="container body">
-    @menu(active, gist)
+    @gitbucket.gist.html.menu(active, gist)
     <div style="margin-right: 180px;">
       <div style="margin-bottom: 10px;">
         @gist.description
