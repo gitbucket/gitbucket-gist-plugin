@@ -27,8 +27,8 @@
       <div>
         <div>
           @avatar(gist.userName, 20)
-          <a class="strong" href="/gist/@gist.userName">@gist.userName</a> /
-          <a class="strong" href="/gist/@gist.userName/@gist.repositoryName">@gist.title</a>
+          <a class="strong" href="@path/gist/@gist.userName">@gist.userName</a> /
+          <a class="strong" href="@path/gist/@gist.userName/@gist.repositoryName">@gist.title</a>
           @if(gist.isPrivate){
             <span class="label label-warning">Secret</span>
           }
