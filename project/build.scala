@@ -7,7 +7,7 @@ object MyBuild extends Build {
 
   val Organization = "jp.sf.amateras"
   val Name = "gitbucket-gist-plugin"
-  val Version = "1.0"
+  val Version = "1.1"
   val ScalaVersion = "2.11.2"
 
   lazy val project = Project (
@@ -25,7 +25,7 @@ object MyBuild extends Build {
       "amateras-repo" at "http://amateras.sourceforge.jp/mvn/"
     ),
     libraryDependencies ++= Seq(
-      "gitbucket"          % "gitbucket-assembly" % "3.1.0",
+      "gitbucket"          % "gitbucket-assembly" % "3.1.1",
       "com.typesafe.play" %% "twirl-compiler"     % "1.0.2",
       "javax.servlet"      % "javax.servlet-api"  % "3.1.0" % "provided"
     ),

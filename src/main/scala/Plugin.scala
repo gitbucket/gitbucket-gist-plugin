@@ -2,6 +2,7 @@ import gitbucket.gist.controller.GistController
 import gitbucket.core.plugin.PluginRegistry
 import gitbucket.core.util.Version
 import java.io.File
+import javax.servlet.ServletContext
 import gitbucket.gist.util.Configurations._
 
 class Plugin extends gitbucket.core.plugin.Plugin {
@@ -10,11 +11,13 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   override val description: String = "Provides Gist feature on GitBucket."
   override val versions: List[Version] = List(Version(1, 0))
 
-  override def initialize(registry: PluginRegistry): Unit = {
+  override def initialize(registry: PluginRegistry, context: ServletContext): Unit = {
     // Add Snippet link to the header
     registry.addJavaScript(".*",
-      """
-        |$('a.brand').after($('<span style="float: left; margin-top: 10px;">|&nbsp;&nbsp;&nbsp;&nbsp;<a href="/gist" style="color: black;">Snippet</a></span>'));
+      s"""
+        |$$('a.brand').after(
+        |  $$('<span style="float: left; margin-top: 10px;">|&nbsp;&nbsp;&nbsp;&nbsp;<a href="${context.getContextPath}/gist" style="color: black;">Snippet</a></span>')
+        |);
       """.stripMargin)
 
     val rootdir = new File(GistRepoDir)
@@ -37,6 +40,6 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     println("-- Gist plug-in initialized --")
   }
 
-  override def shutdown(registry: PluginRegistry): Unit = {
+  override def shutdown(registry: PluginRegistry, context: ServletContext): Unit = {
   }
 }
