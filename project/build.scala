@@ -25,8 +25,8 @@ object MyBuild extends Build {
       "amateras-repo" at "http://amateras.sourceforge.jp/mvn/"
     ),
     libraryDependencies ++= Seq(
-      "gitbucket"          % "gitbucket-assembly" % "3.1.1",
-      "com.typesafe.play" %% "twirl-compiler"     % "1.0.2",
+      "gitbucket"          % "gitbucket-assembly" % "3.1.1" % "provided",
+      "com.typesafe.play" %% "twirl-compiler"     % "1.0.2" % "provided",
       "javax.servlet"      % "javax.servlet-api"  % "3.1.0" % "provided"
     ),
     javacOptions in compile ++= Seq("-target", "7", "-source", "7")
