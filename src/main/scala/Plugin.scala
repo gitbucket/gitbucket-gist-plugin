@@ -1,4 +1,4 @@
-import gitbucket.core.service.SystemSettingsService
+import gitbucket.core.service.SystemSettingsService.SystemSettings
 import gitbucket.gist.controller.GistController
 import gitbucket.core.plugin.PluginRegistry
 import gitbucket.core.util.Version
@@ -6,15 +6,14 @@ import java.io.File
 import javax.servlet.ServletContext
 import gitbucket.gist.util.Configurations._
 
-class Plugin extends gitbucket.core.plugin.Plugin with SystemSettingsService {
+class Plugin extends gitbucket.core.plugin.Plugin {
   override val pluginId: String = "gist"
   override val pluginName: String = "Gist Plugin"
   override val description: String = "Provides Gist feature on GitBucket."
-  override val versions: List[Version] = List(Version(1, 0))
+  override val versions: List[Version] = List(Version(1, 2))
 
-  override def initialize(registry: PluginRegistry, context: ServletContext): Unit = {
+  override def initialize(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Unit = {
     // Add Snippet link to the header
-    val settings = loadSystemSettings()
     val path = settings.baseUrl.getOrElse(context.getContextPath)
     registry.addJavaScript(".*",
       s"""
@@ -43,6 +42,6 @@ class Plugin extends gitbucket.core.plugin.Plugin with SystemSettingsService {
     println("-- Gist plug-in initialized --")
   }
 
-  override def shutdown(registry: PluginRegistry, context: ServletContext): Unit = {
+  override def shutdown(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Unit = {
   }
 }
