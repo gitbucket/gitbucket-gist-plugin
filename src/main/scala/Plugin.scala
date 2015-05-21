@@ -10,7 +10,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   override val pluginId: String = "gist"
   override val pluginName: String = "Gist Plugin"
   override val description: String = "Provides Gist feature on GitBucket."
-  override val versions: List[Version] = List(Version(1, 2))
+  override val versions: List[Version] = List(Version(1, 2), Version(1, 0))
 
   override def initialize(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Unit = {
     // Add Snippet link to the header
