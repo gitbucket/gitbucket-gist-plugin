@@ -47,7 +47,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   override val images = Seq(
     "images/menu-revisions-active.png" -> fromClassPath("images/menu-revisions-active.png"),
     "images/menu-revisions.png"        -> fromClassPath("images/menu-revisions.png"),
-    "images/snippet.png"               -> fromClassPath("snippet.png")
+    "images/snippet.png"               -> fromClassPath("images/snippet.png")
   )
 
   override def shutdown(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Unit = {
