@@ -22,15 +22,6 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   override def initialize(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Unit = {
     super.initialize(registry, context, settings)
 
-    // Add Snippet link to the header
-    val path = settings.baseUrl.getOrElse(context.getContextPath)
-    registry.addJavaScript(".*",
-      s"""
-        |$$('a.brand').after(
-        |  $$('<span style="float: left; margin-top: 10px;">|&nbsp;&nbsp;&nbsp;&nbsp;<a href="${path}/gist" style="color: black;">Snippet</a></span>')
-        |);
-      """.stripMargin)
-
     // Create gist repository directory
     val rootdir = new File(GistRepoDir)
     if(!rootdir.exists){
@@ -50,6 +41,15 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     "images/snippet.png"               -> fromClassPath("snippet.png")
   )
 
-  override def shutdown(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Unit = {
+  override def javaScripts(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Seq[(String, String)] = {
+    // Add Snippet link to the header
+    val path = settings.baseUrl.getOrElse(context.getContextPath)
+    Seq(
+      ".*" -> s"""
+        |$$('a.brand').after(
+        |  $$('<span style="float: left; margin-top: 10px;">|&nbsp;&nbsp;&nbsp;&nbsp;<a href="${path}/gist" style="color: black;">Snippet</a></span>')
+        |);
+      """.stripMargin
+    )
   }
 }
