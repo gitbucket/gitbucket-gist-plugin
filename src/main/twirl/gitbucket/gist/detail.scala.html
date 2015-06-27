@@ -4,6 +4,8 @@
   files: Seq[(String, String)],
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
+@import gitbucket.core.view.helpers._
+@import gitbucket.core.service.RepositoryService.RepositoryInfo
 @gitbucket.core.html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
   @gitbucket.gist.html.header(gist, editable)
   <div class="container body">
@@ -24,7 +26,25 @@
           </tr>
           <tr>
             <td>
-              <pre class="prettyprint linenums blob">@content</pre>
+              @if(isRenderable(fileName)){
+                <div class="box-content markdown-body" style="border: none; padding-left: 16px; padding-right: 16px;">
+                  @renderMarkup(List(fileName), content, "master", RepositoryInfo(
+                    owner       = gist.userName,
+                    name        = gist.repositoryName,
+                    httpUrl     = "",
+                    repository  = null,
+                    issueCount  = 0,
+                    pullCount   = 0,
+                    commitCount = 0,
+                    forkedCount = 0,
+                    branchList  = Nil,
+                    tags        = Nil,
+                    managers    = Nil
+                  ), false, false, true)
+                </div>
+              } else {
+                <pre class="prettyprint linenums blob">@content</pre>
+              }
             </td>
           </tr>
         </table>

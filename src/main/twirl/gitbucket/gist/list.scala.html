@@ -1,10 +1,12 @@
 @(gistUser: Option[gitbucket.gist.model.GistUser],
-  gists: Seq[(gitbucket.gist.model.Gist, String)],
+  gists: Seq[(gitbucket.gist.model.Gist, String, String)],
   page: Int,
   hasNext: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
 @import gitbucket.core.view.helpers._
+@import gitbucket.core.service.RepositoryService.RepositoryInfo
 @gitbucket.core.html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("")){
+  @gitbucket.gist.html.style()
   <div class="container">
   @if(gistUser.isEmpty){
     <div class="head">Discover Snippets</div>
@@ -23,7 +25,7 @@
   </div>
   <hr style="margin-bottom: 20px;"/>
   <div class="container body">
-    @gists.map { case (gist, code) =>
+    @gists.map { case (gist, fileName, code) =>
       <div>
         <div>
           @avatar(gist.userName, 20)
@@ -40,7 +42,25 @@
           @gist.description
         </div>
         <div>
-          <pre class="prettyprint linenums" style="padding-left: 25px;">@Html(code)</pre>
+          @if(isRenderable(fileName)){
+            <div class="list-markup box-content markdown-body">
+              @renderMarkup(List(fileName), code, "master", RepositoryInfo(
+                owner       = gist.userName,
+                name        = gist.repositoryName,
+                httpUrl     = "",
+                repository  = null,
+                issueCount  = 0,
+                pullCount   = 0,
+                commitCount = 0,
+                forkedCount = 0,
+                branchList  = Nil,
+                tags        = Nil,
+                managers    = Nil
+              ), false, false, false)
+            </div>
+          } else {
+            <pre class="list-code prettyprint linenums">@Html(code)</pre>
+          }
         </div>
       </div>
     }

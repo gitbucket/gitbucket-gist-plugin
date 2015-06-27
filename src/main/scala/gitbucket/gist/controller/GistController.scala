@@ -42,18 +42,18 @@ trait GistControllerBase extends ControllerBase {
       val result = getPublicGists((page - 1) * Limit, Limit)
       val count  = countPublicGists()
 
-      val gists: Seq[(Gist, String)] = result.map { gist =>
+      val gists: Seq[(Gist, String, String)] = result.map { gist =>
         val gitdir = new File(GistRepoDir, gist.userName + "/" + gist.repositoryName)
         if(gitdir.exists){
           using(Git.open(gitdir)){ git =>
-            val source: String = JGitUtil.getFileList(git, "master", ".").map { file =>
-              StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
+            val (fileName, source) = JGitUtil.getFileList(git, "master", ".").map { file =>
+              file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
             }.head
 
-            (gist, source)
+            (gist, fileName, source)
           }
         } else {
-          (gist, "Repository is not found!")
+          (gist, "", "Repository is not found!")
         }
       }
 
@@ -287,19 +287,19 @@ trait GistControllerBase extends ControllerBase {
           countUserGists(userName, context.loginAccount.map(_.userName))
         )
 
-        val gists: Seq[(Gist, String)] = result._1.map { gist =>
+        val gists: Seq[(Gist, String, String)] = result._1.map { gist =>
           val repoName = gist.repositoryName
           val gitdir = new File(GistRepoDir, userName + "/" + repoName)
           if(gitdir.exists){
             using(Git.open(gitdir)){ git =>
-              val source: String = JGitUtil.getFileList(git, revision, ".").map { file =>
-                StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
+              val (fileName, source) = JGitUtil.getFileList(git, revision, ".").map { file =>
+                file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
               }.head
 
-              (gist, source)
+              (gist, fileName, source)
             }
           } else {
-            (gist, "Repository is not found!")
+            (gist, "", "Repository is not found!")
           }
         }
 
