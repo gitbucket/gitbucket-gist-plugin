@@ -16,13 +16,13 @@ import gitbucket.core.view.helpers._
 import gitbucket.gist.model.{GistUser, Gist}
 import gitbucket.gist.service.GistService
 import gitbucket.gist.util._
+import gitbucket.gist.util.GistUtils._
 import gitbucket.gist.util.Configurations._
 import gitbucket.gist.html
 
 import org.apache.commons.io.FileUtils
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib._
-import org.eclipse.jgit.dircache.DirCache
 
 class GistController extends GistControllerBase with GistService with AccountService
   with GistEditorAuthenticator with UsersAuthenticator
@@ -205,7 +205,7 @@ trait GistControllerBase extends ControllerBase {
             }
           }
           val gist = getGist(userName, repoName).get
-          html.revisions("revision", gist, repositoryUrl(gist), isEditable(userName), commits)
+          html.revisions("revision", gist, repositoryUrl(gist, baseUrl), isEditable(userName), commits)
         }
         case Left(_) => NotFound
       }
@@ -317,20 +317,12 @@ trait GistControllerBase extends ControllerBase {
               val files: Seq[(String, String)] = JGitUtil.getFileList(git, revision, ".").map { file =>
                 file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
               }
-              html.detail("code", gist, repositoryUrl(gist), revision, files, isEditable(userName))
+              html.detail("code", gist, repositoryUrl(gist, baseUrl), revision, files, isEditable(userName))
             } else Unauthorized
           }
         } else NotFound
       }
     }
-  }
-
-  private def repositoryUrl(gist: Gist) = s"${baseUrl}/git/gist/${gist.userName}/${gist.repositoryName}.git"
-
-  private def isEditable(userName: String): Boolean = {
-    context.loginAccount.map { loginAccount =>
-      loginAccount.isAdmin || loginAccount.userName == userName
-    }.getOrElse(false)
   }
 
   private def getFileParameters(flatten: Boolean): Seq[(String, String)] = {
@@ -350,29 +342,5 @@ trait GistControllerBase extends ControllerBase {
       }
     }
   }
-
-  private def commitFiles(git: Git, loginAccount: Account, message: String, files: Seq[(String, String)]): ObjectId = {
-    val builder  = DirCache.newInCore.builder()
-    val inserter = git.getRepository.newObjectInserter()
-    val headId   = git.getRepository.resolve(Constants.HEAD + "^{commit}")
-
-    files.foreach { case (fileName, content) =>
-      builder.add(JGitUtil.createDirCacheEntry(fileName, FileMode.REGULAR_FILE,
-        inserter.insert(Constants.OBJ_BLOB, content.getBytes("UTF-8"))))
-    }
-    builder.finish()
-
-    val commitId = JGitUtil.createNewCommit(git, inserter, headId, builder.getDirCache.writeTree(inserter),
-      Constants.HEAD, loginAccount.fullName, loginAccount.mailAddress, message)
-
-    inserter.flush()
-    inserter.release()
-
-    commitId
-  }
-
-  private def isGistFile(fileName: String): Boolean = fileName.matches("gistfile[0-9]+\\.txt")
-
-  private def getTitle(fileName: String, repoName: String): String = if(isGistFile(fileName)) repoName else fileName
 
 }
