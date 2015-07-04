@@ -1,5 +1,7 @@
 @(active: String,
-  gist: gitbucket.gist.model.Gist, editable: Boolean,
+  gist: gitbucket.gist.model.Gist,
+  repositoryUrl: String,
+  editable: Boolean,
   revisions: List[(gitbucket.core.util.JGitUtil.CommitInfo, List[gitbucket.core.util.JGitUtil.DiffInfo])])(implicit context: gitbucket.core.controller.Context)
 @import context._
 @import gitbucket.core.helper.html._
@@ -8,7 +10,7 @@
 @gitbucket.core.html.main(s"Revisions · ${gist.repositoryName}"){
   @gitbucket.gist.html.header(gist, editable)
   <div class="container body">
-    @gitbucket.gist.html.menu(active, gist)
+    @gitbucket.gist.html.menu(active, gist, repositoryUrl)
     <div style="margin-right: 180px;">
       @revisions.map { case (revision, diffs) =>
         <div>

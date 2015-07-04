@@ -1,5 +1,6 @@
 @(active: String,
   gist: gitbucket.gist.model.Gist,
+  repositoryUrl: String,
   revision: String,
   files: Seq[(String, String)],
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)
@@ -9,7 +10,7 @@
 @gitbucket.core.html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
   @gitbucket.gist.html.header(gist, editable)
   <div class="container body">
-    @gitbucket.gist.html.menu(active, gist)
+    @gitbucket.gist.html.menu(active, gist, repositoryUrl)
     <div style="margin-right: 180px;">
       <div style="margin-bottom: 10px;">
         @gist.description

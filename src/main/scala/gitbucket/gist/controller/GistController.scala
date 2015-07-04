@@ -204,7 +204,8 @@ trait GistControllerBase extends ControllerBase {
               }
             }
           }
-          html.revisions("revision", getGist(userName, repoName).get, isEditable(userName), commits)
+          val gist = getGist(userName, repoName).get
+          html.revisions("revision", gist, repositoryUrl(gist), isEditable(userName), commits)
         }
         case Left(_) => NotFound
       }
@@ -316,13 +317,15 @@ trait GistControllerBase extends ControllerBase {
               val files: Seq[(String, String)] = JGitUtil.getFileList(git, revision, ".").map { file =>
                 file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
               }
-              html.detail("code", gist, revision, files, isEditable(userName))
+              html.detail("code", gist, repositoryUrl(gist), revision, files, isEditable(userName))
             } else Unauthorized
           }
         } else NotFound
       }
     }
   }
+
+  private def repositoryUrl(gist: Gist) = s"${baseUrl}/git/gist/${gist.userName}/${gist.repositoryName}.git"
 
   private def isEditable(userName: String): Boolean = {
     context.loginAccount.map { loginAccount =>
