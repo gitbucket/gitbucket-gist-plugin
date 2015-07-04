@@ -32,7 +32,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   }
 
   override val repositoryRoutings = Seq(
-    "^gist/(.+?)/(.+?)\\.git$" -> "gist/$1/$2"
+    "gist/(.+?)/(.+?)\\.git" -> "gist/$1/$2"
   )
 
   override val controllers = Seq(
