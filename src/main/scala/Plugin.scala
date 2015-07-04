@@ -76,7 +76,7 @@ class GistRepositoryFilter extends GitRepositoryFilter with AccountService {
         account <- authenticate(settings, username, password)
       } yield {
         request.paths match {
-          case Array(_, _, owner, _*) => owner == username
+          case Array(_, _, owner, _*) => owner == username || account.isAdmin
         }
       }
 
