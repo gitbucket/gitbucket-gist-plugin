@@ -1,7 +1,11 @@
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+
+import gitbucket.core.service.AccountService
 import gitbucket.core.service.SystemSettingsService.SystemSettings
 import gitbucket.gist.controller.GistController
-import gitbucket.core.plugin.PluginRegistry
+import gitbucket.core.plugin._
 import gitbucket.core.util.Version
+import gitbucket.core.util.Implicits._
 import java.io.File
 import javax.servlet.ServletContext
 import gitbucket.gist.util.Configurations._
@@ -32,7 +36,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   }
 
   override val repositoryRoutings = Seq(
-    "gist/(.+?)/(.+?)\\.git" -> "gist/$1/$2"
+    GitRepositoryRouting("gist/(.+?)/(.+?)\\.git", "gist/$1/$2", new GistRepositoryFilter())
   )
 
   override val controllers = Seq(
@@ -56,4 +60,37 @@ class Plugin extends gitbucket.core.plugin.Plugin {
       """.stripMargin
     )
   }
+}
+
+class GistRepositoryFilter extends GitRepositoryFilter with AccountService {
+
+  override def filter(request: HttpServletRequest, response: HttpServletResponse,
+                      settings: SystemSettings, isUpdating: Boolean): Boolean = {
+    implicit val r = request
+
+    if(isUpdating){
+      // Allow updating to self repository only
+      val passed = for {
+        auth <- Option(request.getHeader("Authorization"))
+        Array(username, password) = decodeAuthHeader(auth).split(":", 2)
+        account <- authenticate(settings, username, password)
+      } yield {
+        request.paths match {
+          case Array(_, _, owner, _*) => owner == username
+        }
+      }
+
+      passed getOrElse false
+    } else true
+  }
+
+  // TODO This method shoud be provided by gitbucket-core
+  private def decodeAuthHeader(header: String): String = {
+    try {
+      new String(new sun.misc.BASE64Decoder().decodeBuffer(header.substring(6)))
+    } catch {
+      case _: Throwable => ""
+    }
+  }
+
 }
