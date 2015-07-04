@@ -31,6 +31,10 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     println("-- Gist plug-in initialized --")
   }
 
+  override val repositoryRoutings = Seq(
+    "^gist/(.+?)/(.+?)\\.git$" -> "gist/$1/$2"
+  )
+
   override val controllers = Seq(
     "/*" -> new GistController()
   )
