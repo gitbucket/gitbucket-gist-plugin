@@ -1,11 +1,11 @@
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
+import gitbucket.core.model._
 import gitbucket.core.service.AccountService
 import gitbucket.core.service.SystemSettingsService.SystemSettings
 import gitbucket.gist.controller.GistController
 import gitbucket.core.plugin._
 import gitbucket.core.util.Version
-import gitbucket.core.util.Implicits._
 import java.io.File
 import javax.servlet.ServletContext
 import gitbucket.gist.util.Configurations._
@@ -64,33 +64,16 @@ class Plugin extends gitbucket.core.plugin.Plugin {
 
 class GistRepositoryFilter extends GitRepositoryFilter with AccountService {
 
-  override def filter(request: HttpServletRequest, response: HttpServletResponse,
-                      settings: SystemSettings, isUpdating: Boolean): Boolean = {
-    implicit val r = request
-
+  override def filter(path: String, userName: Option[String], settings: SystemSettings, isUpdating: Boolean)
+                     (implicit session: Session): Boolean = {
     if(isUpdating){
-      // Allow updating to self repository only
-      val passed = for {
-        auth <- Option(request.getHeader("Authorization"))
-        Array(username, password) = decodeAuthHeader(auth).split(":", 2)
-        account <- authenticate(settings, username, password)
-      } yield {
-        request.paths match {
-          case Array(_, _, owner, _*) => owner == username || account.isAdmin
-        }
-      }
-
-      passed getOrElse false
+      (for {
+        userName <- userName
+        account  <- getAccountByUserName(userName)
+      } yield
+        path.startsWith(userName + "/") || account.isAdmin
+      ).getOrElse(false)
     } else true
-  }
-
-  // TODO This method shoud be provided by gitbucket-core
-  private def decodeAuthHeader(header: String): String = {
-    try {
-      new String(new sun.misc.BASE64Decoder().decodeBuffer(header.substring(6)))
-    } catch {
-      case _: Throwable => ""
-    }
   }
 
 }
