@@ -71,7 +71,7 @@ class GistRepositoryFilter extends GitRepositoryFilter with AccountService {
         userName <- userName
         account  <- getAccountByUserName(userName)
       } yield
-        path.startsWith(userName + "/") || account.isAdmin
+        path.startsWith("/" + userName + "/") || account.isAdmin
       ).getOrElse(false)
     } else true
   }
