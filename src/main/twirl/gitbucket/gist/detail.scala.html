@@ -1,6 +1,6 @@
 @(active: String,
   gist: gitbucket.gist.model.Gist,
-  repositoryUrl: String,
+  repositoryUrl: gitbucket.gist.util.GistUtils.GistRepositoryURL,
   revision: String,
   files: Seq[(String, String)],
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)

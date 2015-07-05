@@ -2,6 +2,8 @@ package gitbucket.gist.util
 
 import gitbucket.core.controller.Context
 import gitbucket.core.model.Account
+import gitbucket.core.service.SystemSettingsService
+import gitbucket.core.service.SystemSettingsService.SystemSettings
 import gitbucket.core.util.JGitUtil
 import gitbucket.gist.model.Gist
 import org.eclipse.jgit.api.Git
@@ -40,6 +42,15 @@ object GistUtils {
 
   def getTitle(fileName: String, repoName: String): String = if(isGistFile(fileName)) repoName else fileName
 
-  def repositoryUrl(gist: Gist, baseUrl: String) = s"${baseUrl}/git/gist/${gist.userName}/${gist.repositoryName}.git"
+  case class GistRepositoryURL(gist: Gist, baseUrl: String, settings: SystemSettings){
+
+    def httpUrl: String = s"${baseUrl}/git/gist/${gist.userName}/${gist.repositoryName}.git"
+
+    def sshUrl(loginUser: String): String = {
+      val host = """^https?://(.+?)(:\d+)?/""".r.findFirstMatchIn(httpUrl).get.group(1)
+      s"ssh://${loginUser}@${host}:${settings.sshPort.getOrElse(SystemSettingsService.DefaultSshPort)}/gist/${gist.userName}/${gist.repositoryName}.git"
+    }
+
+  }
 
 }

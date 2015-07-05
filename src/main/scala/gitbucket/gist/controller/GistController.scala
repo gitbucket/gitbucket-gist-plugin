@@ -205,7 +205,13 @@ trait GistControllerBase extends ControllerBase {
             }
           }
           val gist = getGist(userName, repoName).get
-          html.revisions("revision", gist, repositoryUrl(gist, baseUrl), isEditable(userName), commits)
+          html.revisions(
+            "revision",
+            gist,
+            GistRepositoryURL(gist, baseUrl, context.settings),
+            isEditable(userName),
+            commits
+          )
         }
         case Left(_) => NotFound
       }
@@ -317,7 +323,14 @@ trait GistControllerBase extends ControllerBase {
               val files: Seq[(String, String)] = JGitUtil.getFileList(git, revision, ".").map { file =>
                 file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
               }
-              html.detail("code", gist, repositoryUrl(gist, baseUrl), revision, files, isEditable(userName))
+              html.detail(
+                "code",
+                gist,
+                GistRepositoryURL(gist, baseUrl, context.settings),
+                revision,
+                files,
+                isEditable(userName)
+              )
             } else Unauthorized
           }
         } else NotFound

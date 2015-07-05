@@ -1,6 +1,6 @@
 @(active: String,
   gist: gitbucket.gist.model.Gist,
-  repositoryUrl: String,
+  repositoryUrl: gitbucket.gist.util.GistUtils.GistRepositoryURL,
   editable: Boolean,
   revisions: List[(gitbucket.core.util.JGitUtil.CommitInfo, List[gitbucket.core.util.JGitUtil.DiffInfo])])(implicit context: gitbucket.core.controller.Context)
 @import context._
