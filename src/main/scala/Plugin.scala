@@ -19,6 +19,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   override val description: String = "Provides Gist feature on GitBucket."
 
   override val versions: List[Version] = List(
+    Version(1, 3),
     Version(1, 2),
     Version(1, 0)
   )
@@ -46,6 +47,8 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   override val images = Seq(
     "images/menu-revisions-active.png" -> fromClassPath("images/menu-revisions-active.png"),
     "images/menu-revisions.png"        -> fromClassPath("images/menu-revisions.png"),
+    "images/menu-forks-active.png"     -> fromClassPath("images/menu-forks-active.png"),
+    "images/menu-forks.png"            -> fromClassPath("images/menu-forks.png"),
     "images/snippet.png"               -> fromClassPath("images/snippet.png")
   )
 

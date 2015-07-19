@@ -3,7 +3,6 @@ package gitbucket.gist.controller
 import java.io.File
 import jp.sf.amateras.scalatra.forms._
 
-import gitbucket.core.model.Account
 import gitbucket.core.controller.ControllerBase
 import gitbucket.core.service.AccountService
 import gitbucket.core.util._
@@ -204,10 +203,14 @@ trait GistControllerBase extends ControllerBase {
               }
             }
           }
+
           val gist = getGist(userName, repoName).get
+          val originUserName = gist.originUserName.getOrElse(userName)
+          val originRepoName = gist.originRepositoryName.getOrElse(repoName)
+
           html.revisions(
-            "revision",
             gist,
+            getForkedCount(originUserName, originRepoName),
             GistRepositoryURL(gist, baseUrl, context.settings),
             isEditable(userName),
             commits
@@ -281,6 +284,51 @@ trait GistControllerBase extends ControllerBase {
     html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))
   }
 
+  post("/gist/:userName/:repoName/fork")(usersOnly {
+    val userName = params("userName")
+    val repoName = params("repoName")
+    val loginAccount = context.loginAccount.get
+
+    if(getGist(loginAccount.userName, repoName).isDefined){
+      redirect(s"${context.path}/gist/${userName}/${repoName}")
+    } else {
+      getGist(userName, repoName).map { gist =>
+        // Insert to the database at first
+        val originUserName = gist.originUserName.getOrElse(gist.userName)
+        val originRepoName = gist.originRepositoryName.getOrElse(gist.repositoryName)
+
+        registerGist(loginAccount.userName, repoName, gist.isPrivate, gist.title, gist.description,
+          Some(originUserName), Some(originRepoName), Some(userName), Some(repoName))
+
+        // Clone repository
+        JGitUtil.cloneRepository(
+          new File(GistRepoDir, userName + "/" + repoName),
+          new File(GistRepoDir, loginAccount.userName + "/" + repoName)
+        )
+
+        redirect(s"${context.path}/gist/${loginAccount.userName}/${repoName}")
+
+      } getOrElse NotFound
+    }
+  })
+
+  get("/gist/:userName/:repoName/forks"){
+    val userName = params("userName")
+    val repoName = params("repoName")
+
+    val gist = getGist(userName, repoName).get
+    val originUserName = gist.originUserName.getOrElse(userName)
+    val originRepoName = gist.originRepositoryName.getOrElse(repoName)
+
+    html.forks(
+      gist,
+      getForkedCount(originUserName, originRepoName),
+      GistRepositoryURL(gist, baseUrl, context.settings),
+      getForkedGists(originUserName, originRepoName),
+      isEditable(userName)
+    )
+  }
+
   private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master") = {
     repoName match {
       case None => {
@@ -318,14 +366,16 @@ trait GistControllerBase extends ControllerBase {
         if(gitdir.exists){
           using(Git.open(gitdir)){ git =>
             val gist = getGist(userName, repoName).get
+            val originUserName = gist.originUserName.getOrElse(userName)
+            val originRepoName = gist.originRepositoryName.getOrElse(repoName)
 
             if(!gist.isPrivate || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
               val files: Seq[(String, String)] = JGitUtil.getFileList(git, revision, ".").map { file =>
                 file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
               }
               html.detail(
-                "code",
                 gist,
+                getForkedCount(originUserName, originRepoName),
                 GistRepositoryURL(gist, baseUrl, context.settings),
                 revision,
                 files,

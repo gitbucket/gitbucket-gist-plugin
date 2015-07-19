@@ -1,4 +1,5 @@
 @(gist: gitbucket.gist.model.Gist,
+  forkedCount: Int,
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
 @import gitbucket.core.view.helpers._
@@ -10,15 +11,40 @@
     @if(gist.isPrivate){
       <span class="label label-warning">Secret</span>
     }
-    @if(editable){
-      <div class="pull-right">
-        <a href="@path/gist/@gist.userName/@gist.repositoryName/edit" class="btn">Edit</a>
-        <a href="@path/gist/@gist.userName/@gist.repositoryName/delete" class="btn" id="delete">Delete</a>
+    <div class="pull-right">
+      @if(editable){
+        <a href="@path/gist/@gist.userName/@gist.repositoryName/edit" class="btn btn-small">Edit</a>
+        <a href="@path/gist/@gist.userName/@gist.repositoryName/delete" class="btn btn-small" id="delete">Delete</a>
+      }
+      <div class="input-prepend" style="margin-bottom: 0px;">
+        @if(loginAccount.isEmpty){
+          <a title="You must be signed in to fork a repository" href="@path/signin" class="btn btn-small">Fork</a>
+        } else {
+          <a id="fork-link" href="javascript:void(0);" class="btn btn-small">Fork</a>
+        }
+        <span class="add-on count"><a href="@path/gist/@gist.userName/@gist.repositoryName/forks">@forkedCount</a></span>
       </div>
-    }
+      @if(loginAccount.isDefined){
+        <form id="fork-form" method="post" action="@path/gist/@gist.userName/@gist.repositoryName/fork">
+          @*
+          <input type="hidden" name="account" value="@loginAccount.get.userName"/>
+          *@
+        </form>
+      }
+    </div>
   </div>
   <div class="muted" style="margin-top: -10px; margin-left: 30px;">
     Created at @gist.registeredDate
   </div>
 </div>
 <hr style="margin-bottom: 20px;"/>
+<script>
+$(function(){
+  @if(loginAccount.isDefined){
+    $(document).on("click", "a#fork-link", function(e) {
+      e.preventDefault();
+      $('#fork-form').submit();
+    });
+  }
+});
+</script>

@@ -1,5 +1,5 @@
-@(active: String,
-  gist: gitbucket.gist.model.Gist,
+@(gist: gitbucket.gist.model.Gist,
+  forkedCount: Int,
   repositoryUrl: gitbucket.gist.util.GistUtils.GistRepositoryURL,
   revision: String,
   files: Seq[(String, String)],
@@ -8,9 +8,9 @@
 @import gitbucket.core.view.helpers._
 @import gitbucket.core.service.RepositoryService.RepositoryInfo
 @gitbucket.core.html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
-  @gitbucket.gist.html.header(gist, editable)
+  @gitbucket.gist.html.header(gist, forkedCount, editable)
   <div class="container body">
-    @gitbucket.gist.html.menu(active, gist, repositoryUrl)
+    @gitbucket.gist.html.menu("code", gist, repositoryUrl)
     <div style="margin-right: 180px;">
       <div style="margin-bottom: 10px;">
         @gist.description

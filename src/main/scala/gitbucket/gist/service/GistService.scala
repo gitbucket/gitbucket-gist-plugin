@@ -33,8 +33,17 @@ trait GistService {
   def getGist(userName: String, repositoryName: String)(implicit s: Session): Option[Gist] =
     Gists.filter(t => (t.userName === userName.bind) && (t.repositoryName === repositoryName.bind)).firstOption
 
-  def registerGist(userName: String, repositoryName: String, isPrivate: Boolean, title: String, description: String)(implicit s: Session): Unit =
-    Gists.insert(Gist(userName, repositoryName, isPrivate, title, description, new java.util.Date(), new java.util.Date()))
+  def getForkedCount(userName: String, repositoryName: String)(implicit s: Session): Int =
+    Query(Gists.filter(t => (t.originUserName === userName.bind) && (t.originRepositoryName === repositoryName.bind)).length).first
+
+  def getForkedGists(userName: String, repositoryName: String)(implicit s: Session): List[Gist] =
+    Gists.filter(t => (t.originUserName === userName.bind) && (t.originRepositoryName === repositoryName.bind)).sortBy(_.userName).list
+
+  def registerGist(userName: String, repositoryName: String, isPrivate: Boolean, title: String, description: String,
+                   originUserName: Option[String] = None, originRepositoryName: Option[String] = None,
+                   parentUserName: Option[String] = None, parentRepositoryName: Option[String] = None)(implicit s: Session): Unit =
+    Gists.insert(Gist(userName, repositoryName, isPrivate, title, description, new java.util.Date(), new java.util.Date(),
+      originUserName, originRepositoryName, parentUserName, parentRepositoryName))
 
   def updateGist(userName: String, repositoryName: String, title: String, description: String)(implicit s: Session): Unit =
     Gists
