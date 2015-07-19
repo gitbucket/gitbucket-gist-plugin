@@ -369,7 +369,7 @@ trait GistControllerBase extends ControllerBase {
             val originUserName = gist.originUserName.getOrElse(userName)
             val originRepoName = gist.originRepositoryName.getOrElse(repoName)
 
-            if(!gist.isPrivate || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
+            //if(!gist.isPrivate || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
               val files: Seq[(String, String)] = JGitUtil.getFileList(git, revision, ".").map { file =>
                 file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
               }
@@ -381,7 +381,7 @@ trait GistControllerBase extends ControllerBase {
                 files,
                 isEditable(userName)
               )
-            } else Unauthorized
+            //} else Unauthorized
           }
         } else NotFound
       }
