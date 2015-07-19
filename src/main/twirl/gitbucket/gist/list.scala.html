@@ -1,10 +1,11 @@
 @(gistUser: Option[gitbucket.gist.model.GistUser],
-  gists: Seq[(gitbucket.gist.model.Gist, String, String)],
+  gists: Seq[(gitbucket.gist.model.Gist, gitbucket.gist.model.GistInfo)],
   page: Int,
   hasNext: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
 @import gitbucket.core.view.helpers._
 @import gitbucket.core.service.RepositoryService.RepositoryInfo
+@import gitbucket.core.plugin.Images._
 @gitbucket.core.html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("")){
   @gitbucket.gist.html.style()
   <div class="container">
@@ -25,7 +26,7 @@
   </div>
   <hr style="margin-bottom: 20px;"/>
   <div class="container body">
-    @gists.map { case (gist, fileName, code) =>
+    @gists.map { case (gist, gistInfo) =>
       <div>
         <div>
           @avatar(gist.userName, 20)
@@ -34,17 +35,26 @@
           @if(gist.isPrivate){
             <span class="label label-warning">Secret</span>
           }
+          <div class="pull-right">
+            <a href="@path/gist/@gist.userName/@gist.repositoryName" class="header-link">
+              <img src="@dataURI("images/code.png")"> <strong>@gistInfo.fileCount @plural(gistInfo.fileCount, "file")</strong>
+            </a>
+            &nbsp;&nbsp;
+            <a href="@path/gist/@gist.userName/@gist.repositoryName/forks" class="header-link">
+              <img src="@dataURI("images/menu-forks.png")"> <strong>@gistInfo.forkedCount @plural(gistInfo.forkedCount, "fork")</strong>
+            </a>
+          </div>
         </div>
-        <div class="muted" style="margin-left: 22px;">
+        <div class="muted small" style="margin-left: 22px;">
           Created at @gist.registeredDate
         </div>
-        <div style="margin-left: 22px; margin-top: 10px; margin-bottom: 10px;">
+        <div class="small" style="margin-left: 22px; margin-top: 2px; margin-bottom: 2px;">
           @gist.description
         </div>
         <div>
-          @if(isRenderable(fileName)){
+          @if(isRenderable(gistInfo.fileName)){
             <div class="list-markup box-content markdown-body">
-              @renderMarkup(List(fileName), code, "master", RepositoryInfo(
+              @renderMarkup(List(gistInfo.fileName), gistInfo.source, "master", RepositoryInfo(
                 owner       = gist.userName,
                 name        = gist.repositoryName,
                 httpUrl     = "",
@@ -59,7 +69,7 @@
               ), false, false, false)
             </div>
           } else {
-            <pre class="list-code prettyprint linenums">@Html(code)</pre>
+            <pre class="list-code prettyprint linenums">@Html(gistInfo.source)</pre>
           }
         </div>
       </div>

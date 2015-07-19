@@ -11,8 +11,7 @@ import gitbucket.core.util.ControlUtil._
 import gitbucket.core.util.Implicits._
 import gitbucket.core.view.helpers._
 
-
-import gitbucket.gist.model.{GistUser, Gist}
+import gitbucket.gist.model._
 import gitbucket.gist.service.GistService
 import gitbucket.gist.util._
 import gitbucket.gist.util.GistUtils._
@@ -41,19 +40,11 @@ trait GistControllerBase extends ControllerBase {
       val result = getPublicGists((page - 1) * Limit, Limit)
       val count  = countPublicGists()
 
-      val gists: Seq[(Gist, String, String)] = result.map { gist =>
-        val gitdir = new File(GistRepoDir, gist.userName + "/" + gist.repositoryName)
-        if(gitdir.exists){
-          using(Git.open(gitdir)){ git =>
-            val (fileName, source) = JGitUtil.getFileList(git, "master", ".").map { file =>
-              file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
-            }.head
+      val gists: Seq[(Gist, GistInfo)] = result.map { gist =>
+        val files = getGistFiles(gist.userName, gist.repositoryName)
+        val (fileName, source) = files.head
 
-            (gist, fileName, source)
-          }
-        } else {
-          (gist, "", "Repository is not found!")
-        }
+        (gist, GistInfo(fileName, source, files.length, getForkedCount(gist.userName, gist.repositoryName)))
       }
 
       html.list(None, gists, page, page * Limit < count)
@@ -340,48 +331,38 @@ trait GistControllerBase extends ControllerBase {
           countUserGists(userName, context.loginAccount.map(_.userName))
         )
 
-        val gists: Seq[(Gist, String, String)] = result._1.map { gist =>
+        val gists: Seq[(Gist, GistInfo)] = result._1.map { gist =>
           val repoName = gist.repositoryName
-          val gitdir = new File(GistRepoDir, userName + "/" + repoName)
-          if(gitdir.exists){
-            using(Git.open(gitdir)){ git =>
-              val (fileName, source) = JGitUtil.getFileList(git, revision, ".").map { file =>
-                file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
-              }.head
-
-              (gist, fileName, source)
-            }
-          } else {
-            (gist, "", "Repository is not found!")
-          }
+          val files = getGistFiles(userName, repoName, revision)
+          val (fileName, source) = files.head
+          (gist, GistInfo(fileName, source, files.length, getForkedCount(userName, repoName)))
         }
 
         val fullName = getAccountByUserName(userName).get.fullName
         html.list(Some(GistUser(userName, fullName)), gists, page, page * Limit < result._2)
       }
       case Some(repoName) => {
-        val gitdir = new File(GistRepoDir, userName + "/" + repoName)
-        if(gitdir.exists){
-          using(Git.open(gitdir)){ git =>
-            val gist = getGist(userName, repoName).get
-            val originUserName = gist.originUserName.getOrElse(userName)
-            val originRepoName = gist.originRepositoryName.getOrElse(repoName)
+        val gist = getGist(userName, repoName).get
+        val originUserName = gist.originUserName.getOrElse(userName)
+        val originRepoName = gist.originRepositoryName.getOrElse(repoName)
 
-            //if(!gist.isPrivate || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
-              val files: Seq[(String, String)] = JGitUtil.getFileList(git, revision, ".").map { file =>
-                file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
-              }
-              html.detail(
-                gist,
-                getForkedCount(originUserName, originRepoName),
-                GistRepositoryURL(gist, baseUrl, context.settings),
-                revision,
-                files,
-                isEditable(userName)
-              )
-            //} else Unauthorized
-          }
-        } else NotFound
+        html.detail(
+          gist,
+          getForkedCount(originUserName, originRepoName),
+          GistRepositoryURL(gist, baseUrl, context.settings),
+          revision,
+          getGistFiles(userName, repoName, revision),
+          isEditable(userName)
+        )
+      }
+    }
+  }
+
+  private def getGistFiles(userName: String, repoName: String, revision: String = "master"): Seq[(String, String)] = {
+    val gitdir = new File(GistRepoDir, userName + "/" + repoName)
+    using(Git.open(gitdir)){ git =>
+      JGitUtil.getFileList(git, revision, ".").map { file =>
+        file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
       }
     }
   }
