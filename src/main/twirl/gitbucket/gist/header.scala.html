@@ -16,20 +16,19 @@
         <a href="@path/gist/@gist.userName/@gist.repositoryName/edit" class="btn btn-small">Edit</a>
         <a href="@path/gist/@gist.userName/@gist.repositoryName/delete" class="btn btn-small" id="delete">Delete</a>
       }
-      <div class="input-prepend" style="margin-bottom: 0px;">
-        @if(loginAccount.isEmpty){
-          <a title="You must be signed in to fork a repository" href="@path/signin" class="btn btn-small">Fork</a>
-        } else {
-          <a id="fork-link" href="javascript:void(0);" class="btn btn-small">Fork</a>
+      @if(gist.userName.isEmpty){
+        <div class="input-prepend" style="margin-bottom: 0px;">
+          @if(loginAccount.isEmpty){
+            <a title="You must be signed in to fork a repository" href="@path/signin" class="btn btn-small">Fork</a>
+          } else {
+            <a id="fork-link" href="javascript:void(0);" class="btn btn-small">Fork</a>
+          }
+          <span class="add-on count"><a href="@path/gist/@gist.userName/@gist.repositoryName/forks">@forkedCount</a></span>
+        </div>
+        @if(loginAccount.isDefined){
+          <form id="fork-form" method="post" action="@path/gist/@gist.userName/@gist.repositoryName/fork">
+          </form>
         }
-        <span class="add-on count"><a href="@path/gist/@gist.userName/@gist.repositoryName/forks">@forkedCount</a></span>
-      </div>
-      @if(loginAccount.isDefined){
-        <form id="fork-form" method="post" action="@path/gist/@gist.userName/@gist.repositoryName/fork">
-          @*
-          <input type="hidden" name="account" value="@loginAccount.get.userName"/>
-          *@
-        </form>
       }
     </div>
   </div>

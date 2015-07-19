@@ -40,10 +40,9 @@ trait GistService {
     Gists.filter(t => (t.originUserName === userName.bind) && (t.originRepositoryName === repositoryName.bind)).sortBy(_.userName).list
 
   def registerGist(userName: String, repositoryName: String, isPrivate: Boolean, title: String, description: String,
-                   originUserName: Option[String] = None, originRepositoryName: Option[String] = None,
-                   parentUserName: Option[String] = None, parentRepositoryName: Option[String] = None)(implicit s: Session): Unit =
+                   originUserName: Option[String] = None, originRepositoryName: Option[String] = None)(implicit s: Session): Unit =
     Gists.insert(Gist(userName, repositoryName, isPrivate, title, description, new java.util.Date(), new java.util.Date(),
-      originUserName, originRepositoryName, parentUserName, parentRepositoryName))
+      originUserName, originRepositoryName))
 
   def updateGist(userName: String, repositoryName: String, title: String, description: String)(implicit s: Session): Unit =
     Gists

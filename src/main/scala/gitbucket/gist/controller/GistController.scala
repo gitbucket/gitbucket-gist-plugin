@@ -298,7 +298,7 @@ trait GistControllerBase extends ControllerBase {
         val originRepoName = gist.originRepositoryName.getOrElse(gist.repositoryName)
 
         registerGist(loginAccount.userName, repoName, gist.isPrivate, gist.title, gist.description,
-          Some(originUserName), Some(originRepoName), Some(userName), Some(repoName))
+          Some(originUserName), Some(originRepoName))
 
         // Clone repository
         JGitUtil.cloneRepository(

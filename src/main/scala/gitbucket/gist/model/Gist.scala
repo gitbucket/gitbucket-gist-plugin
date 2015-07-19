@@ -16,9 +16,7 @@ trait GistComponent { self: gitbucket.core.model.Profile =>
     val updatedDate          = column[java.util.Date]("UPDATED_DATE")
     val originUserName       = column[String]("ORIGIN_USER_NAME")
     val originRepositoryName = column[String]("ORIGIN_REPOSITORY_NAME")
-    val parentUserName       = column[String]("PARENT_USER_NAME")
-    val parentRepositoryName = column[String]("PARENT_REPOSITORY_NAME")
-    def * = (userName, repositoryName, isPrivate, title, description, registeredDate, updatedDate, originUserName.?, originRepositoryName.?, parentUserName.?, parentRepositoryName.?) <> (Gist.tupled, Gist.unapply)
+    def * = (userName, repositoryName, isPrivate, title, description, registeredDate, updatedDate, originUserName.?, originRepositoryName.?) <> (Gist.tupled, Gist.unapply)
   }
 }
 
@@ -31,9 +29,7 @@ case class Gist(
   registeredDate: java.util.Date,
   updatedDate: java.util.Date,
   originUserName: Option[String],
-  originRepositoryName: Option[String],
-  parentUserName: Option[String],
-  parentRepositoryName: Option[String]
+  originRepositoryName: Option[String]
 )
 
 
