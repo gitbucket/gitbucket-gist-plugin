@@ -16,7 +16,7 @@
         <a href="@path/gist/@gist.userName/@gist.repositoryName/edit" class="btn btn-small">Edit</a>
         <a href="@path/gist/@gist.userName/@gist.repositoryName/delete" class="btn btn-small" id="delete">Delete</a>
       }
-      @if(gist.userName.isEmpty){
+      @if(gist.originUserName.isEmpty){
         <div class="input-prepend" style="margin-bottom: 0px;">
           @if(loginAccount.isEmpty){
             <a title="You must be signed in to fork a repository" href="@path/signin" class="btn btn-small">Fork</a>
