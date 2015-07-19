@@ -316,17 +316,15 @@ trait GistControllerBase extends ControllerBase {
     val userName = params("userName")
     val repoName = params("repoName")
 
-    val gist = getGist(userName, repoName).get
-    val originUserName = gist.originUserName.getOrElse(userName)
-    val originRepoName = gist.originRepositoryName.getOrElse(repoName)
-
-    html.forks(
-      gist,
-      getForkedCount(originUserName, originRepoName),
-      GistRepositoryURL(gist, baseUrl, context.settings),
-      getForkedGists(originUserName, originRepoName),
-      isEditable(userName)
-    )
+    getGist(userName, repoName).map { gist =>
+      html.forks(
+        gist,
+        getForkedCount(userName, repoName),
+        GistRepositoryURL(gist, baseUrl, context.settings),
+        getForkedGists(userName, repoName),
+        isEditable(userName)
+      )
+    } getOrElse NotFound
   }
 
   private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master") = {

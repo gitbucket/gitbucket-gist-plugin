@@ -34,6 +34,9 @@
   </div>
   <div class="muted" style="margin-top: -10px; margin-left: 30px;">
     Created at @gist.registeredDate
+    @if(gist.originUserName.isDefined){
+      - forked from <a href="@path/gist/@gist.originUserName/@gist.originRepositoryName">@gist.originUserName/@gist.originRepositoryName</a>
+    }
   </div>
 </div>
 <hr style="margin-bottom: 20px;"/>
