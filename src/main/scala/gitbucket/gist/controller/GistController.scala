@@ -1,10 +1,12 @@
 package gitbucket.gist.controller
 
 import java.io.File
+import gitbucket.core.view.helpers
 import jp.sf.amateras.scalatra.forms._
 
 import gitbucket.core.controller.ControllerBase
 import gitbucket.core.service.AccountService
+import gitbucket.core.service.RepositoryService.RepositoryInfo
 import gitbucket.core.util._
 import gitbucket.core.util.Directory._
 import gitbucket.core.util.ControlUtil._
@@ -12,7 +14,7 @@ import gitbucket.core.util.Implicits._
 import gitbucket.core.view.helpers._
 
 import gitbucket.gist.model._
-import gitbucket.gist.service.GistService
+import gitbucket.gist.service._
 import gitbucket.gist.util._
 import gitbucket.gist.util.GistUtils._
 import gitbucket.gist.util.Configurations._
@@ -21,12 +23,19 @@ import gitbucket.gist.html
 import org.apache.commons.io.FileUtils
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib._
+import org.scalatra.Ok
 
-class GistController extends GistControllerBase with GistService with AccountService
+class GistController extends GistControllerBase with GistService with GistCommentService with AccountService
   with GistEditorAuthenticator with UsersAuthenticator
 
 trait GistControllerBase extends ControllerBase {
-  self: GistService with AccountService with GistEditorAuthenticator with UsersAuthenticator =>
+  self: GistService with GistCommentService with AccountService with GistEditorAuthenticator with UsersAuthenticator =>
+
+  case class CommentForm(content: String)
+
+  val commentForm = mapping(
+    "content" -> trim(label("Comment", text(required)))
+  )(CommentForm.apply)
 
   get("/gist"){
     if(context.loginAccount.isDefined){
@@ -41,10 +50,12 @@ trait GistControllerBase extends ControllerBase {
       val count  = countPublicGists()
 
       val gists: Seq[(Gist, GistInfo)] = result.map { gist =>
-        val files = getGistFiles(gist.userName, gist.repositoryName)
+        val userName = gist.userName
+        val repoName = gist.repositoryName
+        val files = getGistFiles(userName, repoName)
         val (fileName, source) = files.head
 
-        (gist, GistInfo(fileName, source, files.length, getForkedCount(gist.userName, gist.repositoryName)))
+        (gist, GistInfo(fileName, source, files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
       }
 
       html.list(None, gists, page, page * Limit < count)
@@ -318,6 +329,82 @@ trait GistControllerBase extends ControllerBase {
     } getOrElse NotFound
   }
 
+  post("/gist/:userName/:repoName/_preview"){
+    val userName = params("userName")
+    val repoName = params("repoName")
+
+    contentType = "text/html"
+    helpers.markdown(params("content"),
+      RepositoryInfo(
+        owner       = userName,
+        name        = repoName,
+        httpUrl     = "",
+        repository  = null,
+        issueCount  = 0,
+        pullCount   = 0,
+        commitCount = 0,
+        forkedCount = 0,
+        branchList  = Nil,
+        tags        = Nil,
+        managers    = Nil
+      ), false, false, false, false)
+  }
+
+  post("/gist/:userName/:repoName/_comment", commentForm)(usersOnly { form =>
+    val userName = params("userName")
+    val repoName = params("repoName")
+    val loginAccount = context.loginAccount.get
+
+    getGist(userName, repoName).map { gist =>
+      registerGistComment(userName, repoName, form.content, loginAccount.userName)
+      redirect(s"${context.path}/gist/${userName}/${repoName}")
+    } getOrElse NotFound
+  })
+
+  ajaxPost("/gist/:userName/:repoName/_comments/:commentId/_delete")(usersOnly {
+    val userName  = params("userName")
+    val repoName  = params("repoName")
+    val commentId = params("commentId").toInt
+
+    // TODO Access check
+
+    Ok(deleteGistComment(userName, repoName, commentId))
+  })
+
+  ajaxGet("/gist/:userName/:repoName/_comments/:commentId")(usersOnly {
+    val userName  = params("userName")
+    val repoName  = params("repoName")
+    val commentId = params("commentId").toInt
+
+    // TODO Access check
+    getGist(userName, repoName).flatMap { gist =>
+      getGistComment(userName, repoName, commentId).map { comment =>
+        params.get("dataType") collect {
+          case t if t == "html" => gitbucket.gist.html.commentedit(
+            comment.content, comment.commentId, comment.userName, comment.repositoryName)
+        } getOrElse {
+          contentType = formats("json")
+          org.json4s.jackson.Serialization.write(
+            Map("content" -> gitbucket.core.view.Markdown.toHtml(comment.content,
+              gist.toRepositoryInfo, false, true, true, true) // TODO isEditableこれでいいのか？
+            ))
+        }
+      }
+    } getOrElse NotFound
+  })
+
+  ajaxPost("/gist/:userName/:repoName/_comments/:commentId/_update", commentForm)(usersOnly { form =>
+    val userName  = params("userName")
+    val repoName  = params("repoName")
+    val commentId = params("commentId").toInt
+
+    // TODO Access check
+
+    updateGistComment(userName, repoName, commentId, form.content)
+    redirect(s"/gist/${userName}/${repoName}/_comments/${commentId}")
+  })
+
+
   private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master") = {
     repoName match {
       case None => {
@@ -335,7 +422,7 @@ trait GistControllerBase extends ControllerBase {
           val repoName = gist.repositoryName
           val files = getGistFiles(userName, repoName, revision)
           val (fileName, source) = files.head
-          (gist, GistInfo(fileName, source, files.length, getForkedCount(userName, repoName)))
+          (gist, GistInfo(fileName, source, files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
         }
 
         val fullName = getAccountByUserName(userName).get.fullName
@@ -352,6 +439,7 @@ trait GistControllerBase extends ControllerBase {
           GistRepositoryURL(gist, baseUrl, context.settings),
           revision,
           getGistFiles(userName, repoName, revision),
+          getGistComments(userName, repoName),
           isEditable(userName)
         )
       }

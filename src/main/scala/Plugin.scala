@@ -50,6 +50,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     "images/menu-forks-active.png"     -> fromClassPath("images/menu-forks-active.png"),
     "images/menu-forks.png"            -> fromClassPath("images/menu-forks.png"),
     "images/code.png"                  -> fromClassPath("images/code.png"),
+    "images/comment.png"               -> fromClassPath("images/comment.png"),
     "images/snippet.png"               -> fromClassPath("images/snippet.png")
   )
 

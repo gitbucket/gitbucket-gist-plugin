@@ -1,7 +1,7 @@
 @(gist: gitbucket.gist.model.Gist,
   forkedCount: Int,
   repositoryUrl: gitbucket.gist.util.GistUtils.GistRepositoryURL,
-  forkedGists: List[gitbucket.gist.model.Gist],
+  forkedGists: Seq[gitbucket.gist.model.Gist],
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
 @import gitbucket.core.view.helpers._

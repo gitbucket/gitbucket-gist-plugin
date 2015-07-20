@@ -6,16 +6,16 @@ import profile.simple._
 
 trait GistService {
 
-  def getRecentGists(userName: String, offset: Int, limit: Int)(implicit s: Session): List[Gist] =
+  def getRecentGists(userName: String, offset: Int, limit: Int)(implicit s: Session): Seq[Gist] =
     Gists.filter(_.userName === userName.bind).sortBy(_.registeredDate desc).drop(offset).take(limit).list
 
-  def getPublicGists(offset: Int, limit: Int)(implicit s: Session): List[Gist] =
+  def getPublicGists(offset: Int, limit: Int)(implicit s: Session): Seq[Gist] =
     Gists.filter(_.isPrivate === false.bind).sortBy(_.registeredDate desc).drop(offset).take(limit).list
 
   def countPublicGists()(implicit s: Session): Int =
     Query(Gists.filter(_.isPrivate === false.bind).length).first
 
-  def getUserGists(userName: String, loginUserName: Option[String], offset: Int, limit: Int)(implicit s: Session): List[Gist] =
+  def getUserGists(userName: String, loginUserName: Option[String], offset: Int, limit: Int)(implicit s: Session): Seq[Gist] =
     (if(loginUserName.isDefined){
       Gists filter(t => (t.userName === userName.bind) && ((t.userName === loginUserName.bind) || (t.isPrivate === false.bind)))
     } else {
@@ -36,7 +36,7 @@ trait GistService {
   def getForkedCount(userName: String, repositoryName: String)(implicit s: Session): Int =
     Query(Gists.filter(t => (t.originUserName === userName.bind) && (t.originRepositoryName === repositoryName.bind)).length).first
 
-  def getForkedGists(userName: String, repositoryName: String)(implicit s: Session): List[Gist] =
+  def getForkedGists(userName: String, repositoryName: String)(implicit s: Session): Seq[Gist] =
     Gists.filter(t => (t.originUserName === userName.bind) && (t.originRepositoryName === repositoryName.bind)).sortBy(_.userName).list
 
   def registerGist(userName: String, repositoryName: String, isPrivate: Boolean, title: String, description: String,

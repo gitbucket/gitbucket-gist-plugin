@@ -4,7 +4,6 @@
   hasNext: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
 @import gitbucket.core.view.helpers._
-@import gitbucket.core.service.RepositoryService.RepositoryInfo
 @import gitbucket.core.plugin.Images._
 @gitbucket.core.html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("")){
   @gitbucket.gist.html.style()
@@ -43,6 +42,10 @@
             <a href="@path/gist/@gist.userName/@gist.repositoryName/forks" class="header-link">
               <img src="@dataURI("images/menu-forks.png")"> <strong>@gistInfo.forkedCount @plural(gistInfo.forkedCount, "fork")</strong>
             </a>
+            &nbsp;&nbsp;
+            <a href="@path/gist/@gist.userName/@gist.repositoryName" class="header-link">
+              <img src="@dataURI("images/comment.png")"> <strong>@gistInfo.commentCount @plural(gistInfo.commentCount, "comment")</strong>
+            </a>
           </div>
         </div>
         <div class="muted small" style="margin-left: 22px;">
@@ -54,19 +57,7 @@
         <div>
           @if(isRenderable(gistInfo.fileName)){
             <div class="list-markup box-content markdown-body">
-              @renderMarkup(List(gistInfo.fileName), gistInfo.source, "master", RepositoryInfo(
-                owner       = gist.userName,
-                name        = gist.repositoryName,
-                httpUrl     = "",
-                repository  = null,
-                issueCount  = 0,
-                pullCount   = 0,
-                commitCount = 0,
-                forkedCount = 0,
-                branchList  = Nil,
-                tags        = Nil,
-                managers    = Nil
-              ), false, false, false)
+              @renderMarkup(List(gistInfo.fileName), gistInfo.source, "master", gist.toRepositoryInfo, false, false, false)
             </div>
           } else {
             <pre class="list-code prettyprint linenums">@Html(gistInfo.source)</pre>
