@@ -15,9 +15,7 @@
   <div class="tab-content">
     <div class="tab-pane active" id="tab@uid">
       <span id="error-content" class="error"></span>
-      @helper.html.attached(gist.userName, gist.repositoryName){
-        <textarea id="content@uid" name="content" placeholder="@placeholder" @if(style.nonEmpty){style="@style"}>@content</textarea>
-      }
+      <textarea id="content@uid" name="content" placeholder="@placeholder" @if(style.nonEmpty){style="@style"}>@content</textarea>
     </div>
     <div class="tab-pane" id="tab@(uid+1)">
       <div class="markdown-body" id="preview-area@uid">
@@ -25,10 +23,6 @@
     </div>
   </div>
 </div>
-@*
-<link  href="@assets/vendors/google-code-prettify/prettify.css" type="text/css" rel="stylesheet"/>
-<script src="@assets/vendors/google-code-prettify/prettify.js"></script>
-*@
 <script>
 $(function(){
   @if(elastic){

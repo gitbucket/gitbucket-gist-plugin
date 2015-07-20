@@ -37,6 +37,12 @@ trait GistControllerBase extends ControllerBase {
     "content" -> trim(label("Comment", text(required)))
   )(CommentForm.apply)
 
+  ////////////////////////////////////////////////////////////////////////////////
+  //
+  // Gist Actions
+  //
+  ////////////////////////////////////////////////////////////////////////////////
+
   get("/gist"){
     if(context.loginAccount.isDefined){
       val gists = getRecentGists(context.loginAccount.get.userName, 0, 4)
@@ -286,6 +292,12 @@ trait GistControllerBase extends ControllerBase {
     html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))
   }
 
+  ////////////////////////////////////////////////////////////////////////////////
+  //
+  // Fork Actions
+  //
+  ////////////////////////////////////////////////////////////////////////////////
+
   post("/gist/:userName/:repoName/fork")(usersOnly {
     val userName = params("userName")
     val repoName = params("repoName")
@@ -328,6 +340,12 @@ trait GistControllerBase extends ControllerBase {
       )
     } getOrElse NotFound
   }
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //
+  // Comment Actions
+  //
+  ////////////////////////////////////////////////////////////////////////////////
 
   post("/gist/:userName/:repoName/_preview"){
     val userName = params("userName")
@@ -404,6 +422,11 @@ trait GistControllerBase extends ControllerBase {
     redirect(s"/gist/${userName}/${repoName}/_comments/${commentId}")
   })
 
+  ////////////////////////////////////////////////////////////////////////////////
+  //
+  // Private Methods
+  //
+  ////////////////////////////////////////////////////////////////////////////////
 
   private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master") = {
     repoName match {
