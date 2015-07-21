@@ -45,6 +45,8 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   )
 
   override val images = Seq(
+    "images/menu-code-active.png"      -> fromClassPath("images/menu-code-active.png"),
+    "images/menu-code.png"             -> fromClassPath("images/menu-code.png"),
     "images/menu-revisions-active.png" -> fromClassPath("images/menu-revisions-active.png"),
     "images/menu-revisions.png"        -> fromClassPath("images/menu-revisions.png"),
     "images/menu-forks-active.png"     -> fromClassPath("images/menu-forks-active.png"),
