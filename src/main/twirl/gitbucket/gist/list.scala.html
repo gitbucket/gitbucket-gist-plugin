@@ -4,7 +4,6 @@
   hasNext: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
 @import gitbucket.core.view.helpers._
-@import gitbucket.core.plugin.Images._
 @gitbucket.core.html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("")){
   @gitbucket.gist.html.style()
   <div class="container">
@@ -36,15 +35,15 @@
           }
           <div class="pull-right">
             <a href="@path/gist/@gist.userName/@gist.repositoryName" class="header-link">
-              <img src="@dataURI("images/code.png")"> <strong>@gistInfo.fileCount @plural(gistInfo.fileCount, "file")</strong>
+              <i class="octicon octicon-gist"></i> <strong>@gistInfo.fileCount @plural(gistInfo.fileCount, "file")</strong>
             </a>
             &nbsp;&nbsp;
             <a href="@path/gist/@gist.userName/@gist.repositoryName/forks" class="header-link">
-              <img src="@dataURI("images/menu-forks.png")"> <strong>@gistInfo.forkedCount @plural(gistInfo.forkedCount, "fork")</strong>
+              <i class="octicon octicon-git-branch"></i> <strong>@gistInfo.forkedCount @plural(gistInfo.forkedCount, "fork")</strong>
             </a>
             &nbsp;&nbsp;
             <a href="@path/gist/@gist.userName/@gist.repositoryName" class="header-link">
-              <img src="@dataURI("images/comment.png")"> <strong>@gistInfo.commentCount @plural(gistInfo.commentCount, "comment")</strong>
+              <i class="octicon octicon-comment"></i> <strong>@gistInfo.commentCount @plural(gistInfo.commentCount, "comment")</strong>
             </a>
           </div>
         </div>

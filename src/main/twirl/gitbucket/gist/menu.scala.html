@@ -4,18 +4,12 @@
 @import context._
 @import gitbucket.core.helper
 @import gitbucket.core.view.helpers._
-@import gitbucket.core.plugin.Images._
 
-@menuitem(name: String, path: String, activeImage: String, normalImage: String, label: String, count: Int = 0) = {
+@menuitem(name: String, path: String, image: String, label: String, count: Int = 0) = {
   <li @if(active == name){class="active"}>
     <div class="@if(active == name){margin} else {gradient} pull-left"></div>
     <a href="@context.path/gist/@path">
-      @if(active == name){
-        <img src="@activeImage">
-      } else {
-        <img src="@activeImage" class="menu-icon-active" style="display:none;">
-        <img src="@normalImage" class="menu-icon">
-      }
+      <i class="menu-icon @if(active == name){menu-icon-active} octicon octicon-@image"></i>
       @label
       @if(count > 0){
         <div class="pull-right"><span class="label">@count</span></div>
@@ -30,21 +24,18 @@
     @menuitem(
       "code",
       s"${gist.userName}/${gist.repositoryName}",
-      dataURI("images/menu-code-active.png"),
-      dataURI("images/menu-code.png"),
+      "code",
       "Code")
     @menuitem(
       "revision",
       s"${gist.userName}/${gist.repositoryName}/revisions",
-      dataURI("images/menu-revisions-active.png"),
-      dataURI("images/menu-revisions.png"),
+      "git-commit",
       "Revision")
     @if(gist.originUserName.isEmpty){
       @menuitem(
         "forks",
         s"${gist.userName}/${gist.repositoryName}/forks",
-        dataURI("images/menu-forks-active.png"),
-        dataURI("images/menu-forks.png"),
+        "git-branch",
         "Forks")
     }
     <li style="height: 12px"><div class="gradient pull-left" style="height: 12px"></div></li>

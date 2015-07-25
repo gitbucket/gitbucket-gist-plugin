@@ -1,5 +1,3 @@
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-
 import gitbucket.core.model._
 import gitbucket.core.service.AccountService
 import gitbucket.core.service.SystemSettingsService.SystemSettings
@@ -42,18 +40,6 @@ class Plugin extends gitbucket.core.plugin.Plugin {
 
   override val controllers = Seq(
     "/*" -> new GistController()
-  )
-
-  override val images = Seq(
-    "images/menu-code-active.png"      -> fromClassPath("images/menu-code-active.png"),
-    "images/menu-code.png"             -> fromClassPath("images/menu-code.png"),
-    "images/menu-revisions-active.png" -> fromClassPath("images/menu-revisions-active.png"),
-    "images/menu-revisions.png"        -> fromClassPath("images/menu-revisions.png"),
-    "images/menu-forks-active.png"     -> fromClassPath("images/menu-forks-active.png"),
-    "images/menu-forks.png"            -> fromClassPath("images/menu-forks.png"),
-    "images/code.png"                  -> fromClassPath("images/code.png"),
-    "images/comment.png"               -> fromClassPath("images/comment.png"),
-    "images/snippet.png"               -> fromClassPath("images/snippet.png")
   )
 
   override def javaScripts(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Seq[(String, String)] = {

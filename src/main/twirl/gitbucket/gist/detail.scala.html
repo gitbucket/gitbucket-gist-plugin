@@ -7,7 +7,6 @@
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
 @import gitbucket.core.view.helpers._
-@import gitbucket.core.service.RepositoryService.RepositoryInfo
 @gitbucket.core.html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
   @gitbucket.gist.html.header(gist, forkedCount, editable)
   <div class="container body">

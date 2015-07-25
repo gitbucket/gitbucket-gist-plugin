@@ -3,7 +3,6 @@
   files: Seq[(String, gitbucket.core.util.JGitUtil.ContentInfo)])(implicit context: gitbucket.core.controller.Context)
 @import context._
 @import gitbucket.core.view.helpers._
-@import gitbucket.core.plugin.Images._
 @gitbucket.core.html.main("Snippets"){
   <div class="container">
     <div id="error"></div>
@@ -12,7 +11,7 @@
         <ul style="list-style: none; margin-left: 0px;">
         @recent.map { gist =>
           <li style="float: left; width: 200px;">
-            <img src="@dataURI("images/snippet.png")" style="width: 24px; height: 24px;">
+            <i class="octicon octicon-gist" style="width: 24px; height: 24px;"></i>
             <div style="margin-left: 26px; font-size: 80%; position: relative; top: -24px; line-height: normal; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
               <a class="strong" href="@path/gist/@gist.userName/@gist.repositoryName">@gist.title</a><br>
               @if(gist.description.nonEmpty){
