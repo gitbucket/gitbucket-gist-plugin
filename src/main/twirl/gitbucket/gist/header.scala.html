@@ -19,7 +19,7 @@
       @if(gist.originUserName.isEmpty){
         <div class="input-prepend" style="margin-bottom: 0px;">
           @if(loginAccount.isEmpty){
-            <a title="You must be signed in to fork a repository" href="@path/signin" class="btn btn-small">Fork</a>
+            <a title="You must be signed in to fork a repository" href="@path/signin?redirect=@urlEncode(s"${path}/gist/${gist.userName}/${gist.repositoryName}")" class="btn btn-small">Fork</a>
           } else {
             <a id="fork-link" href="javascript:void(0);" class="btn btn-small">Fork</a>
           }
