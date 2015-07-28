@@ -47,8 +47,8 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     val path = settings.baseUrl.getOrElse(context.getContextPath)
     Seq(
       ".*" -> s"""
-        |$$('a.brand').after(
-        |  $$('<span style="float: left; margin-top: 10px;">|&nbsp;&nbsp;&nbsp;&nbsp;<a href="${path}/gist" style="color: black;">Snippet</a></span>')
+        |$$('a.global-header-menu:last').after(
+        |  $$('<a href="${path}/gist" class="global-header-menu">Gist</a>')
         |);
       """.stripMargin
     )
