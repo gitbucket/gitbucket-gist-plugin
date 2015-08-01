@@ -1,10 +1,11 @@
 @(gistUser: Option[gitbucket.gist.model.GistUser],
-  gists: Seq[(gitbucket.gist.model.Gist, String)],
+  gists: Seq[(gitbucket.gist.model.Gist, gitbucket.gist.model.GistInfo)],
   page: Int,
   hasNext: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
 @import gitbucket.core.view.helpers._
 @gitbucket.core.html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("")){
+  @gitbucket.gist.html.style()
   <div class="container">
   @if(gistUser.isEmpty){
     <div class="head">Discover Snippets</div>
@@ -23,7 +24,7 @@
   </div>
   <hr style="margin-bottom: 20px;"/>
   <div class="container body">
-    @gists.map { case (gist, code) =>
+    @gists.map { case (gist, gistInfo) =>
       <div>
         <div>
           @avatar(gist.userName, 20)
@@ -32,15 +33,34 @@
           @if(gist.isPrivate){
             <span class="label label-warning">Secret</span>
           }
+          <div class="pull-right">
+            <a href="@path/gist/@gist.userName/@gist.repositoryName" class="header-link">
+              <i class="octicon octicon-gist"></i> <strong>@gistInfo.fileCount @plural(gistInfo.fileCount, "file")</strong>
+            </a>
+            &nbsp;&nbsp;
+            <a href="@path/gist/@gist.userName/@gist.repositoryName/forks" class="header-link">
+              <i class="octicon octicon-git-branch"></i> <strong>@gistInfo.forkedCount @plural(gistInfo.forkedCount, "fork")</strong>
+            </a>
+            &nbsp;&nbsp;
+            <a href="@path/gist/@gist.userName/@gist.repositoryName" class="header-link">
+              <i class="octicon octicon-comment"></i> <strong>@gistInfo.commentCount @plural(gistInfo.commentCount, "comment")</strong>
+            </a>
+          </div>
         </div>
-        <div class="muted" style="margin-left: 22px;">
+        <div class="muted small" style="margin-left: 22px;">
           Created at @gist.registeredDate
         </div>
-        <div style="margin-left: 22px; margin-top: 10px; margin-bottom: 10px;">
+        <div class="small" style="margin-left: 22px; margin-top: 2px; margin-bottom: 2px;">
           @gist.description
         </div>
         <div>
-          <pre class="prettyprint linenums" style="padding-left: 25px;">@Html(code)</pre>
+          @if(isRenderable(gistInfo.fileName)){
+            <div class="list-markup box-content markdown-body">
+              @renderMarkup(List(gistInfo.fileName), gistInfo.source, "master", gist.toRepositoryInfo, false, false, false)
+            </div>
+          } else {
+            <pre class="list-code prettyprint linenums">@Html(gistInfo.source)</pre>
+          }
         </div>
       </div>
     }

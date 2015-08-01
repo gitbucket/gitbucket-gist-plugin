@@ -1,34 +1,47 @@
 package gitbucket.gist.controller
 
 import java.io.File
+import gitbucket.core.view.helpers
 import jp.sf.amateras.scalatra.forms._
 
-import gitbucket.core.model.Account
 import gitbucket.core.controller.ControllerBase
 import gitbucket.core.service.AccountService
+import gitbucket.core.service.RepositoryService.RepositoryInfo
 import gitbucket.core.util._
 import gitbucket.core.util.Directory._
 import gitbucket.core.util.ControlUtil._
 import gitbucket.core.util.Implicits._
 import gitbucket.core.view.helpers._
 
-
-import gitbucket.gist.model.{GistUser, Gist}
-import gitbucket.gist.service.GistService
+import gitbucket.gist.model._
+import gitbucket.gist.service._
 import gitbucket.gist.util._
+import gitbucket.gist.util.GistUtils._
 import gitbucket.gist.util.Configurations._
 import gitbucket.gist.html
 
 import org.apache.commons.io.FileUtils
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib._
-import org.eclipse.jgit.dircache.DirCache
+import org.scalatra.Ok
 
-class GistController extends GistControllerBase with GistService with AccountService
+class GistController extends GistControllerBase with GistService with GistCommentService with AccountService
   with GistEditorAuthenticator with UsersAuthenticator
 
 trait GistControllerBase extends ControllerBase {
-  self: GistService with AccountService with GistEditorAuthenticator with UsersAuthenticator =>
+  self: GistService with GistCommentService with AccountService with GistEditorAuthenticator with UsersAuthenticator =>
+
+  case class CommentForm(content: String)
+
+  val commentForm = mapping(
+    "content" -> trim(label("Comment", text(required)))
+  )(CommentForm.apply)
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //
+  // Gist Actions
+  //
+  ////////////////////////////////////////////////////////////////////////////////
 
   get("/gist"){
     if(context.loginAccount.isDefined){
@@ -42,19 +55,13 @@ trait GistControllerBase extends ControllerBase {
       val result = getPublicGists((page - 1) * Limit, Limit)
       val count  = countPublicGists()
 
-      val gists: Seq[(Gist, String)] = result.map { gist =>
-        val gitdir = new File(GistRepoDir, gist.userName + "/" + gist.repositoryName)
-        if(gitdir.exists){
-          using(Git.open(gitdir)){ git =>
-            val source: String = JGitUtil.getFileList(git, "master", ".").map { file =>
-              StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
-            }.head
+      val gists: Seq[(Gist, GistInfo)] = result.map { gist =>
+        val userName = gist.userName
+        val repoName = gist.repositoryName
+        val files = getGistFiles(userName, repoName)
+        val (fileName, source) = files.head
 
-            (gist, source)
-          }
-        } else {
-          (gist, "Repository is not found!")
-        }
+        (gist, GistInfo(fileName, source, files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
       }
 
       html.list(None, gists, page, page * Limit < count)
@@ -204,7 +211,18 @@ trait GistControllerBase extends ControllerBase {
               }
             }
           }
-          html.revisions("revision", getGist(userName, repoName).get, isEditable(userName), commits)
+
+          val gist = getGist(userName, repoName).get
+          val originUserName = gist.originUserName.getOrElse(userName)
+          val originRepoName = gist.originRepositoryName.getOrElse(repoName)
+
+          html.revisions(
+            gist,
+            getForkedCount(originUserName, originRepoName),
+            GistRepositoryURL(gist, baseUrl, context.settings),
+            isEditable(userName),
+            commits
+          )
         }
         case Left(_) => NotFound
       }
@@ -274,6 +292,142 @@ trait GistControllerBase extends ControllerBase {
     html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))
   }
 
+  ////////////////////////////////////////////////////////////////////////////////
+  //
+  // Fork Actions
+  //
+  ////////////////////////////////////////////////////////////////////////////////
+
+  post("/gist/:userName/:repoName/fork")(usersOnly {
+    val userName = params("userName")
+    val repoName = params("repoName")
+    val loginAccount = context.loginAccount.get
+
+    if(getGist(loginAccount.userName, repoName).isDefined){
+      redirect(s"${context.path}/gist/${userName}/${repoName}")
+    } else {
+      getGist(userName, repoName).map { gist =>
+        // Insert to the database at first
+        val originUserName = gist.originUserName.getOrElse(gist.userName)
+        val originRepoName = gist.originRepositoryName.getOrElse(gist.repositoryName)
+
+        registerGist(loginAccount.userName, repoName, gist.isPrivate, gist.title, gist.description,
+          Some(originUserName), Some(originRepoName))
+
+        // Clone repository
+        JGitUtil.cloneRepository(
+          new File(GistRepoDir, userName + "/" + repoName),
+          new File(GistRepoDir, loginAccount.userName + "/" + repoName)
+        )
+
+        redirect(s"${context.path}/gist/${loginAccount.userName}/${repoName}")
+
+      } getOrElse NotFound
+    }
+  })
+
+  get("/gist/:userName/:repoName/forks"){
+    val userName = params("userName")
+    val repoName = params("repoName")
+
+    getGist(userName, repoName).map { gist =>
+      html.forks(
+        gist,
+        getForkedCount(userName, repoName),
+        GistRepositoryURL(gist, baseUrl, context.settings),
+        getForkedGists(userName, repoName),
+        isEditable(userName)
+      )
+    } getOrElse NotFound
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //
+  // Comment Actions
+  //
+  ////////////////////////////////////////////////////////////////////////////////
+
+  post("/gist/:userName/:repoName/_preview"){
+    val userName = params("userName")
+    val repoName = params("repoName")
+
+    contentType = "text/html"
+    helpers.markdown(params("content"),
+      RepositoryInfo(
+        owner       = userName,
+        name        = repoName,
+        httpUrl     = "",
+        repository  = null,
+        issueCount  = 0,
+        pullCount   = 0,
+        commitCount = 0,
+        forkedCount = 0,
+        branchList  = Nil,
+        tags        = Nil,
+        managers    = Nil
+      ), false, false, false, false)
+  }
+
+  post("/gist/:userName/:repoName/_comment", commentForm)(usersOnly { form =>
+    val userName = params("userName")
+    val repoName = params("repoName")
+    val loginAccount = context.loginAccount.get
+
+    getGist(userName, repoName).map { gist =>
+      registerGistComment(userName, repoName, form.content, loginAccount.userName)
+      redirect(s"${context.path}/gist/${userName}/${repoName}")
+    } getOrElse NotFound
+  })
+
+  ajaxPost("/gist/:userName/:repoName/_comments/:commentId/_delete")(usersOnly {
+    val userName  = params("userName")
+    val repoName  = params("repoName")
+    val commentId = params("commentId").toInt
+
+    // TODO Access check
+
+    Ok(deleteGistComment(userName, repoName, commentId))
+  })
+
+  ajaxGet("/gist/:userName/:repoName/_comments/:commentId")(usersOnly {
+    val userName  = params("userName")
+    val repoName  = params("repoName")
+    val commentId = params("commentId").toInt
+
+    // TODO Access check
+    getGist(userName, repoName).flatMap { gist =>
+      getGistComment(userName, repoName, commentId).map { comment =>
+        params.get("dataType") collect {
+          case t if t == "html" => gitbucket.gist.html.commentedit(
+            comment.content, comment.commentId, comment.userName, comment.repositoryName)
+        } getOrElse {
+          contentType = formats("json")
+          org.json4s.jackson.Serialization.write(
+            Map("content" -> gitbucket.core.view.Markdown.toHtml(comment.content,
+              gist.toRepositoryInfo, false, true, true, true) // TODO isEditableこれでいいのか？
+            ))
+        }
+      }
+    } getOrElse NotFound
+  })
+
+  ajaxPost("/gist/:userName/:repoName/_comments/:commentId/_update", commentForm)(usersOnly { form =>
+    val userName  = params("userName")
+    val repoName  = params("repoName")
+    val commentId = params("commentId").toInt
+
+    // TODO Access check
+
+    updateGistComment(userName, repoName, commentId, form.content)
+    redirect(s"/gist/${userName}/${repoName}/_comments/${commentId}")
+  })
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //
+  // Private Methods
+  //
+  ////////////////////////////////////////////////////////////////////////////////
+
   private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master") = {
     repoName match {
       case None => {
@@ -287,47 +441,41 @@ trait GistControllerBase extends ControllerBase {
           countUserGists(userName, context.loginAccount.map(_.userName))
         )
 
-        val gists: Seq[(Gist, String)] = result._1.map { gist =>
+        val gists: Seq[(Gist, GistInfo)] = result._1.map { gist =>
           val repoName = gist.repositoryName
-          val gitdir = new File(GistRepoDir, userName + "/" + repoName)
-          if(gitdir.exists){
-            using(Git.open(gitdir)){ git =>
-              val source: String = JGitUtil.getFileList(git, revision, ".").map { file =>
-                StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get).split("\n").take(9).mkString("\n")
-              }.head
-
-              (gist, source)
-            }
-          } else {
-            (gist, "Repository is not found!")
-          }
+          val files = getGistFiles(userName, repoName, revision)
+          val (fileName, source) = files.head
+          (gist, GistInfo(fileName, source, files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
         }
 
         val fullName = getAccountByUserName(userName).get.fullName
         html.list(Some(GistUser(userName, fullName)), gists, page, page * Limit < result._2)
       }
       case Some(repoName) => {
-        val gitdir = new File(GistRepoDir, userName + "/" + repoName)
-        if(gitdir.exists){
-          using(Git.open(gitdir)){ git =>
-            val gist = getGist(userName, repoName).get
+        val gist = getGist(userName, repoName).get
+        val originUserName = gist.originUserName.getOrElse(userName)
+        val originRepoName = gist.originRepositoryName.getOrElse(repoName)
 
-            if(!gist.isPrivate || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
-              val files: Seq[(String, String)] = JGitUtil.getFileList(git, revision, ".").map { file =>
-                file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
-              }
-              html.detail("code", gist, revision, files, isEditable(userName))
-            } else Unauthorized
-          }
-        } else NotFound
+        html.detail(
+          gist,
+          getForkedCount(originUserName, originRepoName),
+          GistRepositoryURL(gist, baseUrl, context.settings),
+          revision,
+          getGistFiles(userName, repoName, revision),
+          getGistComments(userName, repoName),
+          isEditable(userName)
+        )
       }
     }
   }
 
-  private def isEditable(userName: String): Boolean = {
-    context.loginAccount.map { loginAccount =>
-      loginAccount.isAdmin || loginAccount.userName == userName
-    }.getOrElse(false)
+  private def getGistFiles(userName: String, repoName: String, revision: String = "master"): Seq[(String, String)] = {
+    val gitdir = new File(GistRepoDir, userName + "/" + repoName)
+    using(Git.open(gitdir)){ git =>
+      JGitUtil.getFileList(git, revision, ".").map { file =>
+        file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
+      }
+    }
   }
 
   private def getFileParameters(flatten: Boolean): Seq[(String, String)] = {
@@ -347,29 +495,5 @@ trait GistControllerBase extends ControllerBase {
       }
     }
   }
-
-  private def commitFiles(git: Git, loginAccount: Account, message: String, files: Seq[(String, String)]): ObjectId = {
-    val builder  = DirCache.newInCore.builder()
-    val inserter = git.getRepository.newObjectInserter()
-    val headId   = git.getRepository.resolve(Constants.HEAD + "^{commit}")
-
-    files.foreach { case (fileName, content) =>
-      builder.add(JGitUtil.createDirCacheEntry(fileName, FileMode.REGULAR_FILE,
-        inserter.insert(Constants.OBJ_BLOB, content.getBytes("UTF-8"))))
-    }
-    builder.finish()
-
-    val commitId = JGitUtil.createNewCommit(git, inserter, headId, builder.getDirCache.writeTree(inserter),
-      Constants.HEAD, loginAccount.fullName, loginAccount.mailAddress, message)
-
-    inserter.flush()
-    inserter.release()
-
-    commitId
-  }
-
-  private def isGistFile(fileName: String): Boolean = fileName.matches("gistfile[0-9]+\\.txt")
-
-  private def getTitle(fileName: String, repoName: String): String = if(isGistFile(fileName)) repoName else fileName
 
 }

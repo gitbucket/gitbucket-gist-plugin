@@ -6,16 +6,16 @@ import profile.simple._
 
 trait GistService {
 
-  def getRecentGists(userName: String, offset: Int, limit: Int)(implicit s: Session): List[Gist] =
+  def getRecentGists(userName: String, offset: Int, limit: Int)(implicit s: Session): Seq[Gist] =
     Gists.filter(_.userName === userName.bind).sortBy(_.registeredDate desc).drop(offset).take(limit).list
 
-  def getPublicGists(offset: Int, limit: Int)(implicit s: Session): List[Gist] =
+  def getPublicGists(offset: Int, limit: Int)(implicit s: Session): Seq[Gist] =
     Gists.filter(_.isPrivate === false.bind).sortBy(_.registeredDate desc).drop(offset).take(limit).list
 
   def countPublicGists()(implicit s: Session): Int =
     Query(Gists.filter(_.isPrivate === false.bind).length).first
 
-  def getUserGists(userName: String, loginUserName: Option[String], offset: Int, limit: Int)(implicit s: Session): List[Gist] =
+  def getUserGists(userName: String, loginUserName: Option[String], offset: Int, limit: Int)(implicit s: Session): Seq[Gist] =
     (if(loginUserName.isDefined){
       Gists filter(t => (t.userName === userName.bind) && ((t.userName === loginUserName.bind) || (t.isPrivate === false.bind)))
     } else {
@@ -33,8 +33,16 @@ trait GistService {
   def getGist(userName: String, repositoryName: String)(implicit s: Session): Option[Gist] =
     Gists.filter(t => (t.userName === userName.bind) && (t.repositoryName === repositoryName.bind)).firstOption
 
-  def registerGist(userName: String, repositoryName: String, isPrivate: Boolean, title: String, description: String)(implicit s: Session): Unit =
-    Gists.insert(Gist(userName, repositoryName, isPrivate, title, description, new java.util.Date(), new java.util.Date()))
+  def getForkedCount(userName: String, repositoryName: String)(implicit s: Session): Int =
+    Query(Gists.filter(t => (t.originUserName === userName.bind) && (t.originRepositoryName === repositoryName.bind)).length).first
+
+  def getForkedGists(userName: String, repositoryName: String)(implicit s: Session): Seq[Gist] =
+    Gists.filter(t => (t.originUserName === userName.bind) && (t.originRepositoryName === repositoryName.bind)).sortBy(_.userName).list
+
+  def registerGist(userName: String, repositoryName: String, isPrivate: Boolean, title: String, description: String,
+                   originUserName: Option[String] = None, originRepositoryName: Option[String] = None)(implicit s: Session): Unit =
+    Gists.insert(Gist(userName, repositoryName, isPrivate, title, description, new java.util.Date(), new java.util.Date(),
+      originUserName, originRepositoryName))
 
   def updateGist(userName: String, repositoryName: String, title: String, description: String)(implicit s: Session): Unit =
     Gists

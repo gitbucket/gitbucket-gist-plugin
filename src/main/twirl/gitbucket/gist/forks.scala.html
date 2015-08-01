@@ -1,0 +1,24 @@
+@(gist: gitbucket.gist.model.Gist,
+  forkedCount: Int,
+  repositoryUrl: gitbucket.gist.util.GistUtils.GistRepositoryURL,
+  forkedGists: Seq[gitbucket.gist.model.Gist],
+  editable: Boolean)(implicit context: gitbucket.core.controller.Context)
+@import context._
+@import gitbucket.core.view.helpers._
+@gitbucket.core.html.main("Snippets"){
+  @gitbucket.gist.html.header(gist, forkedCount, editable)
+  <div class="container body">
+    @gitbucket.gist.html.menu("forks", gist, repositoryUrl)
+    <div style="margin-right: 180px;">
+      @forkedGists.map { forkedGist =>
+        <div class="block">
+          @avatar(forkedGist.userName, 20)
+          <a href="@path/gist/@forkedGist.userName/@forkedGist.repositoryName">@forkedGist.userName</a>
+          <div class="pull-right">
+            <a href="@path/gist/@forkedGist.userName/@forkedGist.repositoryName" class="btn btn-small">View Fork</a>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}

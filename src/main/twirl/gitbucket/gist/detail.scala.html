@@ -1,13 +1,16 @@
-@(active: String,
-  gist: gitbucket.gist.model.Gist,
+@(gist: gitbucket.gist.model.Gist,
+  forkedCount: Int,
+  repositoryUrl: gitbucket.gist.util.GistUtils.GistRepositoryURL,
   revision: String,
   files: Seq[(String, String)],
+  comments: Seq[gitbucket.gist.model.GistComment],
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
+@import gitbucket.core.view.helpers._
 @gitbucket.core.html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
-  @gitbucket.gist.html.header(gist, editable)
+  @gitbucket.gist.html.header(gist, forkedCount, editable)
   <div class="container body">
-    @gitbucket.gist.html.menu(active, gist)
+    @gitbucket.gist.html.menu("code", gist, repositoryUrl)
     <div style="margin-right: 180px;">
       <div style="margin-bottom: 10px;">
         @gist.description
@@ -24,11 +27,19 @@
           </tr>
           <tr>
             <td>
-              <pre class="prettyprint linenums blob">@content</pre>
+              @if(isRenderable(fileName)){
+                <div class="box-content markdown-body" style="border: none; padding-left: 16px; padding-right: 16px;">
+                  @renderMarkup(List(fileName), content, "master", gist.toRepositoryInfo, false, false, true)
+                </div>
+              } else {
+                <pre class="prettyprint linenums blob">@content</pre>
+              }
             </td>
           </tr>
         </table>
       }
+      @gitbucket.gist.html.commentlist(gist, comments, editable, gist.toRepositoryInfo)
+      @gitbucket.gist.html.commentform(gist)
     </div>
   </div>
   <script>

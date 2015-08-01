@@ -1,19 +1,15 @@
 @(active: String,
-  gist: gitbucket.gist.model.Gist)(implicit context: gitbucket.core.controller.Context)
+  gist: gitbucket.gist.model.Gist,
+  repositoryUrl: gitbucket.gist.util.GistUtils.GistRepositoryURL)(implicit context: gitbucket.core.controller.Context)
 @import context._
+@import gitbucket.core.helper
 @import gitbucket.core.view.helpers._
-@import gitbucket.core.plugin.Images._
 
-@menuitem(name: String, path: String, activeImage: String, normalImage: String, label: String, count: Int = 0) = {
+@menuitem(name: String, path: String, image: String, label: String, count: Int = 0) = {
   <li @if(active == name){class="active"}>
     <div class="@if(active == name){margin} else {gradient} pull-left"></div>
     <a href="@context.path/gist/@path">
-      @if(active == name){
-        <img src="@activeImage">
-      } else {
-        <img src="@activeImage" class="menu-icon-active" style="display:none;">
-        <img src="@normalImage" class="menu-icon">
-      }
+      <i class="menu-icon @if(active == name){menu-icon-active} octicon octicon-@image"></i>
       @label
       @if(count > 0){
         <div class="pull-right"><span class="label">@count</span></div>
@@ -28,30 +24,33 @@
     @menuitem(
       "code",
       s"${gist.userName}/${gist.repositoryName}",
-      s"${assets}/common/images/menu-code-active.png",
-      s"${assets}/common/images/menu-code.png",
+      "code",
       "Code")
     @menuitem(
       "revision",
       s"${gist.userName}/${gist.repositoryName}/revisions",
-      dataURI("images/menu-revisions-active.png"),
-      dataURI("images/menu-revisions.png"),
+      "git-commit",
       "Revision")
+    @if(gist.originUserName.isEmpty){
+      @menuitem(
+        "forks",
+        s"${gist.userName}/${gist.repositoryName}/forks",
+        "git-branch",
+        "Forks")
+    }
     <li style="height: 12px"><div class="gradient pull-left" style="height: 12px"></div></li>
   </ul>
-  @*
   <div class="small">
     <strong id="repository-url-proto">HTTP</strong> <span class="mute">clone URL</span>
   </div>
-  @helper.html.copy("repository-url-copy", "http://localhost:8080/"){
-    <input type="text" value="http://localhost:8080/" id="repository-url" readonly>
+  @helper.html.copy("repository-url-copy", repositoryUrl.httpUrl){
+    <input type="text" value="@repositoryUrl.httpUrl" id="repository-url" readonly>
   }
   @if(settings.ssh && loginAccount.isDefined){
     <div class="small">
       <span class="mute">You can clone <a href="javascript:void(0);" id="repository-url-http">HTTP</a> or <a href="javascript:void(0);" id="repository-url-ssh">SSH</a>.</span>
     </div>
   }
-  *@
   <div style="margin-top: 10px;">
     <a href="@path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.zip"
        class="btn btn-small" style="width: 147px;"><i class="icon-download-alt"></i>Download ZIP</a>
@@ -61,3 +60,17 @@
        class="btn btn-small" style="width: 147px;"><i class="icon-download-alt"></i>Download TAR.GZ</a>
   </div>
 </div>
+@if(settings.ssh && loginAccount.isDefined){
+  <script>
+  $(function(){
+    $('#repository-url-http').click(function(){
+      $('#repository-url').val('@repositoryUrl.httpUrl');
+      $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
+    });
+    $('#repository-url-ssh').click(function(){
+      $('#repository-url').val('@repositoryUrl.sshUrl(loginAccount.get.userName)');
+      $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
+    });
+  });
+  </script>
+}

@@ -1,0 +1,42 @@
+@(gist: gitbucket.gist.model.Gist,
+  content: String,
+  placeholder: String = "Leave a comment",
+  style: String = "",
+  elastic: Boolean = false,
+  uid: Long = new java.util.Date().getTime())(implicit context: gitbucket.core.controller.Context)
+@import context._
+@import gitbucket.core._
+@import gitbucket.core.view.helpers._
+<div class="tabbable">
+  <ul class="nav nav-tabs" style="height: 37px;">
+    <li class="active"><a href="#tab@uid" data-toggle="tab">Write</a></li>
+    <li><a href="#tab@(uid+1)" data-toggle="tab" id="preview@uid">Preview</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active" id="tab@uid">
+      <span id="error-content" class="error"></span>
+      <textarea id="content@uid" name="content" placeholder="@placeholder" @if(style.nonEmpty){style="@style"}>@content</textarea>
+    </div>
+    <div class="tab-pane" id="tab@(uid+1)">
+      <div class="markdown-body" id="preview-area@uid">
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+$(function(){
+  @if(elastic){
+    $('#content@uid').elastic();
+  }
+
+  $('#preview@uid').click(function(){
+    $('#preview-area@uid').html('<img src="@assets/common/images/indicator.gif"> Previewing...');
+    $.post('@path/gist/@gist.userName/@gist.repositoryName/_preview', {
+      content        : $('#content@uid').val()
+    }, function(data){
+      $('#preview-area@uid').html(data);
+      prettyPrint();
+    });
+  });
+});
+</script>
