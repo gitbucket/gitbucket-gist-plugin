@@ -157,7 +157,7 @@ trait GistControllerBase extends ControllerBase {
       refUpdate.update()
     }
 
-    redirect(s"${context.path}/gist/${loginAccount.userName}/${repoName}")
+    redirect(s"/gist/${loginAccount.userName}/${repoName}")
   })
 
   get("/gist/:userName/:repoName/delete")(editorOnly {
@@ -170,7 +170,7 @@ trait GistControllerBase extends ControllerBase {
       val gitdir = new File(GistRepoDir, userName + "/" + repoName)
       org.apache.commons.io.FileUtils.deleteDirectory(gitdir)
 
-      redirect(s"${context.path}/gist/${userName}")
+      redirect(s"/gist/${userName}")
     }
   })
 
@@ -182,7 +182,7 @@ trait GistControllerBase extends ControllerBase {
       updateGistAccessibility(userName, repoName, true)
     }
 
-    redirect(s"${context.path}/gist/${userName}/${repoName}")
+    redirect(s"/gist/${userName}/${repoName}")
   })
 
   get("/gist/:userName/:repoName/public")(editorOnly {
@@ -193,7 +193,7 @@ trait GistControllerBase extends ControllerBase {
       updateGistAccessibility(userName, repoName, false)
     }
 
-    redirect(s"${context.path}/gist/${userName}/${repoName}")
+    redirect(s"/gist/${userName}/${repoName}")
   })
 
   get("/gist/:userName/:repoName/revisions"){
@@ -304,7 +304,7 @@ trait GistControllerBase extends ControllerBase {
     val loginAccount = context.loginAccount.get
 
     if(getGist(loginAccount.userName, repoName).isDefined){
-      redirect(s"${context.path}/gist/${userName}/${repoName}")
+      redirect(s"/gist/${userName}/${repoName}")
     } else {
       getGist(userName, repoName).map { gist =>
         // Insert to the database at first
@@ -320,7 +320,7 @@ trait GistControllerBase extends ControllerBase {
           new File(GistRepoDir, loginAccount.userName + "/" + repoName)
         )
 
-        redirect(s"${context.path}/gist/${loginAccount.userName}/${repoName}")
+        redirect(s"/gist/${loginAccount.userName}/${repoName}")
 
       } getOrElse NotFound
     }
@@ -375,7 +375,7 @@ trait GistControllerBase extends ControllerBase {
 
     getGist(userName, repoName).map { gist =>
       registerGistComment(userName, repoName, form.content, loginAccount.userName)
-      redirect(s"${context.path}/gist/${userName}/${repoName}")
+      redirect(s"/gist/${userName}/${repoName}")
     } getOrElse NotFound
   })
 
