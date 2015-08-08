@@ -6,7 +6,7 @@
 @import gitbucket.core.view.helpers._
 @comments.map { comment =>
   <div class="issue-avatar-image">@avatar(comment.commentedUserName, 48)</div>
-  <div class="box issue-comment-box" id="comment-@comment.commentId">
+  <div class="issue-comment-box" id="comment-@comment.commentId">
     <div class="box-header-small">
       @user(comment.commentedUserName, styleClass="username strong")
       <span class="muted">
@@ -20,7 +20,7 @@
       }
       </span>
     </div>
-    <div class="box-content"class="issue-content" id="commentContent-@comment.commentId">
+    <div class="box-content-bottom issue-content" id="commentContent-@comment.commentId">
       <div class="markdown-body">@markdown(comment.content, repository, false, true, true, hasWritePermission)</div>
     </div>
   </div>

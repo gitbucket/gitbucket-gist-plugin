@@ -5,18 +5,18 @@
   <hr/><br/>
   <form method="POST" validate="true" action="@path/gist/@gist.userName/@gist.repositoryName/_comment">
     <div class="issue-avatar-image">@avatar(loginAccount.get.userName, 48)</div>
-    <div class="box issue-comment-box">
+    <div class="issue-comment-box">
       <div class="box-content">
-      @gitbucket.gist.html.commentpreview(
-        gist     = gist,
-        content  = "",
-        style    = "width: 635px; height: 100px; max-height: 150px;",
-        elastic  = true
-      )
+        @gitbucket.gist.html.commentpreview(
+          gist     = gist,
+          content  = "",
+          style    = "width: 635px; height: 100px; max-height: 150px;",
+          elastic  = true
+        )
+        <div style="text-align: right;">
+          <input type="submit" class="btn btn-success" value="Comment"/>
+        </div>
       </div>
-    </div>
-    <div class="pull-right">
-      <input type="submit" class="btn btn-success" value="Comment"/>
     </div>
   </form>
 }
