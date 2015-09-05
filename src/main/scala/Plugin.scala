@@ -17,6 +17,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   override val description: String = "Provides Gist feature on GitBucket."
 
   override val versions: List[Version] = List(
+    Version(3, 6),
     Version(1, 3),
     Version(1, 2),
     Version(1, 0)
