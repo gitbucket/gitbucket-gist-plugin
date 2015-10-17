@@ -10,7 +10,7 @@ Plugin version | GitBucket version
 
 ## Installation
 
-Download jar file from [the release page](https://github.com/takezoe/gitbucket-gist-plugin/releases) and put into `GITBUCKET_HOME/plugins`.
+Download jar file from [the release page](https://github.com/gitbucket/gitbucket-gist-plugin/releases) and put into `GITBUCKET_HOME/plugins`.
 
 ## Build from source
 
