@@ -292,6 +292,25 @@ trait GistControllerBase extends ControllerBase {
     html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))
   }
 
+  get("/gist/_public"){
+    val page = request.getParameter("page") match {
+      case ""|null => 1
+      case s => s.toInt
+    }
+    val result = getPublicGists((page - 1) * Limit, Limit)
+    val count  = countPublicGists()
+
+    val gists: Seq[(Gist, GistInfo)] = result.map { gist =>
+      val userName = gist.userName
+      val repoName = gist.repositoryName
+      val files = getGistFiles(userName, repoName)
+      val (fileName, source) = files.head
+
+      (gist, GistInfo(fileName, source, files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
+    }
+      html.list(None, gists, page, page * Limit < count)
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   //
   // Fork Actions
