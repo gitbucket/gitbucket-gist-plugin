@@ -3,8 +3,8 @@
 This is an example of GitBucket plug-in. This plug-in provides code snippet repository like Gist.
 
 Plugin version | GitBucket version
-:--------------|:-----------------
-3.7.x          | 3.7.x
+:--------------|:--------------------
+3.7.x          | 3.7.x, 3.8.x, 3.9.x
 3.6.x          | 3.6.x
 
 
