@@ -38,6 +38,8 @@ object GistUtils {
     commitId
   }
 
+  def getLines(source: String): String = source.split("\n").take(10).mkString("\n")
+
   def isGistFile(fileName: String): Boolean = fileName.matches("gistfile[0-9]+\\.txt")
 
   def getTitle(fileName: String, repoName: String): String = if(isGistFile(fileName)) repoName else fileName
