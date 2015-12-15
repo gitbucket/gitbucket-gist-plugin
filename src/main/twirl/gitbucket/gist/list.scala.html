@@ -59,7 +59,7 @@
               @renderMarkup(List(gistInfo.fileName), gistInfo.source, "master", gist.toRepositoryInfo, false, false, false)
             </div>
           } else {
-            <pre class="list-code box-content prettyprint linenums">@Html(gistInfo.source)</pre>
+            <pre class="list-code box-content prettyprint linenums">@gistInfo.source</pre>
           }
         </div>
       </div>
