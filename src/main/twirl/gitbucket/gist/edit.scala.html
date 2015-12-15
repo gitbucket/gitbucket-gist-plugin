@@ -12,7 +12,7 @@
         @recent.map { gist =>
           <li style="float: left; width: 200px;">
             <i class="octicon octicon-gist" style="width: 24px; height: 24px;"></i>
-            <div style="margin-left: 26px; font-size: 80%; position: relative; top: -24px; line-height: normal; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+            <div style="margin-left: 26px; font-size: 90%; position: relative; top: -24px; line-height: normal; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
               <a class="strong" href="@path/gist/@gist.userName/@gist.repositoryName">@gist.title</a><br>
               @if(gist.description.nonEmpty){
                 <span class="muted">@gist.description</span>
@@ -24,7 +24,7 @@
         }
         </ul>
         <div class="pull-right">
-          <a href="@path/gist/@context.loginAccount.get.userName" class="btn">Your Snippets</a>
+          <a href="@path/gist/@context.loginAccount.get.userName" class="btn btn-default">Your Snippets</a>
         </div>
       </div>
     } else {
@@ -38,11 +38,11 @@
           }
           <div class="pull-right">
             @if(gist.get.isPrivate){
-              <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/public" class="btn">Make public</a>
+              <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/public" class="btn btn-default">Make public</a>
             } else {
-              <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/secret" class="btn">Make secret</a>
+              <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/secret" class="btn btn-default">Make secret</a>
             }
-            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn" id="delete">Delete</a>
+            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn btn-default" id="delete">Delete</a>
           </div>
         </div>
         <div class="muted" style="margin-top: -10px; margin-left: 30px;">
@@ -53,22 +53,22 @@
   </div>
   <hr style="margin-bottom: 20px;"/>
   <div class="container body">
-    <form id="form" method="POST" action="#">
-      <input type="text" name="description" id="description" style="width: 900px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
+    <form id="form" method="POST" action="#" class="form-inline">
+      <input type="text" name="description" id="description" class="form-control input-lg" style="width: 900px; margin-bottom: 8px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
       <div id="editors">
         @files.zipWithIndex.map { case ((fileName, content), i) =>
           @gitbucket.gist.html.editor(i, fileName, content)
         }
       </div>
       <div>
-        <input type="button" value="Add file" class="btn" id="add_file">
+        <input type="button" value="Add file" class="btn btn-lg btn-default" id="add_file">
         <div class="pull-right">
           @if(gist.isDefined){
-            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn">Cancel</a>
-            <input type="submit" value="Update" class="btn btn-success submit_snippet" id="update_snippet">
+            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn btn-lg btn-default">Cancel</a>
+            <input type="submit" value="Update" class="btn btn-lg btn-success submit_snippet" id="update_snippet">
           } else {
-            <input type="submit" value="Create private Snippet" class="btn submit_snippet" id="create_private_snippet">
-            <input type="submit" value="Create public Snippet" class="btn submit_snippet" id="create_public_snippet">
+            <input type="submit" value="Create private Snippet" class="btn btn-lg btn-default submit_snippet" id="create_private_snippet">
+            <input type="submit" value="Create public Snippet" class="btn btn-lg btn-default submit_snippet" id="create_public_snippet">
           }
         </div>
       </div>

@@ -26,40 +26,44 @@
           <div>
             @diffs.zipWithIndex.map { case (diff, i) =>
               <table class="table table-bordered">
-                <tr>
-                  <th style="font-weight: normal; line-height: 27px;" class="box-header">
-                    @diff.changeType match {
-                      case ChangeType.ADD => {
-                        <span class="diffstat">
-                          <i class="octicon octicon-diff-added"></i>
-                        </span> @diff.newPath
+                <thead>
+                  <tr>
+                    <th style="font-weight: normal; line-height: 27px;" class="box-header">
+                      @diff.changeType match {
+                        case ChangeType.ADD => {
+                          <span class="diffstat">
+                            <i class="octicon octicon-diff-added"></i>
+                          </span> @diff.newPath
+                        }
+                        case ChangeType.MODIFY => {
+                          <span class="diffstat">
+                            <i class="octicon octicon-diff-modified"></i>
+                          </span> @diff.newPath
+                        }
+                        case ChangeType.DELETE => {
+                          <span class="diffstat">
+                            <i class="octicon octicon-diff-removed"></i>
+                          </span> @diff.oldPath
+                        }
+                        case _ => {
+                        }
                       }
-                      case ChangeType.MODIFY => {
-                        <span class="diffstat">
-                          <i class="octicon octicon-diff-modified"></i>
-                        </span> @diff.newPath
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding: 0;">
+                      @if(diff.newContent != None || diff.oldContent != None){
+                        <div id="diffText-@revision.id.substring(0, 7)-@i"></div>
+                        <textarea id="newText-@revision.id.substring(0, 7)-@i" style="display: none;">@diff.newContent.getOrElse("")</textarea>
+                        <textarea id="oldText-@revision.id.substring(0, 7)-@i" style="display: none;">@diff.oldContent.getOrElse("")</textarea>
+                      } else {
+                        Not supported
                       }
-                      case ChangeType.DELETE => {
-                        <span class="diffstat">
-                          <i class="octicon octicon-diff-removed"></i>
-                        </span> @diff.oldPath
-                      }
-                      case _ => {
-                      }
-                    }
-                  </th>
-                </tr>
-                <tr>
-                  <td style="padding: 0;">
-                    @if(diff.newContent != None || diff.oldContent != None){
-                      <div id="diffText-@revision.id.substring(0, 7)-@i"></div>
-                      <textarea id="newText-@revision.id.substring(0, 7)-@i" style="display: none;">@diff.newContent.getOrElse("")</textarea>
-                      <textarea id="oldText-@revision.id.substring(0, 7)-@i" style="display: none;">@diff.oldContent.getOrElse("")</textarea>
-                    } else {
-                      Not supported
-                    }
-                  </td>
-                </tr>
+                    </td>
+                  </tr>
+                </tbody>
               </table>
             }
           </div>

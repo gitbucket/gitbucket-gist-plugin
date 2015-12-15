@@ -13,17 +13,21 @@
     }
     <div class="pull-right">
       @if(editable){
-        <a href="@path/gist/@gist.userName/@gist.repositoryName/edit" class="btn btn-small">Edit</a>
-        <a href="@path/gist/@gist.userName/@gist.repositoryName/delete" class="btn btn-small" id="delete">Delete</a>
+        <a href="@path/gist/@gist.userName/@gist.repositoryName/edit" class="btn btn-default">Edit</a>
+        <a href="@path/gist/@gist.userName/@gist.repositoryName/delete" class="btn btn-default" id="delete">Delete</a>
       }
       @if(gist.originUserName.isEmpty){
-        <div class="input-prepend" style="margin-bottom: 0px;">
-          @if(loginAccount.isEmpty){
-            <a title="You must be signed in to fork a repository" href="@path/signin?redirect=@urlEncode(s"${path}/gist/${gist.userName}/${gist.repositoryName}")" class="btn btn-small">Fork</a>
-          } else {
-            <a id="fork-link" href="javascript:void(0);" class="btn btn-small">Fork</a>
-          }
-          <span class="add-on count"><a href="@path/gist/@gist.userName/@gist.repositoryName/forks">@forkedCount</a></span>
+        <div class="input-group pull-right">
+          <span class="fork">
+            <span class="input-group-btn">
+            @if(loginAccount.isEmpty){
+              <a title="You must be signed in to fork a repository" href="@path/signin?redirect=@urlEncode(s"${path}/gist/${gist.userName}/${gist.repositoryName}")" class="btn btn-default">Fork</a>
+            } else {
+              <a id="fork-link" href="javascript:void(0);" class="btn btn-default">Fork</a>
+            }
+            </span>
+            <span class="count"><a href="@path/gist/@gist.userName/@gist.repositoryName/forks">@forkedCount</a></span>
+          </span>
         </div>
         @if(loginAccount.isDefined){
           <form id="fork-form" method="post" action="@path/gist/@gist.userName/@gist.repositoryName/fork">
