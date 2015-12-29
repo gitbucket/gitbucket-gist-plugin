@@ -61,7 +61,7 @@ trait GistControllerBase extends ControllerBase {
         val files = getGistFiles(userName, repoName)
         val (fileName, source) = files.head
 
-        (gist, GistInfo(fileName, source, files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
+        (gist, GistInfo(fileName, getLines(source), files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
       }
 
       html.list(None, gists, page, page * Limit < count)
@@ -445,7 +445,7 @@ trait GistControllerBase extends ControllerBase {
           val repoName = gist.repositoryName
           val files = getGistFiles(userName, repoName, revision)
           val (fileName, source) = files.head
-          (gist, GistInfo(fileName, source, files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
+          (gist, GistInfo(fileName, getLines(source), files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
         }
 
         val fullName = getAccountByUserName(userName).get.fullName

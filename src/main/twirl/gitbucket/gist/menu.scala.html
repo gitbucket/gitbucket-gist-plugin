@@ -44,7 +44,7 @@
     <strong id="repository-url-proto">HTTP</strong> <span class="mute">clone URL</span>
   </div>
   @helper.html.copy("repository-url-copy", repositoryUrl.httpUrl){
-    <input type="text" value="@repositoryUrl.httpUrl" id="repository-url" readonly>
+    <input type="text" value="@repositoryUrl.httpUrl" id="repository-url" class="form-control input-sm" readonly>
   }
   @if(settings.ssh && loginAccount.isDefined){
     <div class="small">
@@ -53,12 +53,12 @@
   }
   <div style="margin-top: 10px;">
     <a href="@path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.zip"
-       class="btn btn-small" style="width: 147px;"><i class="icon-download-alt"></i>Download ZIP</a>
+       class="btn btn-default" style="width: 170px;"><i class="icon-download-alt"></i>Download ZIP</a>
   </div>
   @*
   <div style="margin-top: 10px;">
     <a href="@path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.tar.gz"
-       class="btn btn-small" style="width: 147px;"><i class="icon-download-alt"></i>Download TAR.GZ</a>
+       class="btn btn-small" style="width: 170px;"><i class="icon-download-alt"></i>Download TAR.GZ</a>
   </div>
   *@
 </div>

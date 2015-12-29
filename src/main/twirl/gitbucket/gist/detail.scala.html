@@ -16,21 +16,23 @@
         @gist.description
       </div>
       @files.map { case (fileName, content) =>
-        <div class="box-header">
-          @fileName
-          <div class="pull-right">
-            <a href="@path/gist/@gist.userName/@gist.repositoryName/raw/@revision/@fileName" class="btn btn-mini">Raw</a>
+        <div class="panel panel-default">
+          <div class="panel-heading strong">
+            @fileName
+            <div class="pull-right">
+              <a href="@path/gist/@gist.userName/@gist.repositoryName/raw/@revision/@fileName" class="btn btn-sm btn-default">Raw</a>
+            </div>
           </div>
+          @if(isRenderable(fileName)){
+            <div class="panel-body markdown-body" style="padding-left: 16px; padding-right: 16px;">
+              @renderMarkup(List(fileName), content, "master", gist.toRepositoryInfo, false, false, true)
+            </div>
+          } else {
+            <div class="panel-body">
+              <pre class="prettyprint linenums blob">@content</pre>
+            </div>
+          }
         </div>
-        @if(isRenderable(fileName)){
-          <div class="box-content-bottom markdown-body" style="padding-left: 16px; padding-right: 16px;">
-            @renderMarkup(List(fileName), content, "master", gist.toRepositoryInfo, false, false, true)
-          </div>
-        } else {
-          <div class="box-content-bottom">
-            <pre class="prettyprint linenums blob">@content</pre>
-          </div>
-        }
       }
       @gitbucket.gist.html.commentlist(gist, comments, editable, gist.toRepositoryInfo)
       @gitbucket.gist.html.commentform(gist)

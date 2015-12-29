@@ -14,7 +14,7 @@
       @avatar(gistUser.get.userName, 24)
       <span class="strong">@gistUser.get.fullName</span>
       <div class="pull-right">
-        <a href="@path/@gistUser.get.userName" class="btn">@gistUser.get.userName on GitBucket</a>
+        <a href="@path/@gistUser.get.userName" class="btn btn-default">@gistUser.get.userName on GitBucket</a>
       </div>
     </div>
     <div class="muted" style="margin-top: -10px; margin-left: 30px;">
@@ -59,14 +59,14 @@
               @renderMarkup(List(gistInfo.fileName), gistInfo.source, "master", gist.toRepositoryInfo, false, false, false)
             </div>
           } else {
-            <pre class="list-code box-content prettyprint linenums">@Html(gistInfo.source)</pre>
+            <pre class="list-code box-content prettyprint linenums">@gistInfo.source</pre>
           }
         </div>
       </div>
     }
     <div class="btn-group">
-      <button class="btn" onclick="location.href='?page=@{page - 1}'"@if(page <= 1){ disabled="true"}>Newer</button>
-      <button class="btn" onclick="location.href='?page=@{page + 1}'"@if(!hasNext){ disabled="true"}>Older</button>
+      <button class="btn btn-default" onclick="location.href='?page=@{page - 1}'"@if(page <= 1){ disabled="true"}>Newer</button>
+      <button class="btn btn-default" onclick="location.href='?page=@{page + 1}'"@if(!hasNext){ disabled="true"}>Older</button>
     </div>
   </div>
 }
