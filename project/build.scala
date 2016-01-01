@@ -23,7 +23,7 @@ object MyBuild extends Build {
     scalacOptions := Seq("-deprecation", "-language:postfixOps"),
     resolvers ++= Seq(
       "amateras-repo" at "http://amateras.sourceforge.jp/mvn/",
-      "amateras-repo" at "http://amateras.sourceforge.jp/mvn-snapshot/"
+      "amateras-snapshot-repo" at "http://amateras.sourceforge.jp/mvn-snapshot/"
     ),
     libraryDependencies ++= Seq(
       "gitbucket"          % "gitbucket-assembly" % "3.11.0-SNAPSHOT" % "provided",
