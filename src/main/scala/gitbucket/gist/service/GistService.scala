@@ -1,5 +1,6 @@
 package gitbucket.gist.service
 
+import gitbucket.core.model.Account
 import gitbucket.gist.model.Gist
 import gitbucket.gist.model.Profile._
 import profile.simple._
@@ -9,8 +10,14 @@ trait GistService {
   def getRecentGists(userName: String, offset: Int, limit: Int)(implicit s: Session): Seq[Gist] =
     Gists.filter(_.userName === userName.bind).sortBy(_.registeredDate desc).drop(offset).take(limit).list
 
-  def getPublicGists(offset: Int, limit: Int)(implicit s: Session): Seq[Gist] =
-    Gists.filter(_.isPrivate === false.bind).sortBy(_.registeredDate desc).drop(offset).take(limit).list
+  def getVisibleGists(offset: Int, limit: Int, account: Option[Account])(implicit s: Session): Seq[Gist] = {
+    val query = account.map { x =>
+      Gists.filter { t => (t.isPrivate === false.bind) || (t.userName === x.userName.bind) }
+    } getOrElse {
+      Gists.filter { t => (t.isPrivate === false.bind) }
+    }
+    query.sortBy(_.registeredDate desc).drop(offset).take(limit).list
+  }
 
   def countPublicGists()(implicit s: Session): Int =
     Query(Gists.filter(_.isPrivate === false.bind).length).first
