@@ -45,10 +45,23 @@ trait GistControllerBase extends ControllerBase {
   ////////////////////////////////////////////////////////////////////////////////
 
   get("/gist"){
-    if(context.loginAccount.isDefined){
-      val gists = getRecentGists(context.loginAccount.get.userName, 0, 4)
-      html.edit(gists, None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))
-    } else _discoverGists()
+    val page = request.getParameter("page") match {
+      case ""|null => 1
+      case s => s.toInt
+    }
+    val result = getVisibleGists((page - 1) * Limit, Limit, None)
+    val count  = countPublicGists()
+
+    val gists: Seq[(Gist, GistInfo)] = result.map { gist =>
+      val userName = gist.userName
+      val repoName = gist.repositoryName
+      val files = getGistFiles(userName, repoName)
+      val (fileName, source) = files.head
+
+      (gist, GistInfo(fileName, getLines(source), files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
+    }
+
+    html.list(None, gists, page, page * Limit < count)
   }
 
   get("/gist/:userName/:repoName"){
@@ -265,18 +278,18 @@ trait GistControllerBase extends ControllerBase {
     }
   }
 
-
   get("/gist/:userName"){
     _gist(params("userName"))
   }
 
+  get("/gist/_new")(usersOnly {
+    val gists = getRecentGists(context.loginAccount.get.userName, 0, 4)
+    html.edit(gists, None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))
+  })
+
   get("/gist/_add"){
     val count = params("count").toInt
     html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))
-  }
-
-  get("/gist/discover"){
-    _discoverGists()
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -413,25 +426,6 @@ trait GistControllerBase extends ControllerBase {
   // Private Methods
   //
   ////////////////////////////////////////////////////////////////////////////////
-  private def _discoverGists(): Html = {
-    val page = request.getParameter("page") match {
-      case ""|null => 1
-      case s => s.toInt
-    }
-    val result = getVisibleGists((page - 1) * Limit, Limit, None)
-    val count  = countPublicGists()
-
-    val gists: Seq[(Gist, GistInfo)] = result.map { gist =>
-      val userName = gist.userName
-      val repoName = gist.repositoryName
-      val files = getGistFiles(userName, repoName)
-      val (fileName, source) = files.head
-
-      (gist, GistInfo(fileName, getLines(source), files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
-    }
-
-    html.list(None, gists, page, page * Limit < count)
-  }
 
   private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master"): Html = {
     repoName match {

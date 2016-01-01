@@ -8,7 +8,12 @@
   @gitbucket.gist.html.style()
   <div class="container">
   @if(gistUser.isEmpty){
-    <div class="head">Discover Snippets</div>
+    <div class="head">
+      Discover Snippets
+      <div class="pull-right">
+        <a href="@path/gist/_new" class="btn btn-default">New snippet</a>
+      </div>
+    </div>
   } else {
     <div class="head">
       @avatar(gistUser.get.userName, 24)
