@@ -24,6 +24,7 @@ import org.apache.commons.io.FileUtils
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib._
 import org.scalatra.Ok
+import play.twirl.api.Html
 
 class GistController extends GistControllerBase with GistService with GistCommentService with AccountService
   with GistEditorAuthenticator with UsersAuthenticator
@@ -47,25 +48,7 @@ trait GistControllerBase extends ControllerBase {
     if(context.loginAccount.isDefined){
       val gists = getRecentGists(context.loginAccount.get.userName, 0, 4)
       html.edit(gists, None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))
-    } else {
-      val page = request.getParameter("page") match {
-        case ""|null => 1
-        case s => s.toInt
-      }
-      val result = getPublicGists((page - 1) * Limit, Limit)
-      val count  = countPublicGists()
-
-      val gists: Seq[(Gist, GistInfo)] = result.map { gist =>
-        val userName = gist.userName
-        val repoName = gist.repositoryName
-        val files = getGistFiles(userName, repoName)
-        val (fileName, source) = files.head
-
-        (gist, GistInfo(fileName, getLines(source), files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
-      }
-
-      html.list(None, gists, page, page * Limit < count)
-    }
+    } else _discoverGists()
   }
 
   get("/gist/:userName/:repoName"){
@@ -292,6 +275,10 @@ trait GistControllerBase extends ControllerBase {
     html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))
   }
 
+  get("/gist/discover"){
+    _discoverGists()
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
   //
   // Fork Actions
@@ -403,9 +390,8 @@ trait GistControllerBase extends ControllerBase {
         } getOrElse {
           contentType = formats("json")
           org.json4s.jackson.Serialization.write(
-            Map("content" -> gitbucket.core.view.Markdown.toHtml(comment.content,
-              gist.toRepositoryInfo, false, true, true, true) // TODO isEditableこれでいいのか？
-            ))
+            Map("content" -> gitbucket.core.view.Markdown.toHtml(comment.content, gist.toRepositoryInfo, false, true, true, true))
+          )
         }
       }
     } getOrElse NotFound
@@ -427,8 +413,27 @@ trait GistControllerBase extends ControllerBase {
   // Private Methods
   //
   ////////////////////////////////////////////////////////////////////////////////
+  private def _discoverGists(): Html = {
+    val page = request.getParameter("page") match {
+      case ""|null => 1
+      case s => s.toInt
+    }
+    val result = getVisibleGists((page - 1) * Limit, Limit, None)
+    val count  = countPublicGists()
 
-  private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master") = {
+    val gists: Seq[(Gist, GistInfo)] = result.map { gist =>
+      val userName = gist.userName
+      val repoName = gist.repositoryName
+      val files = getGistFiles(userName, repoName)
+      val (fileName, source) = files.head
+
+      (gist, GistInfo(fileName, getLines(source), files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
+    }
+
+    html.list(None, gists, page, page * Limit < count)
+  }
+
+  private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master"): Html = {
     repoName match {
       case None => {
         val page = params.get("page") match {
