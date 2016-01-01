@@ -33,7 +33,7 @@ object GistUtils {
       Constants.HEAD, loginAccount.fullName, loginAccount.mailAddress, message)
 
     inserter.flush()
-    inserter.release()
+    inserter.close()
 
     commitId
   }
