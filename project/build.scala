@@ -26,7 +26,7 @@ object MyBuild extends Build {
       "amateras-snapshot-repo" at "http://amateras.sourceforge.jp/mvn-snapshot/"
     ),
     libraryDependencies ++= Seq(
-      "gitbucket"          % "gitbucket-assembly" % "3.11.0-SNAPSHOT" % "provided",
+      "gitbucket"          % "gitbucket-assembly" % "3.11.0" % "provided",
       "com.typesafe.play" %% "twirl-compiler"     % "1.0.4"  % "provided",
       "javax.servlet"      % "javax.servlet-api"  % "3.1.0"  % "provided"
     ),
