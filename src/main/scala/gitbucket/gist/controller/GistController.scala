@@ -49,7 +49,7 @@ trait GistControllerBase extends ControllerBase {
       case ""|null => 1
       case s => s.toInt
     }
-    val result = getVisibleGists((page - 1) * Limit, Limit, None)
+    val result = getVisibleGists((page - 1) * Limit, Limit, context.loginAccount)
     val count  = countPublicGists()
 
     val gists: Seq[(Gist, GistInfo)] = result.map { gist =>
