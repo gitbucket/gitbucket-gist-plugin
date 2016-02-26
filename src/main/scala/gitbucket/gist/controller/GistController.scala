@@ -356,7 +356,6 @@ trait GistControllerBase extends ControllerBase {
       RepositoryInfo(
         owner       = userName,
         name        = repoName,
-        httpUrl     = "",
         repository  = null,
         issueCount  = 0,
         pullCount   = 0,

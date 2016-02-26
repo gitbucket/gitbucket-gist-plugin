@@ -35,7 +35,6 @@ case class Gist(
     gitbucket.core.service.RepositoryService.RepositoryInfo(
       owner       = userName,
       name        = repositoryName,
-      httpUrl     = "",
       repository  = null,
       issueCount  = 0,
       pullCount   = 0,
