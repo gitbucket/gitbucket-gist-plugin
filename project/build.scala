@@ -7,7 +7,7 @@ object MyBuild extends Build {
 
   val Organization = "jp.sf.amateras"
   val Name = "gitbucket-gist-plugin"
-  val Version = "3.12.0"
+  val Version = "3.13.0"
   val ScalaVersion = "2.11.6"
 
   lazy val project = Project (
