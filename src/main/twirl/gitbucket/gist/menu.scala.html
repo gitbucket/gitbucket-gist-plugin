@@ -5,11 +5,9 @@
 @import gitbucket.core.helper
 @import gitbucket.core.view.helpers._
 
-@menuitem(name: String, path: String, image: String, label: String, count: Int = 0) = {
+@menuitem(name: String, path: String, label: String, count: Int = 0) = {
   <li @if(active == name){class="active"}>
-    <div class="@if(active == name){margin} else {gradient} pull-left"></div>
     <a href="@context.path/gist/@path">
-      <i class="menu-icon @if(active == name){menu-icon-active} octicon octicon-@image"></i>
       @label
       @if(count > 0){
         <div class="pull-right"><span class="label">@count</span></div>
@@ -19,26 +17,22 @@
 }
 
 <div style="width: 170px;" class="pull-right">
-  <ul class="sidemenu">
+  <ul class="nav nav-pills nav-stacked">
     <li style="height: 12px"><div class="gradient pull-left" style="height: 12px"></div></li>
     @menuitem(
       "code",
       s"${gist.userName}/${gist.repositoryName}",
-      "code",
       "Code")
     @menuitem(
       "revision",
       s"${gist.userName}/${gist.repositoryName}/revisions",
-      "git-commit",
       "Revision")
     @if(gist.originUserName.isEmpty){
       @menuitem(
         "forks",
         s"${gist.userName}/${gist.repositoryName}/forks",
-        "git-branch",
         "Forks")
     }
-    <li style="height: 12px"><div class="gradient pull-left" style="height: 12px"></div></li>
   </ul>
   <div class="small">
     <strong id="repository-url-proto">HTTP</strong> <span class="mute">clone URL</span>
@@ -55,12 +49,6 @@
     <a href="@path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.zip"
        class="btn btn-default" style="width: 170px;"><i class="icon-download-alt"></i>Download ZIP</a>
   </div>
-  @*
-  <div style="margin-top: 10px;">
-    <a href="@path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.tar.gz"
-       class="btn btn-small" style="width: 170px;"><i class="icon-download-alt"></i>Download TAR.GZ</a>
-  </div>
-  *@
 </div>
 @if(settings.ssh && loginAccount.isDefined){
   <script>

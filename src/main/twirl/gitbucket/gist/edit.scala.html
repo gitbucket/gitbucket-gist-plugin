@@ -4,7 +4,7 @@
 @import context._
 @import gitbucket.core.view.helpers._
 @gitbucket.core.html.main("Snippets"){
-  <div class="container">
+  <div class="container head">
     <div id="error"></div>
     @if(gist.isEmpty){
       <div>
@@ -29,21 +29,19 @@
       </div>
     } else {
       @gist.map { x =>
-        <div class="head">
-          @avatar(gist.get.userName, 24)
-          Editing
-          <a class="strong" href="@path/gist/@gist.get.userName/@gist.get.repositoryName">@gist.get.title</a>
+        @avatar(gist.get.userName, 24)
+        Editing
+        <a class="strong" href="@path/gist/@gist.get.userName/@gist.get.repositoryName">@gist.get.title</a>
+        @if(gist.get.isPrivate){
+          <span class="label label-warning">Secret</span>
+        }
+        <div class="pull-right">
           @if(gist.get.isPrivate){
-            <span class="label label-warning">Secret</span>
+            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/public" class="btn btn-default">Make public</a>
+          } else {
+            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/secret" class="btn btn-default">Make secret</a>
           }
-          <div class="pull-right">
-            @if(gist.get.isPrivate){
-              <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/public" class="btn btn-default">Make public</a>
-            } else {
-              <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/secret" class="btn btn-default">Make secret</a>
-            }
-            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn btn-default" id="delete">Delete</a>
-          </div>
+          <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn btn-default" id="delete">Delete</a>
         </div>
         <div class="muted" style="margin-top: -10px; margin-left: 30px;">
           Created at @gist.get.registeredDate
@@ -54,21 +52,21 @@
   <hr style="margin-bottom: 20px;"/>
   <div class="container body">
     <form id="form" method="POST" action="#" class="form-inline">
-      <input type="text" name="description" id="description" class="form-control input-lg" style="width: 950px; margin-bottom: 8px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
+      <input type="text" name="description" id="description" class="form-control" style="width: 950px; margin-bottom: 8px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
       <div id="editors">
         @files.zipWithIndex.map { case ((fileName, content), i) =>
           @gitbucket.gist.html.editor(i, fileName, content)
         }
       </div>
       <div>
-        <input type="button" value="Add file" class="btn btn-lg btn-default" id="add_file">
+        <input type="button" value="Add file" class="btn btn-default" id="add_file">
         <div class="pull-right">
           @if(gist.isDefined){
-            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn btn-lg btn-default">Cancel</a>
-            <input type="submit" value="Update" class="btn btn-lg btn-success submit_snippet" id="update_snippet">
+            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn btn-default">Cancel</a>
+            <input type="submit" value="Update" class="btn btn-success submit_snippet" id="update_snippet">
           } else {
-            <input type="submit" value="Create private Snippet" class="btn btn-lg btn-default submit_snippet" id="create_private_snippet">
-            <input type="submit" value="Create public Snippet" class="btn btn-lg btn-default submit_snippet" id="create_public_snippet">
+            <input type="submit" value="Create private Snippet" class="btn btn-default submit_snippet" id="create_private_snippet">
+            <input type="submit" value="Create public Snippet" class="btn btn-default submit_snippet" id="create_public_snippet">
           }
         </div>
       </div>

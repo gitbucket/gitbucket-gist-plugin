@@ -6,6 +6,7 @@
 @import context._
 @import gitbucket.core.view.helpers._
 @gitbucket.core.html.main("Snippets"){
+  @gitbucket.gist.html.style()
   @gitbucket.gist.html.header(gist, forkedCount, editable)
   <div class="container body">
     @gitbucket.gist.html.menu("forks", gist, repositoryUrl)

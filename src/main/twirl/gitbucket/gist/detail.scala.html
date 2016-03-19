@@ -8,6 +8,7 @@
 @import context._
 @import gitbucket.core.view.helpers._
 @gitbucket.core.html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
+  @gitbucket.gist.html.style()
   @gitbucket.gist.html.header(gist, forkedCount, editable)
   <div class="container body">
     @gitbucket.gist.html.menu("code", gist, repositoryUrl)
@@ -17,7 +18,7 @@
       </div>
       @files.map { case (fileName, content) =>
         <div class="panel panel-default">
-          <div class="panel-heading strong">
+          <div class="panel-heading strong" style="padding: 6px; line-height: 30px;">
             @fileName
             <div class="pull-right">
               <a href="@path/gist/@gist.userName/@gist.repositoryName/raw/@revision/@fileName" class="btn btn-sm btn-default">Raw</a>

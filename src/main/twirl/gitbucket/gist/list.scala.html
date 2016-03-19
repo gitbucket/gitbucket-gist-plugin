@@ -4,23 +4,19 @@
   hasNext: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
 @import gitbucket.core.view.helpers._
-@gitbucket.core.html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("")){
+@gitbucket.core.html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("Snippets")){
   @gitbucket.gist.html.style()
-  <div class="container">
+  <div class="container head">
   @if(gistUser.isEmpty){
-    <div class="head">
-      Discover Snippets
-      <div class="pull-right">
-        <a href="@path/gist/_new" class="btn btn-default">New snippet</a>
-      </div>
+    Discover Snippets
+    <div class="pull-right">
+      <a href="@path/gist/_new" class="btn btn-success">New snippet</a>
     </div>
   } else {
-    <div class="head">
-      @avatar(gistUser.get.userName, 24)
-      <span class="strong">@gistUser.get.fullName</span>
-      <div class="pull-right">
-        <a href="@path/@gistUser.get.userName" class="btn btn-default">@gistUser.get.userName on GitBucket</a>
-      </div>
+    @avatar(gistUser.get.userName, 24)
+    <span class="strong">@gistUser.get.fullName</span>
+    <div class="pull-right">
+      <a href="@path/@gistUser.get.userName" class="btn btn-default">@gistUser.get.userName on GitBucket</a>
     </div>
     <div class="muted" style="margin-top: -10px; margin-left: 30px;">
       @gistUser.get.userName
@@ -30,11 +26,12 @@
   <hr style="margin-bottom: 20px;"/>
   <div class="container body">
     @gists.map { case (gist, gistInfo) =>
-      <div>
-        <div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
           @avatar(gist.userName, 20)
           <a class="strong" href="@path/gist/@gist.userName">@gist.userName</a> /
           <a class="strong" href="@path/gist/@gist.userName/@gist.repositoryName">@gist.title</a>
+          <span class="muted small">Created at @gist.registeredDate</span>
           @if(gist.isPrivate){
             <span class="label label-warning">Secret</span>
           }
@@ -52,20 +49,19 @@
             </a>
           </div>
         </div>
-        <div class="muted small" style="margin-left: 22px;">
-          Created at @gist.registeredDate
-        </div>
-        <div class="small" style="margin-left: 22px; margin-top: 2px; margin-bottom: 2px;">
-          @gist.description
-        </div>
-        <div>
-          @if(isRenderable(gistInfo.fileName)){
-            <div class="list-markup box-content markdown-body">
-              @renderMarkup(List(gistInfo.fileName), gistInfo.source, "master", gist.toRepositoryInfo, false, false, false)
-            </div>
-          } else {
-            <pre class="list-code box-content prettyprint linenums">@gistInfo.source</pre>
-          }
+        <div class="panel-body">
+          <div class="small" style="margin-left: 22px; margin-top: 2px; margin-bottom: 2px;">
+            @gist.description
+          </div>
+          <div>
+            @if(isRenderable(gistInfo.fileName)){
+              <div class="list-markup box-content markdown-body">
+                @renderMarkup(List(gistInfo.fileName), gistInfo.source, "master", gist.toRepositoryInfo, false, false, false)
+              </div>
+            } else {
+              <pre class="list-code box-content prettyprint linenums">@gistInfo.source</pre>
+            }
+          </div>
         </div>
       </div>
     }
