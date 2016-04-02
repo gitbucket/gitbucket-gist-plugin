@@ -1,5 +1,6 @@
 package gitbucket.gist.service
 
+import scala.language.reflectiveCalls
 import gitbucket.gist.model.GistComment
 import gitbucket.gist.model.Profile._
 import profile.simple._

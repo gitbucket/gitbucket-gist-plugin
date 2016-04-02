@@ -46,26 +46,27 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   )
 
   override val globalMenus = Seq(
-    new GlobalMenu {
-      override def createLink(context: Context): Option[(String, String)] = Some("Snippets" -> "gist")
-    }
+    (context: Context) => Some(Link("snippets", "Snippets", "gist"))
+  )
+  override val profileTabs = Seq(
+    (account: Account, context: Context) => Some(Link("snippets", "Snippets", s"gist/${account.userName}/_profile"))
   )
 
-  override def javaScripts(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Seq[(String, String)] = {
-    // Add Snippet link to the header
-    val path = settings.baseUrl.getOrElse(context.getContextPath)
-    Seq(
-      ".*" -> s"""
-        |var accountName = $$('div.account-username').text();
-        |if(accountName != ''){
-        |  var active = location.href.endsWith('_profile');
-        |  $$('li:has(a:contains(Public Activity))').after(
-        |    $$('<li' + (active ? ' class="active"' : '') + '><a href="${path}/gist/' + accountName + '/_profile">Snippets</a></li>')
-        |  );
-        |}
-      """.stripMargin
-    )
-  }
+//  override def javaScripts(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Seq[(String, String)] = {
+//    // Add Snippet link to the header
+//    val path = settings.baseUrl.getOrElse(context.getContextPath)
+//    Seq(
+//      ".*" -> s"""
+//        |var accountName = $$('div.account-username').text();
+//        |if(accountName != ''){
+//        |  var active = location.href.endsWith('_profile');
+//        |  $$('li:has(a:contains(Public Activity))').after(
+//        |    $$('<li' + (active ? ' class="active"' : '') + '><a href="${path}/gist/' + accountName + '/_profile">Snippets</a></li>')
+//        |  );
+//        |}
+//      """.stripMargin
+//    )
+//  }
 }
 
 class GistRepositoryFilter extends GitRepositoryFilter with AccountService {

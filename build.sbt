@@ -2,6 +2,8 @@ val Organization = "gitbucket"
 val Name = "gitbucket-gist-plugin"
 val Version = "3.14.0-SNAPSHOT"
 
+lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
+
 organization := Organization
 name := Name
 version := Version
@@ -18,5 +20,5 @@ libraryDependencies ++= Seq(
   "javax.servlet"      % "javax.servlet-api"  % "3.1.0"  % "provided"
 )
 
-scalacOptions := Seq("-deprecation", "-language:postfixOps")
+scalacOptions := Seq("-deprecation", "-feature", "-language:postfixOps")
 javacOptions in compile ++= Seq("-target", "7", "-source", "7")
