@@ -1,3 +1,4 @@
+import gitbucket.core.controller.Context
 import gitbucket.core.model._
 import gitbucket.core.service.AccountService
 import gitbucket.core.service.SystemSettingsService.SystemSettings
@@ -44,14 +45,17 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     "/*" -> new GistController()
   )
 
+  override val globalMenus = Seq(
+    new GlobalMenu {
+      override def createLink(context: Context): Option[(String, String)] = Some("Snippets" -> "gist")
+    }
+  )
+
   override def javaScripts(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Seq[(String, String)] = {
     // Add Snippet link to the header
     val path = settings.baseUrl.getOrElse(context.getContextPath)
     Seq(
       ".*" -> s"""
-        |$$('a.global-header-menu:last, nav.navbar input[name=query], a.navbar-brand').last().after(
-        |  $$('<a href="${path}/gist" class="global-header-menu">Snippets</a>')
-        |);
         |var accountName = $$('div.account-username').text();
         |if(accountName != ''){
         |  var active = location.href.endsWith('_profile');
