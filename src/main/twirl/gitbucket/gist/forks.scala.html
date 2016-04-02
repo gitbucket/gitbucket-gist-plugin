@@ -10,7 +10,7 @@
   @gitbucket.gist.html.header(gist, forkedCount, editable)
   <div class="container body">
     @gitbucket.gist.html.menu("forks", gist, repositoryUrl)
-    <div style="margin-right: 180px;">
+    <div style="margin-right: 260px;">
       @forkedGists.map { forkedGist =>
         <div class="block">
           @avatar(forkedGist.userName, 20)

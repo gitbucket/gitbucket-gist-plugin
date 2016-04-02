@@ -81,7 +81,7 @@ trait GistControllerBase extends ControllerBase {
         val files: Seq[(String, JGitUtil.ContentInfo)] = JGitUtil.getFileList(git, "master", ".").map { file =>
           (if(isGistFile(file.name)) "" else file.name) -> JGitUtil.getContentInfo(git, file.name, file.id)
         }
-        html.edit(Nil, getGist(userName, repoName), files)
+        html.edit(getGist(userName, repoName), files)
       }
     }
   })
@@ -278,13 +278,28 @@ trait GistControllerBase extends ControllerBase {
     }
   }
 
+  get("/gist/:userName/_profile"){
+    val userName = params("userName")
+
+    val result: (Seq[Gist], Int)  = (
+      getUserGists(userName, context.loginAccount.map(_.userName), 0, Limit),
+      countUserGists(userName, context.loginAccount.map(_.userName))
+    )
+    getAccountByUserName(userName).map { account =>
+      html.profile(
+        account,
+        if(account.isGroupAccount) Nil else getGroupsByUserName(userName),
+        result._1
+      )
+    } getOrElse NotFound
+  }
+
   get("/gist/:userName"){
     _gist(params("userName"))
   }
 
   get("/gist/_new")(usersOnly {
-    val gists = getRecentGists(context.loginAccount.get.userName, 0, 4)
-    html.edit(gists, None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))
+    html.edit(None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))
   })
 
   get("/gist/_add"){
@@ -425,6 +440,7 @@ trait GistControllerBase extends ControllerBase {
   // Private Methods
   //
   ////////////////////////////////////////////////////////////////////////////////
+
 
   private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master"): Html = {
     repoName match {

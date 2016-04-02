@@ -49,9 +49,16 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     val path = settings.baseUrl.getOrElse(context.getContextPath)
     Seq(
       ".*" -> s"""
-        |$$('a.global-header-menu:last').after(
-        |  $$('<a href="${path}/gist" class="global-header-menu">Gist</a>')
+        |$$('a.global-header-menu:last, nav.navbar input[name=query], a.navbar-brand').last().after(
+        |  $$('<a href="${path}/gist" class="global-header-menu">Snippets</a>')
         |);
+        |var accountName = $$('div.account-username').text();
+        |if(accountName != ''){
+        |  var active = location.href.endsWith('_profile');
+        |  $$('li:has(a:contains(Public Activity))').after(
+        |    $$('<li' + (active ? ' class="active"' : '') + '><a href="${path}/gist/' + accountName + '/_profile">Snippets</a></li>')
+        |  );
+        |}
       """.stripMargin
     )
   }

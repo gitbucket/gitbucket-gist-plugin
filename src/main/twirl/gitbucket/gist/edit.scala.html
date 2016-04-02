@@ -1,32 +1,13 @@
-@(recent: Seq[gitbucket.gist.model.Gist],
-  gist: Option[gitbucket.gist.model.Gist],
+@(gist: Option[gitbucket.gist.model.Gist],
   files: Seq[(String, gitbucket.core.util.JGitUtil.ContentInfo)])(implicit context: gitbucket.core.controller.Context)
 @import context._
 @import gitbucket.core.view.helpers._
 @gitbucket.core.html.main("Snippets"){
+  @gitbucket.gist.html.style()
   <div class="container head">
     <div id="error"></div>
     @if(gist.isEmpty){
-      <div>
-        <ul style="list-style: none; margin-left: 0px; padding-left: 0px;">
-        @recent.map { gist =>
-          <li style="float: left; width: 200px;">
-            <i class="octicon octicon-gist" style="width: 24px; height: 24px;"></i>
-            <div style="margin-left: 26px; font-size: 90%; position: relative; top: -24px; line-height: normal; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-              <a class="strong" href="@path/gist/@gist.userName/@gist.repositoryName">@gist.title</a><br>
-              @if(gist.description.nonEmpty){
-                <span class="muted">@gist.description</span>
-              } else {
-                <span style="color: #dddddd;">No description.</span>
-              }
-            </div>
-          </li>
-        }
-        </ul>
-        <div class="pull-right">
-          <a href="@path/gist/@context.loginAccount.get.userName" class="btn btn-default">Your Snippets</a>
-        </div>
-      </div>
+      <h1 style="margin: 0px;">New snippet</h1>
     } else {
       @gist.map { x =>
         @avatar(gist.get.userName, 24)
@@ -41,9 +22,9 @@
           } else {
             <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/secret" class="btn btn-default">Make secret</a>
           }
-          <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn btn-default" id="delete">Delete</a>
+          <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn btn-danger" id="delete">Delete</a>
         </div>
-        <div class="muted" style="margin-top: -10px; margin-left: 30px;">
+        <div class="muted" style="margin-left: 30px; font-size: 80%;">
           Created at @gist.get.registeredDate
         </div>
       }
@@ -51,8 +32,8 @@
   </div>
   <hr style="margin-bottom: 20px;"/>
   <div class="container body">
-    <form id="form" method="POST" action="#" class="form-inline">
-      <input type="text" name="description" id="description" class="form-control" style="width: 950px; margin-bottom: 8px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
+    <form id="form" method="POST" action="#">
+      <input type="text" name="description" id="description" class="form-control" style="margin-bottom: 8px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
       <div id="editors">
         @files.zipWithIndex.map { case ((fileName, content), i) =>
           @gitbucket.gist.html.editor(i, fileName, content)
