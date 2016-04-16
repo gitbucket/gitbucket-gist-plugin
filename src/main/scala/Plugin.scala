@@ -4,7 +4,8 @@ import gitbucket.core.service.AccountService
 import gitbucket.core.service.SystemSettingsService.SystemSettings
 import gitbucket.gist.controller.GistController
 import gitbucket.core.plugin._
-import gitbucket.core.util.Version
+import io.github.gitbucket.solidbase.migration.LiquibaseMigration
+import io.github.gitbucket.solidbase.model.Version
 import java.io.File
 import javax.servlet.ServletContext
 import gitbucket.gist.util.Configurations._
@@ -18,11 +19,9 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   override val description: String = "Provides Gist feature on GitBucket."
 
   override val versions: List[Version] = List(
-    Version(3, 12),
-    Version(3, 6),
-    Version(1, 3),
-    Version(1, 2),
-    Version(1, 0)
+    new Version("2.0.0",
+      new LiquibaseMigration("update/gitbucket-gist_2.0.xml")
+    )
   )
 
   override def initialize(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Unit = {
