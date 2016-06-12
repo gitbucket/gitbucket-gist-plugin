@@ -3,6 +3,7 @@
   page: Int,
   hasNext: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
+@import gitbucket.gist.model.Mode
 @import gitbucket.core.view.helpers._
 @gitbucket.core.html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("Snippets")){
   @gitbucket.gist.html.style()
@@ -32,8 +33,11 @@
           <a class="strong" href="@path/gist/@gist.userName">@gist.userName</a> /
           <a class="strong" href="@path/gist/@gist.userName/@gist.repositoryName">@gist.title</a>
           <span class="muted small">Created at @gist.registeredDate</span>
-          @if(gist.isPrivate){
+          @if(gist.mode == Mode.Secret.code){
             <span class="label label-warning">Secret</span>
+          }
+          @if(gist.mode == Mode.Private.code){
+            <span class="label label-warning">Private</span>
           }
           <div class="pull-right">
             <a href="@path/gist/@gist.userName/@gist.repositoryName" class="header-link">

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<changeSet>
+  <addColumn tableName="GIST">
+    <column name="MODE" type="varchar(10)" nullable="false" defaultValue="PUBLIC"/>
+  </addColumn>
+  <sql>UPDATE GIST SET MODE='SECRET' WHERE PRIVATE = TRUE</sql>
+  <dropColumn tableName="GIST" columnName="PRIVATE"/>
+</changeSet>

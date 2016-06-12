@@ -95,8 +95,8 @@ trait GistControllerBase extends ControllerBase {
         redirect(s"/gist")
 
       } else {
-        val isPrivate    = params("private").toBoolean
-        val description  = params("description")
+        val mode        = Mode.from(params("mode"))
+        val description = params("description")
 
         // Create new repository
         val repoName = StringUtil.md5(loginAccount.userName + " " + datetime(new java.util.Date()))
@@ -108,9 +108,9 @@ trait GistControllerBase extends ControllerBase {
         registerGist(
           loginAccount.userName,
           repoName,
-          isPrivate,
           getTitle(files.head._1, repoName),
-          description
+          description,
+          mode
         )
 
         // Commit files
@@ -130,13 +130,15 @@ trait GistControllerBase extends ControllerBase {
     val loginAccount = context.loginAccount.get
     val files        = getFileParameters(true)
     val description  = params("description")
+    val mode         = Mode.from(params("mode"))
 
     // Update database
     updateGist(
       userName,
       repoName,
       getTitle(files.head._1, repoName),
-      description
+      description,
+      mode
     )
 
     // Commit files
@@ -168,28 +170,6 @@ trait GistControllerBase extends ControllerBase {
 
       redirect(s"/gist/${userName}")
     }
-  })
-
-  get("/gist/:userName/:repoName/secret")(editorOnly {
-    val userName = params("userName")
-    val repoName = params("repoName")
-
-    if(isEditable(userName)){
-      updateGistAccessibility(userName, repoName, true)
-    }
-
-    redirect(s"/gist/${userName}/${repoName}")
-  })
-
-  get("/gist/:userName/:repoName/public")(editorOnly {
-    val userName = params("userName")
-    val repoName = params("repoName")
-
-    if(isEditable(userName)){
-      updateGistAccessibility(userName, repoName, false)
-    }
-
-    redirect(s"/gist/${userName}/${repoName}")
   })
 
   get("/gist/:userName/:repoName/revisions"){
@@ -235,7 +215,7 @@ trait GistControllerBase extends ControllerBase {
       using(Git.open(gitdir)){ git =>
         val gist = getGist(userName, repoName).get
 
-        if(!gist.isPrivate || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
+        if(gist.mode == "PUBLIC" || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
           JGitUtil.getFileList(git, revision, ".").find(_.name == fileName).map { file =>
             defining(JGitUtil.getContentFromId(git, file.id, false).get){ bytes =>
               RawData(FileUtil.getContentType(file.name, bytes), bytes)
@@ -326,7 +306,7 @@ trait GistControllerBase extends ControllerBase {
         val originUserName = gist.originUserName.getOrElse(gist.userName)
         val originRepoName = gist.originRepositoryName.getOrElse(gist.repositoryName)
 
-        registerGist(loginAccount.userName, repoName, gist.isPrivate, gist.title, gist.description,
+        registerGist(loginAccount.userName, repoName, gist.title, gist.description, Mode.from(gist.mode),
           Some(originUserName), Some(originRepoName))
 
         // Clone repository
@@ -442,7 +422,7 @@ trait GistControllerBase extends ControllerBase {
   ////////////////////////////////////////////////////////////////////////////////
 
 
-  private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master"): Html = {
+  private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master"): Any = {
     repoName match {
       case None => {
         val page = params.get("page") match {
@@ -467,20 +447,31 @@ trait GistControllerBase extends ControllerBase {
       }
       case Some(repoName) => {
         val gist = getGist(userName, repoName).get
-        val originUserName = gist.originUserName.getOrElse(userName)
-        val originRepoName = gist.originRepositoryName.getOrElse(repoName)
-
-        html.detail(
-          gist,
-          getForkedCount(originUserName, originRepoName),
-          GistRepositoryURL(gist, baseUrl, context.settings),
-          revision,
-          getGistFiles(userName, repoName, revision),
-          getGistComments(userName, repoName),
-          isEditable(userName)
-        )
+        if(gist.mode == "PRIVATE"){
+          context.loginAccount match {
+            case Some(x) if(x.userName == userName) => _gistDetail(gist, userName, repoName, revision)
+            case _ => Unauthorized()
+          }
+        } else {
+          _gistDetail(gist, userName, repoName, revision)
+        }
       }
     }
+  }
+
+  private def _gistDetail(gist: Gist, userName: String, repoName: String, revision: String): Html = {
+    val originUserName = gist.originUserName.getOrElse(userName)
+    val originRepoName = gist.originRepositoryName.getOrElse(repoName)
+
+    html.detail(
+      gist,
+      getForkedCount(originUserName, originRepoName),
+      GistRepositoryURL(gist, baseUrl, context.settings),
+      revision,
+      getGistFiles(userName, repoName, revision),
+      getGistComments(userName, repoName),
+      isEditable(userName)
+    )
   }
 
   private def getGistFiles(userName: String, repoName: String, revision: String = "master"): Seq[(String, String)] = {

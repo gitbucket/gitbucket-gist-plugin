@@ -1,6 +1,7 @@
 @(gist: Option[gitbucket.gist.model.Gist],
   files: Seq[(String, gitbucket.core.util.JGitUtil.ContentInfo)])(implicit context: gitbucket.core.controller.Context)
 @import context._
+@import gitbucket.gist.model.Mode
 @import gitbucket.core.view.helpers._
 @gitbucket.core.html.main("Snippets"){
   @gitbucket.gist.html.style()
@@ -13,15 +14,20 @@
         @avatar(gist.get.userName, 24)
         Editing
         <a class="strong" href="@path/gist/@gist.get.userName/@gist.get.repositoryName">@gist.get.title</a>
-        @if(gist.get.isPrivate){
+        @if(gist.get.mode == Mode.Secret.code){
           <span class="label label-warning">Secret</span>
         }
+        @if(gist.get.mode == Mode.Private.code){
+          <span class="label label-warning">Private</span>
+        }
         <div class="pull-right">
-          @if(gist.get.isPrivate){
+          @*
+          @if(gist.get.mode == "SECRET"){
             <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/public" class="btn btn-default">Make public</a>
           } else {
             <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/secret" class="btn btn-default">Make secret</a>
           }
+          *@
           <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn btn-danger" id="delete">Delete</a>
         </div>
         <div class="muted" style="margin-left: 30px; font-size: 80%;">
@@ -44,10 +50,16 @@
         <div class="pull-right">
           @if(gist.isDefined){
             <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn btn-default">Cancel</a>
+          }
+          <div class="btn-group" data-toggle="buttons">
+            <label class="btn btn-default btn-mini @if(gist.isEmpty   || gist.get.mode == Mode.Public.code ){active}"><input type="radio" value="PUBLIC" name="mode">Public</label>
+            <label class="btn btn-default btn-mini @if(gist.isDefined && gist.get.mode == Mode.Secret.code ){active}"><input type="radio" value="SECRET" name="mode">Secret</label>
+            <label class="btn btn-default btn-mini @if(gist.isDefined && gist.get.mode == Mode.Private.code){active}"><input type="radio" value="PRIVATE" name="mode">Private</label>
+          </div>
+          @if(gist.isDefined){
             <input type="submit" value="Update" class="btn btn-success submit_snippet" id="update_snippet">
           } else {
-            <input type="submit" value="Create private Snippet" class="btn btn-default submit_snippet" id="create_private_snippet">
-            <input type="submit" value="Create public Snippet" class="btn btn-default submit_snippet" id="create_public_snippet">
+            <input type="submit" value="Create" class="btn btn-success submit_snippet" id="create_snippet">
           }
         </div>
       </div>
@@ -64,14 +76,8 @@
   <link href="@{gitbucket.core.view.helpers.assets}/vendors/jsdifflib/diffview.css" type="text/css" rel="stylesheet" />
   <script>
   $(function(){
-    $('#create_private_snippet').click(function(){
+    $('#create_snippet').click(function(){
       $('#form').attr('action', '@path/gist/_new')
-      $('#private').val('true');
-    });
-
-    $('#create_public_snippet').click(function(){
-      $('#form').attr('action', '@path/gist/_new')
-      $('#private').val('false');
     });
 
     $('#add_file').click(function(){

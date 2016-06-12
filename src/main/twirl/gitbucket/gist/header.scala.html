@@ -2,13 +2,17 @@
   forkedCount: Int,
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import context._
+@import gitbucket.gist.model.Mode
 @import gitbucket.core.view.helpers._
 <div class="container head">
   @avatar(gist.userName, 24)
   <a href="@path/gist/@gist.userName">@gist.userName</a> /
   <a href="@path/gist/@gist.userName/@gist.repositoryName" class="strong">@gist.title</a>
-  @if(gist.isPrivate){
+  @if(gist.mode == Mode.Secret.code){
     <span class="label label-warning">Secret</span>
+  }
+  @if(gist.mode == Mode.Private.code){
+    <span class="label label-warning">Private</span>
   }
   <div class="pull-right">
     @if(editable){

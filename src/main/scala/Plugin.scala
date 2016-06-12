@@ -19,8 +19,11 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   override val description: String = "Provides Gist feature on GitBucket."
 
   override val versions: List[Version] = List(
-    new Version("2.0.0",
+    new Version("2.0.0", // This is mistake in 4.0.0 but it can't be fixed for migration.
       new LiquibaseMigration("update/gitbucket-gist_2.0.xml")
+    ),
+    new Version("4.2.0",
+      new LiquibaseMigration("update/gitbucket-gist_4.2.xml")
     )
   )
 
@@ -33,7 +36,6 @@ class Plugin extends gitbucket.core.plugin.Plugin {
       rootdir.mkdirs()
     }
 
-    println("-- Gist plug-in initialized --")
   }
 
   override val repositoryRoutings = Seq(
