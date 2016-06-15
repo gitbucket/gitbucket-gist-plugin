@@ -81,7 +81,7 @@
     });
 
     $('#add_file').click(function(){
-      var count = $('#count').val();
+      var count = parseInt($('#count').val());
       $.get('@path/gist/_add?count=' + count, function(html){
         $('#editors').append(html);
         $('#count').val(count + 1);
@@ -95,7 +95,7 @@
     });
 
     $('.submit_snippet').click(function(){
-      var count = $('#count').val();
+      var count = parseInt($('#count').val());
       if(count == 0){
         displayError('File is required.');
         return false;
