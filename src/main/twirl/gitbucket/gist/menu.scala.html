@@ -1,9 +1,7 @@
 @(active: String,
   gist: gitbucket.gist.model.Gist,
   repositoryUrl: gitbucket.gist.util.GistUtils.GistRepositoryURL)(implicit context: gitbucket.core.controller.Context)
-@import context._
-@import gitbucket.core.helper
-@import gitbucket.core.view.helpers._
+@import gitbucket.core.view.helpers
 
 @menuitem(name: String, path: String, label: String, count: Int = 0) = {
   <li @if(active == name){class="active"}>
@@ -37,20 +35,20 @@
   <div class="small">
     <strong id="repository-url-proto">HTTP</strong> <span class="mute">clone URL</span>
   </div>
-  @helper.html.copy("repository-url-copy", repositoryUrl.httpUrl){
+  @gitbucket.core.helper.html.copy("repository-url-copy", repositoryUrl.httpUrl){
     <input type="text" value="@repositoryUrl.httpUrl" id="repository-url" class="form-control input-sm" readonly>
   }
-  @if(settings.ssh && loginAccount.isDefined){
+  @if(context.settings.ssh && context.loginAccount.isDefined){
     <div class="small">
       <span class="mute">You can clone <a href="javascript:void(0);" id="repository-url-http">HTTP</a> or <a href="javascript:void(0);" id="repository-url-ssh">SSH</a>.</span>
     </div>
   }
   <div style="margin-top: 10px;">
-    <a href="@path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.zip"
+    <a href="@context.path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.zip"
        class="btn btn-default btn-block"><i class="icon-download-alt"></i>Download ZIP</a>
   </div>
 </div>
-@if(settings.ssh && loginAccount.isDefined){
+@if(context.settings.ssh && context.loginAccount.isDefined){
   <script>
   $(function(){
     $('#repository-url-http').click(function(){
@@ -58,7 +56,7 @@
       $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
     });
     $('#repository-url-ssh').click(function(){
-      $('#repository-url').val('@repositoryUrl.sshUrl(loginAccount.get.userName)');
+      $('#repository-url').val('@repositoryUrl.sshUrl(context.loginAccount.get.userName)');
       $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
     });
   });

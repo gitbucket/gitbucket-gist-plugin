@@ -1,5 +1,4 @@
 @(content: String, commentId: Int, userName: String, repoName: String)(implicit context: gitbucket.core.controller.Context)
-@import context._
 <span id="error-edit-content-@commentId" class="error"></span>
 <textarea class="form-control" style="height: 100px;" id="edit-content-@commentId">@content</textarea>
 <div style="margin-top: 6px;">
@@ -17,7 +16,7 @@ $(function(){
   $('#update-comment-@commentId').click(function(){
     $('#update-comment-@commentId, #cancel-comment-@commentId').attr('disabled', 'disabled');
     $.ajax({
-      url: '@path/gist/@userName/@repoName/_comments/@commentId/_update',
+      url: '@context.path/gist/@userName/@repoName/_comments/@commentId/_update',
       type: 'POST',
       data: {
         issueId : 0,	// TODO
@@ -33,7 +32,7 @@ $(function(){
 
   $('#cancel-comment-@commentId').click(function(){
     $('#update-comment-@commentId, #cancel-comment-@commentId').attr('disabled', 'disabled');
-    $.get('@path/gist/@userName/@repoName/_comments/@commentId', callback);
+    $.get('@context.path/gist/@userName/@repoName/_comments/@commentId', callback);
     return false;
   });
 });

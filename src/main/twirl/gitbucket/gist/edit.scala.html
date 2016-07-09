@@ -1,8 +1,7 @@
 @(gist: Option[gitbucket.gist.model.Gist],
   files: Seq[(String, gitbucket.core.util.JGitUtil.ContentInfo)])(implicit context: gitbucket.core.controller.Context)
-@import context._
 @import gitbucket.gist.model.Mode
-@import gitbucket.core.view.helpers._
+@import gitbucket.core.view.helpers
 @gitbucket.core.html.main("Snippets"){
   @gitbucket.gist.html.style()
   <div class="container head">
@@ -11,9 +10,9 @@
       <h1 style="margin: 0px;">New snippet</h1>
     } else {
       @gist.map { x =>
-        @avatar(gist.get.userName, 24)
+        @helpers.avatar(gist.get.userName, 24)
         Editing
-        <a class="strong" href="@path/gist/@gist.get.userName/@gist.get.repositoryName">@gist.get.title</a>
+        <a class="strong" href="@context.path/gist/@gist.get.userName/@gist.get.repositoryName">@gist.get.title</a>
         @if(gist.get.mode == Mode.Secret.code){
           <span class="label label-warning">Secret</span>
         }
@@ -28,7 +27,7 @@
             <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/secret" class="btn btn-default">Make secret</a>
           }
           *@
-          <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn btn-danger" id="delete">Delete</a>
+          <a href="@context.path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn btn-danger" id="delete">Delete</a>
         </div>
         <div class="muted" style="margin-left: 30px; font-size: 80%;">
           Created at @gist.get.registeredDate
@@ -49,7 +48,7 @@
         <input type="button" value="Add file" class="btn btn-default" id="add_file">
         <div class="pull-right">
           @if(gist.isDefined){
-            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn btn-default">Cancel</a>
+            <a href="@context.path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn btn-default">Cancel</a>
           }
           <div class="btn-group" data-toggle="buttons">
             <label class="btn btn-default btn-mini @if(gist.isEmpty   || gist.get.mode == Mode.Public.code ){active}"><input type="radio" value="PUBLIC" name="mode">Public</label>
@@ -77,12 +76,12 @@
   <script>
   $(function(){
     $('#create_snippet').click(function(){
-      $('#form').attr('action', '@path/gist/_new')
+      $('#form').attr('action', '@context.path/gist/_new')
     });
 
     $('#add_file').click(function(){
       var count = parseInt($('#count').val());
-      $.get('@path/gist/_add?count=' + count, function(html){
+      $.get('@context.path/gist/_add?count=' + count, function(html){
         $('#editors').append(html);
         $('#count').val(count + 1);
       });
@@ -90,7 +89,7 @@
 
     $('#update_snippet').click(function(){
       @gist.map { gist =>
-        $('#form').attr('action', '@path/gist/@gist.userName/@gist.repositoryName/edit')
+        $('#form').attr('action', '@context.path/gist/@gist.userName/@gist.repositoryName/edit')
       }
     });
 

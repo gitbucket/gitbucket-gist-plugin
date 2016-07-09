@@ -2,26 +2,25 @@
   comments: Seq[gitbucket.gist.model.GistComment],
   hasWritePermission: Boolean,
   repository: gitbucket.core.service.RepositoryService.RepositoryInfo)(implicit context: gitbucket.core.controller.Context)
-@import context._
-@import gitbucket.core.view.helpers._
+@import gitbucket.core.view.helpers
 @comments.map { comment =>
-  <div class="issue-avatar-image">@avatar(comment.commentedUserName, 48)</div>
+  <div class="issue-avatar-image">@helpers.avatar(comment.commentedUserName, 48)</div>
   <div class="panel panel-default issue-comment-box" id="comment-@comment.commentId">
     <div class="panel-heading">
-      @user(comment.commentedUserName, styleClass="username strong")
+      @helpers.user(comment.commentedUserName, styleClass="username strong")
       <span class="muted">
         commented
         @gitbucket.core.helper.html.datetimeago(comment.registeredDate)
       </span>
       <span class="pull-right">
-      @if((hasWritePermission || loginAccount.map(_.userName == comment.commentedUserName).getOrElse(false))){
+      @if((hasWritePermission || context.loginAccount.map(_.userName == comment.commentedUserName).getOrElse(false))){
         <a href="#" data-comment-id="@comment.commentId"><i class="octicon octicon-pencil" aria-label="Edit"></i></a>&nbsp;
         <a href="#" data-comment-id="@comment.commentId"><i class="octicon octicon-x" aria-label="Remove"></i></a>
       }
       </span>
     </div>
     <div class="panel-body issue-content markdown-body" id="commentContent-@comment.commentId">
-      @markdown(comment.content, repository, false, true, true, hasWritePermission)
+      @helpers.markdown(comment.content, repository, false, true, true, hasWritePermission)
     </div>
   </div>
 }
@@ -29,12 +28,12 @@
 $(function(){
   $('.issue-comment-box i.octicon-pencil').click(function(){
     var id  = $(this).closest('a').data('comment-id');
-    var url = '@path/gist/@gist.userName/@gist.repositoryName/_comments/' + id;
+    var url = '@context.path/gist/@gist.userName/@gist.repositoryName/_comments/' + id;
     var $content = $('#commentContent-' + id);
 
     if(!id){
       id  = $(this).closest('a').data('issue-id');
-      url = '@url(repository)/issues/_data/' + id;
+      url = '@helpers.url(repository)/issues/_data/' + id;
       $content = $('#issueContent');
     }
 
@@ -46,7 +45,7 @@ $(function(){
   $('.issue-comment-box i.octicon-x').click(function(){
     if(confirm('Are you sure you want to delete this?')) {
       var id = $(this).closest('a').data('comment-id');
-      $.post('@path/gist/@gist.userName/@gist.repositoryName/_comments/' + id + '/_delete',
+      $.post('@context.path/gist/@gist.userName/@gist.repositoryName/_comments/' + id + '/_delete',
       function(data){
         if(data > 0) {
           $('#comment-' + id).prev('div.issue-avatar-image').remove();
@@ -58,7 +57,7 @@ $(function(){
   });
   $(document).on('click', '.commit-comment-box i.icon-pencil', function(){
     var id  = $(this).closest('a').data('comment-id');
-    var url = '@path/gist/@gist.userName/@gist.repositoryName/_comments/' + id;
+    var url = '@context.path/gist/@gist.userName/@gist.repositoryName/_comments/' + id;
     var $content = $('.commit-commentContent-' + id, $(this).closest('.box'));
 
     $.get(url, { dataType : 'html' }, function(data){
@@ -69,7 +68,7 @@ $(function(){
   $(document).on('click', '.commit-comment-box i.icon-remove-circle', function(){
     if(confirm('Are you sure you want to delete this?')) {
       var id = $(this).closest('a').data('comment-id');
-      $.post('@path/gist/@gist.userName/@gist.repositoryName/_comments/' + id + '/_delete',
+      $.post('@context.path/gist/@gist.userName/@gist.repositoryName/_comments/' + id + '/_delete',
       function(data){
         if(data > 0) {
           $('.commit-comment-' + id).closest('.not-diff').remove();

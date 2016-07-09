@@ -1,8 +1,7 @@
 @(i: Int,
   fileName: String,
   content: gitbucket.core.util.JGitUtil.ContentInfo)(implicit context: gitbucket.core.controller.Context)
-@import context._
-@import gitbucket.core.view.helpers._
+@import gitbucket.core.view.helpers
 <div class="panel panel-default">
   <div class="panel-heading" style="padding: 6px;">
     <div class="pull-right">
@@ -31,7 +30,7 @@ $(function(){
   editor.setTheme("ace/theme/monokai");
 
   @if(fileName.nonEmpty){
-    editor.getSession().setMode("ace/mode/@editorType(fileName)");
+    editor.getSession().setMode("ace/mode/@helpers.editorType(fileName)");
   }
 
   $('#wrap-@i').change(function(){

@@ -5,8 +5,7 @@
   files: Seq[(String, String)],
   comments: Seq[gitbucket.gist.model.GistComment],
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)
-@import context._
-@import gitbucket.core.view.helpers._
+@import gitbucket.core.view.helpers
 @gitbucket.core.html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
   @gitbucket.gist.html.style()
   @gitbucket.gist.html.header(gist, forkedCount, editable)
@@ -21,12 +20,12 @@
           <div class="panel-heading strong" style="padding: 6px; line-height: 30px;">
             @fileName
             <div class="pull-right">
-              <a href="@path/gist/@gist.userName/@gist.repositoryName/raw/@revision/@fileName" class="btn btn-sm btn-default">Raw</a>
+              <a href="@context.path/gist/@gist.userName/@gist.repositoryName/raw/@revision/@fileName" class="btn btn-sm btn-default">Raw</a>
             </div>
           </div>
-          @if(isRenderable(fileName)){
+          @if(helpers.isRenderable(fileName)){
             <div class="panel-body markdown-body" style="padding-left: 16px; padding-right: 16px;">
-              @renderMarkup(List(fileName), content, "master", gist.toRepositoryInfo, false, false, true)
+              @helpers.renderMarkup(List(fileName), content, "master", gist.toRepositoryInfo, false, false, true)
             </div>
           } else {
             <div class="panel-body">

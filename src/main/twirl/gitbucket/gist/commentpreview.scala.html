@@ -4,9 +4,7 @@
   style: String = "",
   elastic: Boolean = false,
   uid: Long = new java.util.Date().getTime())(implicit context: gitbucket.core.controller.Context)
-@import context._
-@import gitbucket.core._
-@import gitbucket.core.view.helpers._
+@import gitbucket.core.view.helpers
 <div class="tabbable">
   <ul class="nav nav-tabs fill-width" style="margin-bottom: 10px;">
     <li class="active"><a href="#tab@uid" data-toggle="tab">Write</a></li>
@@ -30,8 +28,8 @@ $(function(){
   }
 
   $('#preview@uid').click(function(){
-    $('#preview-area@uid').html('<img src="@assets/common/images/indicator.gif"> Previewing...');
-    $.post('@path/gist/@gist.userName/@gist.repositoryName/_preview', {
+    $('#preview-area@uid').html('<img src="@helpers.assets/common/images/indicator.gif"> Previewing...');
+    $.post('@context.path/gist/@gist.userName/@gist.repositoryName/_preview', {
       content        : $('#content@uid').val()
     }, function(data){
       $('#preview-area@uid').html(data);

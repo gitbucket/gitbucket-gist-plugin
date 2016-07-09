@@ -1,13 +1,12 @@
 @(gist: gitbucket.gist.model.Gist,
   forkedCount: Int,
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)
-@import context._
 @import gitbucket.gist.model.Mode
-@import gitbucket.core.view.helpers._
+@import gitbucket.core.view.helpers
 <div class="container head">
-  @avatar(gist.userName, 24)
-  <a href="@path/gist/@gist.userName">@gist.userName</a> /
-  <a href="@path/gist/@gist.userName/@gist.repositoryName" class="strong">@gist.title</a>
+  @helpers.avatar(gist.userName, 24)
+  <a href="@context.path/gist/@gist.userName">@gist.userName</a> /
+  <a href="@context.path/gist/@gist.userName/@gist.repositoryName" class="strong">@gist.title</a>
   @if(gist.mode == Mode.Secret.code){
     <span class="label label-warning">Secret</span>
   }
@@ -16,17 +15,17 @@
   }
   <div class="pull-right">
     @if(editable){
-      <a href="@path/gist/@gist.userName/@gist.repositoryName/edit" class="btn btn-default">Edit</a>
-      <a href="@path/gist/@gist.userName/@gist.repositoryName/delete" class="btn btn-danger" id="delete">Delete</a>
+      <a href="@context.path/gist/@gist.userName/@gist.repositoryName/edit" class="btn btn-default">Edit</a>
+      <a href="@context.path/gist/@gist.userName/@gist.repositoryName/delete" class="btn btn-danger" id="delete">Delete</a>
     }
     @if(gist.originUserName.isEmpty){
-      @if(loginAccount.isEmpty){
-        <a href="@path/signin?redirect=@urlEncode(s"${path}/gist/${gist.userName}/${gist.repositoryName}")" class="btn btn-default">Fork <span class="badge">@forkedCount</span></a>
+      @if(context.loginAccount.isEmpty){
+        <a href="@context.path/signin?redirect=@helpers.urlEncode(s"${context.path}/gist/${gist.userName}/${gist.repositoryName}")" class="btn btn-default">Fork <span class="badge">@forkedCount</span></a>
       } else {
         <a id="fork-link" href="javascript:void(0);" class="btn btn-default">Fork <span class="badge">@forkedCount</span></a>
       }
-      @if(loginAccount.isDefined){
-        <form id="fork-form" method="post" action="@path/gist/@gist.userName/@gist.repositoryName/fork">
+      @if(context.loginAccount.isDefined){
+        <form id="fork-form" method="post" action="@context.path/gist/@gist.userName/@gist.repositoryName/fork">
         </form>
       }
     }
@@ -34,14 +33,14 @@
   <div class="muted" style="margin-left: 30px; font-size: 80%;">
     Created at @gist.registeredDate
     @if(gist.originUserName.isDefined){
-      - forked from <a href="@path/gist/@gist.originUserName/@gist.originRepositoryName">@gist.originUserName/@gist.originRepositoryName</a>
+      - forked from <a href="@context.path/gist/@gist.originUserName/@gist.originRepositoryName">@gist.originUserName/@gist.originRepositoryName</a>
     }
   </div>
 </div>
 <hr style="margin-bottom: 20px;"/>
 <script>
 $(function(){
-  @if(loginAccount.isDefined){
+  @if(context.loginAccount.isDefined){
     $(document).on("click", "a#fork-link", function(e) {
       e.preventDefault();
       $('#fork-form').submit();
