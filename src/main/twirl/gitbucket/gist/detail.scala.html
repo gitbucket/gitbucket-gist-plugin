@@ -8,34 +8,36 @@
 @import gitbucket.core.view.helpers
 @gitbucket.core.html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
   @gitbucket.gist.html.style()
-  @gitbucket.gist.html.header(gist, forkedCount, editable)
-  <div class="container body">
-    @gitbucket.gist.html.menu("code", gist, repositoryUrl)
-    <div style="margin-right: 260px; overflow: hidden;">
-      <div style="margin-bottom: 10px;">
-        @gist.description
-      </div>
-      @files.map { case (fileName, content) =>
-        <div class="panel panel-default">
-          <div class="panel-heading strong" style="padding: 6px; line-height: 30px;">
-            @fileName
-            <div class="pull-right">
-              <a href="@context.path/gist/@gist.userName/@gist.repositoryName/raw/@revision/@fileName" class="btn btn-sm btn-default">Raw</a>
-            </div>
-          </div>
-          @if(helpers.isRenderable(fileName)){
-            <div class="panel-body markdown-body" style="padding-left: 16px; padding-right: 16px;">
-              @helpers.renderMarkup(List(fileName), content, "master", gist.toRepositoryInfo, false, false, true)
-            </div>
-          } else {
-            <div class="panel-body">
-              <pre class="prettyprint linenums blob">@content</pre>
-            </div>
-          }
+  <div class="content-wrapper main-center">
+    @gitbucket.gist.html.header(gist, forkedCount, editable)
+    <div class="content body">
+      @gitbucket.gist.html.menu("code", gist, repositoryUrl)
+      <div style="margin-right: 260px; overflow: hidden;">
+        <div style="margin-bottom: 10px;">
+          @gist.description
         </div>
-      }
-      @gitbucket.gist.html.commentlist(gist, comments, editable, gist.toRepositoryInfo)
-      @gitbucket.gist.html.commentform(gist)
+        @files.map { case (fileName, content) =>
+          <div class="panel panel-default">
+            <div class="panel-heading strong" style="padding: 6px; line-height: 30px;">
+              @fileName
+              <div class="pull-right">
+                <a href="@context.path/gist/@gist.userName/@gist.repositoryName/raw/@revision/@fileName" class="btn btn-sm btn-default">Raw</a>
+              </div>
+            </div>
+            @if(helpers.isRenderable(fileName)){
+              <div class="panel-body markdown-body" style="padding-left: 16px; padding-right: 16px;">
+                @helpers.renderMarkup(List(fileName), content, "master", gist.toRepositoryInfo, false, false, true)
+              </div>
+            } else {
+              <div class="panel-body">
+                <pre class="prettyprint linenums blob">@content</pre>
+              </div>
+            }
+          </div>
+        }
+        @gitbucket.gist.html.commentlist(gist, comments, editable, gist.toRepositoryInfo)
+        @gitbucket.gist.html.commentform(gist)
+      </div>
     </div>
   </div>
   <script>

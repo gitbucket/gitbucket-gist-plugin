@@ -6,71 +6,73 @@
 @import gitbucket.core.view.helpers
 @gitbucket.core.html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("Snippets")){
   @gitbucket.gist.html.style()
-  <div class="container head">
-  @if(gistUser.isEmpty){
-    <div class="pull-right">
-      <a href="@context.path/gist/_new" class="btn btn-success">New snippet</a>
-    </div>
-    <h1 style="margin-top: 0px;">Discover Snippets</h1>
-  } else {
-    @helpers.avatar(gistUser.get.userName, 24)
-    <span class="strong">@gistUser.get.fullName</span>
-    <div class="pull-right">
-      <a href="@context.path/@gistUser.get.userName" class="btn btn-default">@gistUser.get.userName on GitBucket</a>
-    </div>
-    <div class="muted" style="margin-top: -10px; margin-left: 30px;">
-      @gistUser.get.userName
-    </div>
-  }
-  </div>
-  <hr style="margin-bottom: 20px;"/>
-  <div class="container body">
-    @gists.map { case (gist, gistInfo) =>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          @helpers.avatar(gist.userName, 20)
-          <a class="strong" href="@context.path/gist/@gist.userName">@gist.userName</a> /
-          <a class="strong" href="@context.path/gist/@gist.userName/@gist.repositoryName">@gist.title</a>
-          <span class="muted small">Created at @gist.registeredDate</span>
-          @if(gist.mode == Mode.Secret.code){
-            <span class="label label-warning">Secret</span>
-          }
-          @if(gist.mode == Mode.Private.code){
-            <span class="label label-warning">Private</span>
-          }
-          <div class="pull-right">
-            <a href="@context.path/gist/@gist.userName/@gist.repositoryName" class="header-link">
-              <i class="octicon octicon-gist"></i> <strong>@gistInfo.fileCount @helpers.plural(gistInfo.fileCount, "file")</strong>
-            </a>
-            &nbsp;&nbsp;
-            <a href="@context.path/gist/@gist.userName/@gist.repositoryName/forks" class="header-link">
-              <i class="octicon octicon-git-branch"></i> <strong>@gistInfo.forkedCount @helpers.plural(gistInfo.forkedCount, "fork")</strong>
-            </a>
-            &nbsp;&nbsp;
-            <a href="@context.path/gist/@gist.userName/@gist.repositoryName" class="header-link">
-              <i class="octicon octicon-comment"></i> <strong>@gistInfo.commentCount @helpers.plural(gistInfo.commentCount, "comment")</strong>
-            </a>
-          </div>
-        </div>
-        <div class="panel-body">
-          <div style="margin-bottom: 10px;">
-            @gist.description
-          </div>
-          <div>
-            @if(helpers.isRenderable(gistInfo.fileName)){
-              <div class="list-markup box-content markdown-body">
-                @helpers.renderMarkup(List(gistInfo.fileName), gistInfo.source, "master", gist.toRepositoryInfo, false, false, false)
-              </div>
-            } else {
-              <pre class="list-code box-content prettyprint linenums">@gistInfo.source</pre>
-            }
-          </div>
-        </div>
+  <div class="content-wrapper main-center">
+    <div class="head">
+    @if(gistUser.isEmpty){
+      <div class="pull-right">
+        <a href="@context.path/gist/_new" class="btn btn-success">New snippet</a>
+      </div>
+      <h1 style="margin-top: 0px;">Discover Snippets</h1>
+    } else {
+      @helpers.avatar(gistUser.get.userName, 24)
+      <span class="strong">@gistUser.get.fullName</span>
+      <div class="pull-right">
+        <a href="@context.path/@gistUser.get.userName" class="btn btn-default">@gistUser.get.userName on GitBucket</a>
+      </div>
+      <div class="muted" style="margin-top: -10px; margin-left: 30px;">
+        @gistUser.get.userName
       </div>
     }
-    <div class="btn-group">
-      <button class="btn btn-default" onclick="location.href='?page=@{page - 1}'"@if(page <= 1){ disabled="true"}>Newer</button>
-      <button class="btn btn-default" onclick="location.href='?page=@{page + 1}'"@if(!hasNext){ disabled="true"}>Older</button>
+    </div>
+    <hr style="margin-bottom: 20px;"/>
+    <div class="content body">
+      @gists.map { case (gist, gistInfo) =>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            @helpers.avatar(gist.userName, 20)
+            <a class="strong" href="@context.path/gist/@gist.userName">@gist.userName</a> /
+            <a class="strong" href="@context.path/gist/@gist.userName/@gist.repositoryName">@gist.title</a>
+            <span class="muted small">Created at @gist.registeredDate</span>
+            @if(gist.mode == Mode.Secret.code){
+              <span class="label label-warning">Secret</span>
+            }
+            @if(gist.mode == Mode.Private.code){
+              <span class="label label-warning">Private</span>
+            }
+            <div class="pull-right">
+              <a href="@context.path/gist/@gist.userName/@gist.repositoryName" class="header-link">
+                <i class="octicon octicon-gist"></i> <strong>@gistInfo.fileCount @helpers.plural(gistInfo.fileCount, "file")</strong>
+              </a>
+              &nbsp;&nbsp;
+              <a href="@context.path/gist/@gist.userName/@gist.repositoryName/forks" class="header-link">
+                <i class="octicon octicon-git-branch"></i> <strong>@gistInfo.forkedCount @helpers.plural(gistInfo.forkedCount, "fork")</strong>
+              </a>
+              &nbsp;&nbsp;
+              <a href="@context.path/gist/@gist.userName/@gist.repositoryName" class="header-link">
+                <i class="octicon octicon-comment"></i> <strong>@gistInfo.commentCount @helpers.plural(gistInfo.commentCount, "comment")</strong>
+              </a>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div style="margin-bottom: 10px;">
+              @gist.description
+            </div>
+            <div>
+              @if(helpers.isRenderable(gistInfo.fileName)){
+                <div class="list-markup box-content markdown-body">
+                  @helpers.renderMarkup(List(gistInfo.fileName), gistInfo.source, "master", gist.toRepositoryInfo, false, false, false)
+                </div>
+              } else {
+                <pre class="list-code box-content prettyprint linenums">@gistInfo.source</pre>
+              }
+            </div>
+          </div>
+        </div>
+      }
+      <div class="btn-group">
+        <button class="btn btn-default" onclick="location.href='?page=@{page - 1}'"@if(page <= 1){ disabled="true"}>Newer</button>
+        <button class="btn btn-default" onclick="location.href='?page=@{page + 1}'"@if(!hasNext){ disabled="true"}>Older</button>
+      </div>
     </div>
   </div>
 }

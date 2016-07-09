@@ -4,69 +4,71 @@
 @import gitbucket.core.view.helpers
 @gitbucket.core.html.main("Snippets"){
   @gitbucket.gist.html.style()
-  <div class="container head">
-    <div id="error"></div>
-    @if(gist.isEmpty){
-      <h1 style="margin: 0px;">New snippet</h1>
-    } else {
-      @gist.map { x =>
-        @helpers.avatar(gist.get.userName, 24)
-        Editing
-        <a class="strong" href="@context.path/gist/@gist.get.userName/@gist.get.repositoryName">@gist.get.title</a>
-        @if(gist.get.mode == Mode.Secret.code){
-          <span class="label label-warning">Secret</span>
-        }
-        @if(gist.get.mode == Mode.Private.code){
-          <span class="label label-warning">Private</span>
-        }
-        <div class="pull-right">
-          @*
-          @if(gist.get.mode == "SECRET"){
-            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/public" class="btn btn-default">Make public</a>
-          } else {
-            <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/secret" class="btn btn-default">Make secret</a>
-          }
-          *@
-          <a href="@context.path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn btn-danger" id="delete">Delete</a>
-        </div>
-        <div class="muted" style="margin-left: 30px; font-size: 80%;">
-          Created at @gist.get.registeredDate
-        </div>
-      }
-    }
-  </div>
-  <hr style="margin-bottom: 20px;"/>
-  <div class="container body">
-    <form id="form" method="POST" action="#">
-      <input type="text" name="description" id="description" class="form-control" style="margin-bottom: 8px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
-      <div id="editors">
-        @files.zipWithIndex.map { case ((fileName, content), i) =>
-          @gitbucket.gist.html.editor(i, fileName, content)
-        }
-      </div>
-      <div>
-        <input type="button" value="Add file" class="btn btn-default" id="add_file">
-        <div class="pull-right">
-          @if(gist.isDefined){
-            <a href="@context.path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn btn-default">Cancel</a>
-          }
-          <div class="btn-group" data-toggle="buttons">
-            <label class="btn btn-default btn-mini @if(gist.isEmpty   || gist.get.mode == Mode.Public.code ){active}"><input type="radio" value="PUBLIC" name="mode">Public</label>
-            <label class="btn btn-default btn-mini @if(gist.isDefined && gist.get.mode == Mode.Secret.code ){active}"><input type="radio" value="SECRET" name="mode">Secret</label>
-            <label class="btn btn-default btn-mini @if(gist.isDefined && gist.get.mode == Mode.Private.code){active}"><input type="radio" value="PRIVATE" name="mode">Private</label>
-          </div>
-          @if(gist.isDefined){
-            <input type="submit" value="Update" class="btn btn-success submit_snippet" id="update_snippet">
-          } else {
-            <input type="submit" value="Create" class="btn btn-success submit_snippet" id="create_snippet">
-          }
-        </div>
-      </div>
+  <div class="content-wrapper main-center">
+    <div class="head">
+      <div id="error"></div>
       @if(gist.isEmpty){
-        <input type="hidden" id="private" name="private" value="false"/>
+        <h1 style="margin: 0px;">New snippet</h1>
+      } else {
+        @gist.map { x =>
+          @helpers.avatar(gist.get.userName, 24)
+          Editing
+          <a class="strong" href="@context.path/gist/@gist.get.userName/@gist.get.repositoryName">@gist.get.title</a>
+          @if(gist.get.mode == Mode.Secret.code){
+            <span class="label label-warning">Secret</span>
+          }
+          @if(gist.get.mode == Mode.Private.code){
+            <span class="label label-warning">Private</span>
+          }
+          <div class="pull-right">
+            @*
+            @if(gist.get.mode == "SECRET"){
+              <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/public" class="btn btn-default">Make public</a>
+            } else {
+              <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/secret" class="btn btn-default">Make secret</a>
+            }
+            *@
+            <a href="@context.path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn btn-danger" id="delete">Delete</a>
+          </div>
+          <div class="muted" style="margin-left: 30px; font-size: 80%;">
+            Created at @gist.get.registeredDate
+          </div>
+        }
       }
-      <input type="hidden" id="count" name="count" value="@files.size"/>
-    </form>
+    </div>
+    <hr style="margin-bottom: 20px;"/>
+    <div class="content body">
+      <form id="form" method="POST" action="#">
+        <input type="text" name="description" id="description" class="form-control" style="margin-bottom: 8px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
+        <div id="editors">
+          @files.zipWithIndex.map { case ((fileName, content), i) =>
+            @gitbucket.gist.html.editor(i, fileName, content)
+          }
+        </div>
+        <div>
+          <input type="button" value="Add file" class="btn btn-default" id="add_file">
+          <div class="pull-right">
+            @if(gist.isDefined){
+              <a href="@context.path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn btn-default">Cancel</a>
+            }
+            <div class="btn-group" data-toggle="buttons">
+              <label class="btn btn-default btn-mini @if(gist.isEmpty   || gist.get.mode == Mode.Public.code ){active}"><input type="radio" value="PUBLIC" name="mode">Public</label>
+              <label class="btn btn-default btn-mini @if(gist.isDefined && gist.get.mode == Mode.Secret.code ){active}"><input type="radio" value="SECRET" name="mode">Secret</label>
+              <label class="btn btn-default btn-mini @if(gist.isDefined && gist.get.mode == Mode.Private.code){active}"><input type="radio" value="PRIVATE" name="mode">Private</label>
+            </div>
+            @if(gist.isDefined){
+              <input type="submit" value="Update" class="btn btn-success submit_snippet" id="update_snippet">
+            } else {
+              <input type="submit" value="Create" class="btn btn-success submit_snippet" id="create_snippet">
+            }
+          </div>
+        </div>
+        @if(gist.isEmpty){
+          <input type="hidden" id="private" name="private" value="false"/>
+        }
+        <input type="hidden" id="count" name="count" value="@files.size"/>
+      </form>
+    </div>
   </div>
 
   <script src="@{gitbucket.core.view.helpers.assets}/vendors/ace/ace.js" type="text/javascript" charset="utf-8"></script>

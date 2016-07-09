@@ -3,7 +3,7 @@
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import gitbucket.gist.model.Mode
 @import gitbucket.core.view.helpers
-<div class="container head">
+<div class="head">
   @helpers.avatar(gist.userName, 24)
   <a href="@context.path/gist/@gist.userName">@gist.userName</a> /
   <a href="@context.path/gist/@gist.userName/@gist.repositoryName" class="strong">@gist.title</a>

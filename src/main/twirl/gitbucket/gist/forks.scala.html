@@ -6,19 +6,21 @@
 @import gitbucket.core.view.helpers
 @gitbucket.core.html.main("Snippets"){
   @gitbucket.gist.html.style()
-  @gitbucket.gist.html.header(gist, forkedCount, editable)
-  <div class="container body">
-    @gitbucket.gist.html.menu("forks", gist, repositoryUrl)
-    <div style="margin-right: 260px;">
-      @forkedGists.map { forkedGist =>
-        <div class="block">
-          @helpers.avatar(forkedGist.userName, 20)
-          <a href="@context.path/gist/@forkedGist.userName/@forkedGist.repositoryName">@forkedGist.userName</a>
-          <div class="pull-right">
-            <a href="@context.path/gist/@forkedGist.userName/@forkedGist.repositoryName" class="btn btn-sm btn-default">View Fork</a>
+  <div class="content-wrapper main-center">
+    @gitbucket.gist.html.header(gist, forkedCount, editable)
+    <div class="content body">
+      @gitbucket.gist.html.menu("forks", gist, repositoryUrl)
+      <div style="margin-right: 260px;">
+        @forkedGists.map { forkedGist =>
+          <div class="block">
+            @helpers.avatar(forkedGist.userName, 20)
+            <a href="@context.path/gist/@forkedGist.userName/@forkedGist.repositoryName">@forkedGist.userName</a>
+            <div class="pull-right">
+              <a href="@context.path/gist/@forkedGist.userName/@forkedGist.repositoryName" class="btn btn-sm btn-default">View Fork</a>
+            </div>
           </div>
-        </div>
-      }
+        }
+      </div>
     </div>
   </div>
 }
