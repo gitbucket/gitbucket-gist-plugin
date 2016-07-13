@@ -6,7 +6,7 @@
 @import gitbucket.core.view.helpers
 @import org.eclipse.jgit.diff.DiffEntry.ChangeType
 @gitbucket.core.html.main(s"Revisions · ${gist.repositoryName}"){
-  @gitbucket.gist.html.style()
+  <link href="@context.path/plugin-assets/gist/style.css" rel="stylesheet">
   <div class="content-wrapper main-center">
     @gitbucket.gist.html.header(gist, forkedCount, editable)
     <div class="content body">

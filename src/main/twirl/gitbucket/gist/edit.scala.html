@@ -3,7 +3,7 @@
 @import gitbucket.gist.model.Mode
 @import gitbucket.core.view.helpers
 @gitbucket.core.html.main("Snippets"){
-  @gitbucket.gist.html.style()
+  <link href="@context.path/plugin-assets/gist/style.css" rel="stylesheet">
   <div class="content-wrapper main-center">
     <div class="head">
       <div id="error"></div>

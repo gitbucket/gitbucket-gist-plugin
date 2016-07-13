@@ -7,7 +7,7 @@
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import gitbucket.core.view.helpers
 @gitbucket.core.html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
-  @gitbucket.gist.html.style()
+  <link href="@context.path/plugin-assets/gist/style.css" rel="stylesheet">
   <div class="content-wrapper main-center">
     @gitbucket.gist.html.header(gist, forkedCount, editable)
     <div class="content body">

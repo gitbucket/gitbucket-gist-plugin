@@ -5,7 +5,7 @@
 @import gitbucket.gist.model.Mode
 @import gitbucket.core.view.helpers
 @gitbucket.core.html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("Snippets")){
-  @gitbucket.gist.html.style()
+  <link href="@context.path/plugin-assets/gist/style.css" rel="stylesheet">
   <div class="content-wrapper main-center">
     <div class="head">
     @if(gistUser.isEmpty){

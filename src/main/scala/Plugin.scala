@@ -52,6 +52,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   override val profileTabs = Seq(
     (account: Account, context: Context) => Some(Link("snippets", "Snippets", s"gist/${account.userName}/_profile"))
   )
+  override val assetsMappings = Seq("/gist" -> "/gitbucket/gist/assets")
 
 //  override def javaScripts(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Seq[(String, String)] = {
 //    // Add Snippet link to the header

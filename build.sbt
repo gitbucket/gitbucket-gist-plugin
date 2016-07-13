@@ -1,6 +1,6 @@
 val Organization = "gitbucket"
 val ProjectName = "gitbucket-gist-plugin"
-val ProjectVersion = "4.2.0"
+val ProjectVersion = "4.3.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
 
@@ -15,7 +15,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "gitbucket"          % "gitbucket-assembly" % "4.2.0" % "provided",
+  "gitbucket"          % "gitbucket-assembly" % "4.3.0-SNAPSHOT" % "provided",
   "com.typesafe.play" %% "twirl-compiler"     % "1.0.4" % "provided",
   "javax.servlet"      % "javax.servlet-api"  % "3.1.0" % "provided"
 )
