@@ -18,7 +18,7 @@ Plugin version | GitBucket version
 
 Download jar file from [the release page](https://github.com/gitbucket/gitbucket-gist-plugin/releases) and put into `GITBUCKET_HOME/plugins`.
 
-**Note:** If you had used this plugin with GitBucket 3.x, it does not work after upgrading GitBucket 4.x. Solution is below:
+**Note:** If you had used this plugin with GitBucket 3.x, it does not work after upgrading to GitBucket 4.x. Solution is below:
 
 1. `UPDATE VERSIONS SET VERSION='2.0.0' WHERE MODULE_ID='gist';`
 2. restart gitbucket
