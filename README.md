@@ -25,6 +25,8 @@ Download jar file from [the release page](https://github.com/gitbucket/gitbucket
 3. can open snippets page
 4. `SELECT VERSION FROM VERSIONS WHERE MODULE_ID='gist'` -> `4.2.0`
 
+See [Connect to H2 database](https://github.com/gitbucket/gitbucket/wiki/Connect-to-H2-database) to know how to execute SQL on the GitBucket database.
+
 ## Build from source
 
 1. Hit `./sbt.sh package` in the root directory of this repository.
