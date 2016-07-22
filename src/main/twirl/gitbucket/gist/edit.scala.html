@@ -52,9 +52,15 @@
               <a href="@context.path/gist/@gist.get.userName/@gist.get.repositoryName" class="btn btn-default">Cancel</a>
             }
             <div class="btn-group" data-toggle="buttons">
-              <label class="btn btn-default btn-mini @if(gist.isEmpty   || gist.get.mode == Mode.Public.code ){active}"><input type="radio" value="PUBLIC" name="mode">Public</label>
-              <label class="btn btn-default btn-mini @if(gist.isDefined && gist.get.mode == Mode.Secret.code ){active}"><input type="radio" value="SECRET" name="mode">Secret</label>
-              <label class="btn btn-default btn-mini @if(gist.isDefined && gist.get.mode == Mode.Private.code){active}"><input type="radio" value="PRIVATE" name="mode">Private</label>
+              <label class="btn btn-default btn-mini @if(gist.isEmpty || gist.get.mode == Mode.Public.code ){active}">
+                <input type="radio" value="PUBLIC" name="mode" @if(gist.isEmpty || gist.get.mode == Mode.Public.code ){checked}>Public
+              </label>
+              <label class="btn btn-default btn-mini @if(gist.isDefined && gist.get.mode == Mode.Secret.code ){active}">
+                <input type="radio" value="SECRET" name="mode" @if(gist.isDefined && gist.get.mode == Mode.Secret.code ){checked}>Secret
+              </label>
+              <label class="btn btn-default btn-mini @if(gist.isDefined && gist.get.mode == Mode.Private.code){active}">
+                <input type="radio" value="PRIVATE" name="mode" @if(gist.isDefined && gist.get.mode == Mode.Private.code){checked}>Private
+              </label>
             </div>
             @if(gist.isDefined){
               <input type="submit" value="Update" class="btn btn-success submit_snippet" id="update_snippet">
@@ -63,9 +69,6 @@
             }
           </div>
         </div>
-        @if(gist.isEmpty){
-          <input type="hidden" id="private" name="private" value="false"/>
-        }
         <input type="hidden" id="count" name="count" value="@files.size"/>
       </form>
     </div>
