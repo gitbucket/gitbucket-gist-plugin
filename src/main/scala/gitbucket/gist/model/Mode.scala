@@ -9,8 +9,8 @@ object Mode {
   def from(code: String): Mode = {
     code match {
       case Public.code  => Public
-      case Secret.code  => Public
-      case Private.code => Public
+      case Secret.code  => Secret
+      case Private.code => Private
     }
   }
 
