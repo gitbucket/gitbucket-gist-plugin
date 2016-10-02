@@ -10,7 +10,7 @@ version := ProjectVersion
 scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
-  "io.github.gitbucket" %% "gitbucket"          % "4.3.0" % "provided",
+  "io.github.gitbucket" %% "gitbucket"          % "4.5.0" % "provided",
   "com.typesafe.play"   %% "twirl-compiler"     % "1.0.4" % "provided",
   "javax.servlet"        % "javax.servlet-api"  % "3.1.0" % "provided"
 )
