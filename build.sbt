@@ -15,5 +15,5 @@ libraryDependencies ++= Seq(
   "javax.servlet"        % "javax.servlet-api"  % "3.1.0" % "provided"
 )
 
-scalacOptions := Seq("-deprecation", "-feature", "-language:postfixOps")
-javacOptions in compile ++= Seq("-target", "7", "-source", "7")
+scalacOptions := Seq("-deprecation", "-feature", "-language:postfixOps", "-Ybackend:GenBCode", "-Ydelambdafy:method", "-target:jvm-1.8")
+javacOptions in compile ++= Seq("-target", "8", "-source", "8")
