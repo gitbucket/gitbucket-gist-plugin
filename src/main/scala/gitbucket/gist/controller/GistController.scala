@@ -254,7 +254,7 @@ trait GistControllerBase extends ControllerBase {
         .setOutputStream(response.getOutputStream)
         .call()
 
-      Unit
+      ()
     }
   }
 
