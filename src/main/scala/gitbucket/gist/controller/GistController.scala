@@ -446,14 +446,18 @@ trait GistControllerBase extends ControllerBase {
         html.list(Some(GistUser(userName, fullName)), gists, page, page * Limit < result._2)
       }
       case Some(repoName) => {
-        val gist = getGist(userName, repoName).get
-        if(gist.mode == "PRIVATE"){
-          context.loginAccount match {
-            case Some(x) if(x.userName == userName) => _gistDetail(gist, userName, repoName, revision)
-            case _ => Unauthorized()
-          }
-        } else {
-          _gistDetail(gist, userName, repoName, revision)
+        getGist(userName, repoName) match {
+          case Some(gist) =>
+            if(gist.mode == "PRIVATE"){
+              context.loginAccount match {
+                case Some(x) if(x.userName == userName) => _gistDetail(gist, userName, repoName, revision)
+                case _ => Unauthorized()
+              }
+            } else {
+              _gistDetail(gist, userName, repoName, revision)
+            }
+          case None =>
+            NotFound()
         }
       }
     }
