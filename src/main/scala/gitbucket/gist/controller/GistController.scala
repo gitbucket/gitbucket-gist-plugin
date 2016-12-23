@@ -354,7 +354,6 @@ trait GistControllerBase extends ControllerBase {
         repository  = null,
         issueCount  = 0,
         pullCount   = 0,
-        commitCount = 0,
         forkedCount = 0,
         branchList  = Nil,
         tags        = Nil,

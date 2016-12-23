@@ -35,7 +35,7 @@
   <div class="small">
     <strong id="repository-url-proto">HTTP</strong> <span class="mute">clone URL</span>
   </div>
-  @gitbucket.core.helper.html.copy("repository-url-copy", repositoryUrl.httpUrl){
+  @gitbucket.core.helper.html.copy("repository-url", "repository-url-copy", repositoryUrl.httpUrl){
     <input type="text" value="@repositoryUrl.httpUrl" id="repository-url" class="form-control input-sm" readonly>
   }
   @if(context.settings.ssh && context.loginAccount.isDefined){
