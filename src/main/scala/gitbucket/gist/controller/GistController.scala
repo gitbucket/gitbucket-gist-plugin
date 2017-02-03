@@ -235,12 +235,6 @@ trait GistControllerBase extends ControllerBase {
     val userName = params("userName")
     val repoName = params("repoName")
 
-    val workDir = getDownloadWorkDir(userName, repoName, session.getId)
-    if(workDir.exists) {
-      FileUtils.deleteDirectory(workDir)
-    }
-    workDir.mkdirs
-
     using(Git.open(new File(GistRepoDir, userName + "/" + repoName))){ git =>
       val revCommit = JGitUtil.getRevCommitFromId(git, git.getRepository.resolve("master"))
 
