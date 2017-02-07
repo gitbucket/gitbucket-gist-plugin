@@ -25,7 +25,8 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     new Version("4.2.0",
       new LiquibaseMigration("update/gitbucket-gist_4.2.xml")
     ),
-    new Version("4.4.0")
+    new Version("4.4.0"),
+    new Version("4.5.0")
   )
 
   override def initialize(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Unit = {
