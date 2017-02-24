@@ -1,7 +1,7 @@
 package gitbucket.gist.model
 
 trait GistComponent { self: gitbucket.core.model.Profile =>
-  import profile.simple._
+  import profile.api._
   import self._
 
   lazy val Gists = TableQuery[Gists]

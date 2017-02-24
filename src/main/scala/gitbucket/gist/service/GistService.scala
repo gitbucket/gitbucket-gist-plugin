@@ -4,7 +4,8 @@ import gitbucket.core.model.Account
 import gitbucket.gist.model.Gist
 import gitbucket.gist.model.Mode
 import gitbucket.gist.model.Profile._
-import profile.simple._
+import gitbucket.gist.model.Profile.profile.blockingApi._
+import gitbucket.gist.model.Profile.dateColumnType
 
 trait GistService {
 

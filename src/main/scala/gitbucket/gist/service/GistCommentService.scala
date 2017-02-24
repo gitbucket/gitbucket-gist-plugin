@@ -3,7 +3,8 @@ package gitbucket.gist.service
 import scala.language.reflectiveCalls
 import gitbucket.gist.model.GistComment
 import gitbucket.gist.model.Profile._
-import profile.simple._
+import gitbucket.gist.model.Profile.profile.blockingApi._
+import gitbucket.gist.model.Profile.dateColumnType
 
 trait GistCommentService {
 

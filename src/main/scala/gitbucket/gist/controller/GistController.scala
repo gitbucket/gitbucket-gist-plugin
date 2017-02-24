@@ -273,12 +273,12 @@ trait GistControllerBase extends ControllerBase {
   }
 
   get("/gist/_new")(usersOnly {
-    html.edit(None, Seq(("", JGitUtil.ContentInfo("text", None, Some("UTF-8")))))
+    html.edit(None, Seq(("", JGitUtil.ContentInfo("text", None, None, Some("UTF-8")))))
   })
 
   get("/gist/_add"){
     val count = params("count").toInt
-    html.editor(count, "", JGitUtil.ContentInfo("text", None, Some("UTF-8")))
+    html.editor(count, "", JGitUtil.ContentInfo("text", None, None, Some("UTF-8")))
   }
 
   ////////////////////////////////////////////////////////////////////////////////
