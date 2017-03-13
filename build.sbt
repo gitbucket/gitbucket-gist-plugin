@@ -15,7 +15,7 @@ libraryDependencies ++= Seq(
   "javax.servlet"        % "javax.servlet-api"  % "3.1.0"  % "provided"
 )
 
-scalacOptions := Seq("-deprecation", "-feature", "-language:postfixOps", "-opt:_")
+scalacOptions := Seq("-deprecation", "-feature", "-language:postfixOps")
 javacOptions in compile ++= Seq("-target", "8", "-source", "8")
 
 useJCenter := true
