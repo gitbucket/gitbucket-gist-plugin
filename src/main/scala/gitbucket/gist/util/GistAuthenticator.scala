@@ -1,7 +1,7 @@
 package gitbucket.gist.util
 
 import gitbucket.core.controller.ControllerBase
-import gitbucket.core.util.ControlUtil._
+import gitbucket.core.util.SyntaxSugars._
 import gitbucket.core.util.Implicits._
 
 /**
