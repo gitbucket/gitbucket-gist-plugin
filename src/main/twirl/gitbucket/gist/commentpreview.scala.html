@@ -28,9 +28,9 @@ $(function(){
   }
 
   $('#preview@uid').click(function(){
-    $('#preview-area@uid').html('<img src="@helpers.assets/common/images/indicator.gif"> Previewing...');
+    $('#preview-area@uid').html('<img src="@helpers.assets("/common/images/indicator.gif")"> Previewing...');
     $.post('@context.path/gist/@gist.userName/@gist.repositoryName/_preview', {
-      content        : $('#content@uid').val()
+      content: $('#content@uid').val()
     }, function(data){
       $('#preview-area@uid').html(data);
       prettyPrint();
