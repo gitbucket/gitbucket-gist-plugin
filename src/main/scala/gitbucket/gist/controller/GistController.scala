@@ -19,12 +19,14 @@ import gitbucket.gist.util._
 import gitbucket.gist.util.GistUtils._
 import gitbucket.gist.util.Configurations._
 import gitbucket.gist.html
+import gitbucket.gist.js
 
 import org.apache.commons.io.FileUtils
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib._
 import org.scalatra.Ok
 import play.twirl.api.Html
+import play.twirl.api.JavaScript
 
 class GistController extends GistControllerBase with GistService with GistCommentService with AccountService
   with GistEditorAuthenticator with UsersAuthenticator
@@ -415,7 +417,12 @@ trait GistControllerBase extends ControllerBase {
   ////////////////////////////////////////////////////////////////////////////////
 
 
-  private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master"): Any = {
+  private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master", isEmbed: Boolean = false): Any = {
+
+    if( repoName.isDefined && repoName.get.endsWith(".js")) {
+      return _gist(userName, Some(repoName.get.substring(0,repoName.get.length()-3)), revision, true)
+    }
+
     repoName match {
       case None => {
         val page = params.get("page") match {
@@ -443,17 +450,32 @@ trait GistControllerBase extends ControllerBase {
           case Some(gist) =>
             if(gist.mode == "PRIVATE"){
               context.loginAccount match {
-                case Some(x) if(x.userName == userName) => _gistDetail(gist, userName, repoName, revision)
+                case Some(x) if(x.userName == userName) => 
+                                if(isEmbed) _embedJs(gist, userName, repoName, revision)
+                                else       _gistDetail(gist, userName, repoName, revision)
                 case _ => Unauthorized()
               }
             } else {
-              _gistDetail(gist, userName, repoName, revision)
+              if(isEmbed) _embedJs(gist, userName, repoName, revision)
+              else       _gistDetail(gist, userName, repoName, revision)
             }
           case None =>
             NotFound()
         }
       }
     }
+  }
+
+  private def _embedJs(gist: Gist, userName: String, repoName: String, revision: String): JavaScript = {
+    val originUserName = gist.originUserName.getOrElse(userName)
+    val originRepoName = gist.originRepositoryName.getOrElse(repoName)
+
+    js.detail(
+      gist,
+      GistRepositoryURL(gist, baseUrl, context.settings),
+      revision,
+      getGistFiles(userName, repoName, revision)
+    )
   }
 
   private def _gistDetail(gist: Gist, userName: String, repoName: String, revision: String): Html = {

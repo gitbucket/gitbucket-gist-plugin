@@ -2,7 +2,7 @@
   gist: gitbucket.gist.model.Gist,
   repositoryUrl: gitbucket.gist.util.GistUtils.GistRepositoryURL)(implicit context: gitbucket.core.controller.Context)
 @import gitbucket.core.view.helpers
-
+@embedScript=@{"<script>"+repositoryUrl.embedUrl+"</script>"}
 @menuitem(name: String, path: String, label: String, count: Int = 0) = {
   <li @if(active == name){class="active"}>
     <a href="@context.path/gist/@path">
@@ -32,33 +32,60 @@
         "Forks")
     }
   </ul>
-  <div class="small">
-    <strong id="repository-url-proto">HTTP</strong> <span class="mute">clone URL</span>
-  </div>
+  <div class="pull-right pc">
+    <div class="input-group" style="margin-bottom: 0px;">
+      <div class="btn-group input-group-btn">
+	<button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span id="repository-url-proto">HTTP</span> <span class="caret"></span>
+	</button>
+	<ul class="dropdown-menu">
+          <li>
+            <a href="javascript:void(0);" id="repository-url-embed">
+              <strong>Embed</strong><br>
+              Embed this gist in your website.
+            </a>
+          </li>
+          <li>
+            <a href="javascript:void(0);" id="repository-url-http">
+              <strong>HTTP</strong><br>
+              Clone with Git using the repository's web address.
+            </a>
+          </li>
+          @if(context.settings.ssh && context.loginAccount.isDefined){
+          <li>
+            <a href="javascript:void(0);" id="repository-url-ssh">
+              <strong>SSH</strong><br>
+              Clone with an SSH key and passphrase from your GitBucket Settings.
+            </a>
+          </li>
+          }
+	</ul>
+    </div>
   @gitbucket.core.helper.html.copy("repository-url", "repository-url-copy", repositoryUrl.httpUrl){
     <input type="text" value="@repositoryUrl.httpUrl" id="repository-url" class="form-control input-sm" readonly>
   }
-  @if(context.settings.ssh && context.loginAccount.isDefined){
-    <div class="small">
-      <span class="mute">You can clone <a href="javascript:void(0);" id="repository-url-http">HTTP</a> or <a href="javascript:void(0);" id="repository-url-ssh">SSH</a>.</span>
-    </div>
-  }
+  </div>
   <div style="margin-top: 10px;">
     <a href="@context.path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.zip"
-       class="btn btn-default btn-block"><i class="icon-download-alt"></i>Download ZIP</a>
+       class="btn btn-default btn-block"><i class="octicon octicon-cloud-download"></i>Download ZIP</a>
   </div>
 </div>
-@if(context.settings.ssh && context.loginAccount.isDefined){
+</div>
   <script>
   $(function(){
+    $('#repository-url-embed').click(function(){
+      $('#repository-url').val('@embedScript'.replace(/&lt;/g,"<").replace(/&gt;/g,">"));
+      $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
+    });
     $('#repository-url-http').click(function(){
       $('#repository-url').val('@repositoryUrl.httpUrl');
       $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
     });
+@if(context.settings.ssh && context.loginAccount.isDefined){
     $('#repository-url-ssh').click(function(){
       $('#repository-url').val('@repositoryUrl.sshUrl(context.loginAccount.get.userName)');
       $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
     });
+}
   });
   </script>
-}
