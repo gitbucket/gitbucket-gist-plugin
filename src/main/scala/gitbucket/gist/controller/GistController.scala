@@ -70,6 +70,17 @@ trait GistControllerBase extends ControllerBase {
     _gist(params("userName"), Some(params("repoName")))
   }
 
+  get("/gist/:userName/:repoName.js"){
+    val userName = params("userName")
+    val repoName = params("repoName")
+    getGist(userName, repoName) match {
+      case Some(gist) =>
+        _embedJs(gist, userName, repoName, "master")
+      case None =>
+        NotFound()
+    }
+  }
+
   get("/gist/:userName/:repoName/:revision"){
     _gist(params("userName"), Some(params("repoName")), params("revision"))
   }
@@ -417,12 +428,7 @@ trait GistControllerBase extends ControllerBase {
   ////////////////////////////////////////////////////////////////////////////////
 
 
-  private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master", isEmbed: Boolean = false): Any = {
-
-    if( repoName.isDefined && repoName.get.endsWith(".js")) {
-      return _gist(userName, Some(repoName.get.substring(0,repoName.get.length()-3)), revision, true)
-    }
-
+  private def _gist(userName: String, repoName: Option[String] = None, revision: String = "master"): Any = {
     repoName match {
       case None => {
         val page = params.get("page") match {
@@ -450,14 +456,11 @@ trait GistControllerBase extends ControllerBase {
           case Some(gist) =>
             if(gist.mode == "PRIVATE"){
               context.loginAccount match {
-                case Some(x) if(x.userName == userName) => 
-                                if(isEmbed) _embedJs(gist, userName, repoName, revision)
-                                else       _gistDetail(gist, userName, repoName, revision)
+                case Some(x) if(x.userName == userName) => _gistDetail(gist, userName, repoName, revision)
                 case _ => Unauthorized()
               }
             } else {
-              if(isEmbed) _embedJs(gist, userName, repoName, revision)
-              else       _gistDetail(gist, userName, repoName, revision)
+              _gistDetail(gist, userName, repoName, revision)
             }
           case None =>
             NotFound()

@@ -4,12 +4,6 @@
   files: Seq[(String, String)]
   )(implicit context: gitbucket.core.controller.Context)
 @import gitbucket.core.view.helpers
-@import play.twirl.api.Html
-@bootstrapCSS={<link href="@helpers.assets("/vendors/bootstrap-3.3.6/css/bootstrap.css")" rel="stylesheet">}
-@prettifyCSS={<link href="@helpers.assets("/vendors/google-code-prettify/prettify.css")" rel="stylesheet">}
-@gistCSS={<link href="@context.path/plugin-assets/gist/style.css" rel="stylesheet">}
-@gitbucketCSS={<link href="@helpers.assets("/common/css/gitbucket.css")" rel="stylesheet">}
-@adminLTECSS={<link href="@helpers.assets("/vendors/AdminLTE-2.3.8/css/AdminLTE.min.css")" rel="stylesheet">}
 jqueryScript = document.createElement('script');
 jqueryScript.src = '@helpers.assets("/vendors/jquery/jquery-1.12.2.min.js")';
 document.head.appendChild(jqueryScript);
@@ -52,9 +46,9 @@ var _html = (function () {/*4f85e035-2513-453b-b435-33f0a12b2339
   </div>
 4f85e035-2513-453b-b435-33f0a12b2339*/}).toString().replace(/(\n)/g, '').split('4f85e035-2513-453b-b435-33f0a12b2339')[1];
 
-document.write('@bootstrapCSS');
-document.write('@prettifyCSS');
-document.write('@gistCSS');
-document.write('@gitbucketCSS');
-document.write('@adminLTECSS');
+document.write('<link href="@helpers.assets("/vendors/bootstrap-3.3.6/css/bootstrap.css")" rel="stylesheet">');
+document.write('<link href="@helpers.assets("/vendors/google-code-prettify/prettify.css")" rel="stylesheet">');
+document.write('<link href="@context.path/plugin-assets/gist/style.css" rel="stylesheet">');
+document.write('<link href="@helpers.assets("/common/css/gitbucket.css")" rel="stylesheet">');
+document.write('<link href="@helpers.assets("/vendors/AdminLTE-2.3.8/css/AdminLTE.min.css")" rel="stylesheet">');
 document.write(_html.replace(/\\r\\n/g,"\n").replace(/\\/g,""));
