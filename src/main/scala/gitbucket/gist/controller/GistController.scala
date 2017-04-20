@@ -19,12 +19,14 @@ import gitbucket.gist.util._
 import gitbucket.gist.util.GistUtils._
 import gitbucket.gist.util.Configurations._
 import gitbucket.gist.html
+import gitbucket.gist.js
 
 import org.apache.commons.io.FileUtils
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib._
 import org.scalatra.Ok
 import play.twirl.api.Html
+import play.twirl.api.JavaScript
 
 class GistController extends GistControllerBase with GistService with GistCommentService with AccountService
   with GistEditorAuthenticator with UsersAuthenticator
@@ -66,6 +68,17 @@ trait GistControllerBase extends ControllerBase {
 
   get("/gist/:userName/:repoName"){
     _gist(params("userName"), Some(params("repoName")))
+  }
+
+  get("/gist/:userName/:repoName.js"){
+    val userName = params("userName")
+    val repoName = params("repoName")
+    getGist(userName, repoName) match {
+      case Some(gist) =>
+        _embedJs(gist, userName, repoName, "master")
+      case None =>
+        NotFound()
+    }
   }
 
   get("/gist/:userName/:repoName/:revision"){
@@ -454,6 +467,18 @@ trait GistControllerBase extends ControllerBase {
         }
       }
     }
+  }
+
+  private def _embedJs(gist: Gist, userName: String, repoName: String, revision: String): JavaScript = {
+    val originUserName = gist.originUserName.getOrElse(userName)
+    val originRepoName = gist.originRepositoryName.getOrElse(repoName)
+
+    js.detail(
+      gist,
+      GistRepositoryURL(gist, baseUrl, context.settings),
+      revision,
+      getGistFiles(userName, repoName, revision)
+    )
   }
 
   private def _gistDetail(gist: Gist, userName: String, repoName: String, revision: String): Html = {
