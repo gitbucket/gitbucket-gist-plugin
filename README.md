@@ -34,5 +34,5 @@ See [Connect to H2 database](https://github.com/gitbucket/gitbucket/wiki/Connect
 ## Build from source
 
 1. Hit `./sbt.sh package` in the root directory of this repository.
-2. Copy `target/scala-2.11/gitbucket-gist-plugin_2.11-x.x.x.jar` into `GITBUCKET_HOME/plugins`.
+2. Copy `target/scala-2.11/gitbucket-gist-plugin_2.12-x.x.x.jar` into `GITBUCKET_HOME/plugins`.
 3. Restart GitBucket.
