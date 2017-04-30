@@ -7,7 +7,7 @@ lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
 organization := Organization
 name := ProjectName
 version := ProjectVersion
-scalaVersion := "2.12.1"
+scalaVersion := "2.12.2"
 
 libraryDependencies ++= Seq(
   "io.github.gitbucket" %% "gitbucket"          % "4.12.0" % "provided",
