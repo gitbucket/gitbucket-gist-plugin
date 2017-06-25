@@ -4,18 +4,18 @@ This is an example of GitBucket plug-in. This plug-in provides code snippet repo
 
 Plugin version | GitBucket version
 :--------------|:--------------------
-4.8.x          | 4.11.x, 4.12.x
+4.8.x          | 4.11.x - 4.13.x
 4.7.x          | 4.11.x
 4.6.x          | 4.10.x
 4.5.x          | 4.9.x
 4.4.x          | 4.8.x
-4.2.x, 4.3.x   | 4.2.x, 4.3.x, 4.4.x, 4.5.x, 4.6.x, 4.7.x
+4.2.x, 4.3.x   | 4.2.x - 4.7.x
 4.0.x          | 4.0.x, 4.1.x
 3.13.x         | 3.13.x
 3.12.x         | 3.12.x
 3.11.x         | 3.11.x
 3.10.x         | 3.10.x
-3.7.x          | 3.7.x, 3.8.x, 3.9.x
+3.7.x          | 3.7.x - 3.9.x
 3.6.x          | 3.6.x
 
 
