@@ -8,7 +8,6 @@ import gitbucket.core.controller.ControllerBase
 import gitbucket.core.service.AccountService
 import gitbucket.core.service.RepositoryService.RepositoryInfo
 import gitbucket.core.util._
-import gitbucket.core.util.Directory._
 import gitbucket.core.util.SyntaxSugars._
 import gitbucket.core.util.Implicits._
 import gitbucket.core.view.helpers._
@@ -21,7 +20,6 @@ import gitbucket.gist.util.Configurations._
 import gitbucket.gist.html
 import gitbucket.gist.js
 
-import org.apache.commons.io.FileUtils
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib._
 import org.scalatra.Ok
