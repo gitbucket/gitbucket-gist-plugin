@@ -1,5 +1,4 @@
 @(gist: gitbucket.gist.model.Gist)(implicit context: gitbucket.core.controller.Context)
-@import gitbucket.core.view.helpers
 @if(context.loginAccount.isDefined){
   <hr/><br/>
   <form method="POST" validate="true" action="@context.path/gist/@gist.userName/@gist.repositoryName/_comment">
