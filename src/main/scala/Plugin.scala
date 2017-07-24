@@ -31,7 +31,8 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     new Version("4.7.0"),
     new Version("4.8.0"),
     new Version("4.9.0"),
-    new Version("4.9.1")
+    new Version("4.9.1"),
+    new Version("4.9.2")
   )
 
   override def initialize(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Unit = {
