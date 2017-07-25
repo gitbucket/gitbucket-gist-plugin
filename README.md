@@ -4,6 +4,7 @@ This is an example of GitBucket plug-in. This plug-in provides code snippet repo
 
 Plugin version | GitBucket version
 :--------------|:--------------------
+4.10.x         | 4.15.x -
 4.9.x          | 4.14.x -
 4.8.x          | 4.11.x - 4.13.x
 4.7.x          | 4.11.x

@@ -1,6 +1,6 @@
 val Organization = "io.github.gitbucket"
 val ProjectName = "gitbucket-gist-plugin"
-val ProjectVersion = "4.9.2"
+val ProjectVersion = "4.10.0"
 
 lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
 
