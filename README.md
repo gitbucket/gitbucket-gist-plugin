@@ -1,6 +1,6 @@
 # gitbucket-gist-plugin [![Build Status](https://travis-ci.org/gitbucket/gitbucket-gist-plugin.svg?branch=master)](https://travis-ci.org/gitbucket/gitbucket-gist-plugin)
 
-This is an example of GitBucket plug-in. This plug-in provides code snippet repository like Gist.
+A GitBucket plug-in which provides code snippet repository like Gist.
 
 Plugin version | GitBucket version
 :--------------|:--------------------
