@@ -3,4 +3,4 @@ language: scala
 jdk:
 - oraclejdk8
 script:
-- sbt test
+- ./build-gitbucket-plugin.sh
