@@ -1,3 +1,3 @@
 logLevel := Level.Warn
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.3.7")
+addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.3.12")
