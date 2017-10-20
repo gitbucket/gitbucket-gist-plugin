@@ -1,14 +1,14 @@
 val Organization = "io.github.gitbucket"
 val ProjectName = "gitbucket-gist-plugin"
 val ProjectVersion = "4.10.0"
-val GitBucketVersion = Option(System.getProperty("gitbucket.version")).getOrElse("4.16.0")
+val GitBucketVersion = Option(System.getProperty("gitbucket.version")).getOrElse("4.18.0")
 
 lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
 
 organization := Organization
 name := ProjectName
 version := ProjectVersion
-scalaVersion := "2.12.2"
+scalaVersion := "2.12.4"
 
 libraryDependencies ++= Seq(
   "io.github.gitbucket" %% "gitbucket"         % GitBucketVersion % "provided",
