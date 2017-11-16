@@ -2,7 +2,7 @@ package gitbucket.gist.controller
 
 import java.io.File
 import gitbucket.core.view.helpers
-import io.github.gitbucket.scalatra.forms._
+import org.scalatra.forms._
 
 import gitbucket.core.controller.ControllerBase
 import gitbucket.core.service.AccountService
