@@ -193,7 +193,7 @@ trait GistControllerBase extends ControllerBase {
         case Right((revisions, hasNext)) => {
           val commits = revisions.map { revision =>
             defining(JGitUtil.getRevCommitFromId(git, git.getRepository.resolve(revision.id))){ revCommit =>
-              JGitUtil.getDiffs(git, revision.id, false) match { case (diffs, oldCommitId) =>
+              JGitUtil.getDiffs(git, revision.id, true) match { case (diffs, oldCommitId) =>
                 (revision, diffs)
               }
             }
