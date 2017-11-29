@@ -1,7 +1,7 @@
 val Organization = "io.github.gitbucket"
 val ProjectName = "gitbucket-gist-plugin"
 val ProjectVersion = "4.11.0"
-val GitBucketVersion = Option(System.getProperty("gitbucket.version")).getOrElse("4.19.0-SNAPSHOT")
+val GitBucketVersion = Option(System.getProperty("gitbucket.version")).getOrElse("4.19.0")
 
 lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
 
