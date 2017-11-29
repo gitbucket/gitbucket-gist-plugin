@@ -2,7 +2,7 @@ package gitbucket.gist.controller
 
 import java.io.File
 import gitbucket.core.view.helpers
-import io.github.gitbucket.scalatra.forms._
+import org.scalatra.forms._
 
 import gitbucket.core.controller.ControllerBase
 import gitbucket.core.service.AccountService
@@ -193,7 +193,7 @@ trait GistControllerBase extends ControllerBase {
         case Right((revisions, hasNext)) => {
           val commits = revisions.map { revision =>
             defining(JGitUtil.getRevCommitFromId(git, git.getRepository.resolve(revision.id))){ revCommit =>
-              JGitUtil.getDiffs(git, revision.id, false) match { case (diffs, oldCommitId) =>
+              JGitUtil.getDiffs(git, revision.id, true) match { case (diffs, oldCommitId) =>
                 (revision, diffs)
               }
             }
