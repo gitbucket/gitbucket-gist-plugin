@@ -1,19 +1,8 @@
-val Organization = "io.github.gitbucket"
-val ProjectName = "gitbucket-gist-plugin"
-val ProjectVersion = "4.11.0"
-val GitBucketVersion = Option(System.getProperty("gitbucket.version")).getOrElse("4.19.0")
-
-lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
-
-organization := Organization
-name := ProjectName
-version := ProjectVersion
+organization := "io.github.gitbucket"
+name := "gitbucket-gist-plugin"
+version := "4.11.0"
 scalaVersion := "2.12.4"
-
-libraryDependencies ++= Seq(
-  "io.github.gitbucket" %% "gitbucket"         % GitBucketVersion % "provided",
-  "javax.servlet"        % "javax.servlet-api" % "3.1.0"          % "provided"
-)
+gitbucketVersion := Option(System.getProperty("gitbucket.version")).getOrElse("4.19.0")
 
 scalacOptions := Seq("-deprecation", "-feature", "-language:postfixOps")
 javacOptions in compile ++= Seq("-target", "8", "-source", "8")
