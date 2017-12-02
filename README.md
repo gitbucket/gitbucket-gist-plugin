@@ -37,8 +37,4 @@ See [Connect to H2 database](https://github.com/gitbucket/gitbucket/wiki/Connect
 
 ## Build from source
 
-1. Install sbt and hit `sbt assembly` in the root directory of this repository.
-2. Copy `target/scala-2.12/gitbucket-gist-plugin-assembly-x.x.x.jar` into `GITBUCKET_HOME/plugins`.
-3. GitBucket restarts automatically.
-
-or you can build and install by just hitting `sbt install`.
+Run `sbt assembly` and copy generated `/target/scala-2.12/gitbucket-gist-plugin-assembply-x.x.x.jar` to `~/.gitbucket/plugins/` (If the directory does not exist, create it by hand before copying the jar), or just run `sbt install`.
