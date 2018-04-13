@@ -11,7 +11,7 @@
     @gitbucket.gist.html.header(gist, forkedCount, editable)
     <div class="content body">
       @gitbucket.gist.html.menu("revision", gist, repositoryUrl)
-      <div style="margin-right: 260px;">
+      <div style="padding-top: 20px;">
         @revisions.map { case (revision, diffs) =>
           <div>
             <div style="margin-bottom: 8px;">

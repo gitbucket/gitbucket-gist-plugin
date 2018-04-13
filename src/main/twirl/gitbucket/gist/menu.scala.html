@@ -11,32 +11,66 @@
     </a>
   </li>
 }
-
-<div style="width: 250px;" class="pull-right">
-  <ul class="nav nav-pills nav-stacked">
-    <li style="height: 12px"><div class="gradient pull-left" style="height: 12px"></div></li>
+<div class="pull-right pc">
+  <a href="@context.path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.zip" class="btn btn-default btn-sm"><i class="octicon octicon-cloud-download"></i>Download ZIP</a>
+</div>
+<div class="pull-right pc" style="margin-right: 5px;">
+  <div class="input-group" style="margin-bottom: 0px; width: 240px;">
+    <div class="btn-group input-group-btn">
+      <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span id="repository-url-proto">HTTP</span> <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        <li>
+          <a href="javascript:void(0);" id="repository-url-embed">
+            <strong>Embed</strong><br>
+            Embed this snippet in your website.
+          </a>
+        </li>
+        <li>
+          <a href="javascript:void(0);" id="repository-url-http">
+            <strong>HTTP</strong><br>
+            Clone with Git using the repository's web address.
+          </a>
+        </li>
+        @if(context.settings.ssh && context.loginAccount.isDefined){
+          <li>
+            <a href="javascript:void(0);" id="repository-url-ssh">
+              <strong>SSH</strong><br>
+              Clone with an SSH key and passphrase from your GitBucket Settings.
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+    @gitbucket.core.helper.html.copy("repository-url", "repository-url-copy", repositoryUrl.httpUrl){
+      <input type="text" value="@repositoryUrl.httpUrl" id="repository-url" class="form-control input-sm" readonly>
+      }
+  </div>
+</div>
+<ul class="nav nav-tabs fill-width">
+  @menuitem(
+    "code",
+    s"${gist.userName}/${gist.repositoryName}",
+    "Code")
+  @menuitem(
+    "revision",
+    s"${gist.userName}/${gist.repositoryName}/revisions",
+    "Revision")
+  @if(gist.originUserName.isEmpty){
     @menuitem(
-      "code",
-      s"${gist.userName}/${gist.repositoryName}",
-      "Code")
-    @menuitem(
-      "revision",
-      s"${gist.userName}/${gist.repositoryName}/revisions",
-      "Revision")
-    @if(gist.originUserName.isEmpty){
-      @menuitem(
-        "forks",
-        s"${gist.userName}/${gist.repositoryName}/forks",
-        "Forks")
-    }
-  </ul>
-  <div class="pull-right pc">
+      "forks",
+      s"${gist.userName}/${gist.repositoryName}/forks",
+      "Forks")
+  }
+  @*
+  <div class="pull-right">
     <div class="input-group" style="margin-bottom: 0px;">
       <div class="btn-group input-group-btn">
-	<button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <span id="repository-url-proto">HTTP</span> <span class="caret"></span>
-	</button>
-	<ul class="dropdown-menu">
+        </button>
+        <ul class="dropdown-menu">
           <li>
             <a href="javascript:void(0);" id="repository-url-embed">
               <strong>Embed</strong><br>
@@ -57,36 +91,37 @@
             </a>
           </li>
           }
-	</ul>
+        </ul>
+      </div>
+      @gitbucket.core.helper.html.copy("repository-url", "repository-url-copy", repositoryUrl.httpUrl){
+        <input type="text" value="@repositoryUrl.httpUrl" id="repository-url" class="form-control input-sm" readonly>
+      }
     </div>
-  @gitbucket.core.helper.html.copy("repository-url", "repository-url-copy", repositoryUrl.httpUrl){
-    <input type="text" value="@repositoryUrl.httpUrl" id="repository-url" class="form-control input-sm" readonly>
-  }
+    <div style="margin-top: 10px;">
+      <a href="@context.path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.zip"
+         class="btn btn-default btn-block"><i class="octicon octicon-cloud-download"></i>Download ZIP</a>
+    </div>
   </div>
-  <div style="margin-top: 10px;">
-    <a href="@context.path/gist/@{gist.userName}/@{gist.repositoryName}/download/@{gist.repositoryName}.zip"
-       class="btn btn-default btn-block"><i class="octicon octicon-cloud-download"></i>Download ZIP</a>
-  </div>
-</div>
-</div>
-  <script>
-  $(function(){
-    $('#repository-url-embed').click(function(){
-      $('#repository-url-proto').text('Embed');
-      $('#repository-url').val('<script src="@repositoryUrl.embedUrl\"><\/script>');
-      $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
-    });
-    $('#repository-url-http').click(function(){
-      $('#repository-url-proto').text('HTTP');
-      $('#repository-url').val('@repositoryUrl.httpUrl');
-      $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
-    });
-@if(context.settings.ssh && context.loginAccount.isDefined){
-    $('#repository-url-ssh').click(function(){
-      $('#repository-url-proto').text('SSH');
-      $('#repository-url').val('@repositoryUrl.sshUrl(context.loginAccount.get.userName)');
-      $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
-    });
-}
+  *@
+</ul>
+<script>
+$(function(){
+  $('#repository-url-embed').click(function(){
+    $('#repository-url-proto').text('Embed');
+    $('#repository-url').val('<script src="@repositoryUrl.embedUrl\"><\/script>');
+    $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
   });
-  </script>
+  $('#repository-url-http').click(function(){
+    $('#repository-url-proto').text('HTTP');
+    $('#repository-url').val('@repositoryUrl.httpUrl');
+    $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
+  });
+@if(context.settings.ssh && context.loginAccount.isDefined){
+  $('#repository-url-ssh').click(function(){
+    $('#repository-url-proto').text('SSH');
+    $('#repository-url').val('@repositoryUrl.sshUrl(context.loginAccount.get.userName)');
+    $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
+  });
+}
+});
+</script>
