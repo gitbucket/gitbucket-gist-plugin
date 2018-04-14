@@ -9,24 +9,25 @@
 @gitbucket.core.html.main(if(gist.description.isEmpty) gist.repositoryName else gist.description){
   <link href="@context.path/plugin-assets/gist/style.css" rel="stylesheet">
   <div class="content-wrapper main-center">
-    @gitbucket.gist.html.header(gist, forkedCount, editable)
-    <div class="content body">
-      @gitbucket.gist.html.menu("code", gist, repositoryUrl)
-      <div style="overflow: hidden; padding-top: 10px;">
-        <div style="margin-bottom: 10px;">
+    <div class="gist-content">
+      @gitbucket.gist.html.header(gist, forkedCount, editable)
+      <div class="content body">
+        @gitbucket.gist.html.menu("code", gist, repositoryUrl)
+        <div style="overflow: hidden; padding-top: 10px;">
+          <div style="margin-bottom: 10px;">
           @gist.description
-        </div>
-        @files.map { case (fileName, content) =>
+          </div>
+          @files.map { case (fileName, content) =>
           <div class="panel panel-default">
             <div class="panel-heading strong" style="padding: 6px; line-height: 30px;">
               @fileName
-              <div class="pull-right">
-                <a href="@context.path/gist/@gist.userName/@gist.repositoryName/raw/@revision/@fileName" class="btn btn-sm btn-default">Raw</a>
-              </div>
+            <div class="pull-right">
+              <a href="@context.path/gist/@gist.userName/@gist.repositoryName/raw/@revision/@fileName" class="btn btn-sm btn-default">Raw</a>
+            </div>
             </div>
             @if(helpers.isRenderable(fileName)){
               <div class="panel-body markdown-body" style="padding-left: 16px; padding-right: 16px;">
-                @helpers.renderMarkup(List(fileName), content, "master", gist.toRepositoryInfo, false, false, true)
+              @helpers.renderMarkup(List(fileName), content, "master", gist.toRepositoryInfo, false, false, true)
               </div>
             } else {
               <div class="panel-body">
@@ -34,9 +35,10 @@
               </div>
             }
           </div>
-        }
-        @gitbucket.gist.html.commentlist(gist, comments, editable, gist.toRepositoryInfo)
-        @gitbucket.gist.html.commentform(gist)
+          }
+          @gitbucket.gist.html.commentlist(gist, comments, editable, gist.toRepositoryInfo)
+          @gitbucket.gist.html.commentform(gist)
+        </div>
       </div>
     </div>
   </div>

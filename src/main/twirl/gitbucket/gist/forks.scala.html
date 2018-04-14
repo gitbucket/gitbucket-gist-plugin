@@ -7,19 +7,21 @@
 @gitbucket.core.html.main("Snippets"){
   <link href="@context.path/plugin-assets/gist/style.css" rel="stylesheet">
   <div class="content-wrapper main-center">
-    @gitbucket.gist.html.header(gist, forkedCount, editable)
-    <div class="content body">
-      @gitbucket.gist.html.menu("forks", gist, repositoryUrl)
-      <div style="padding-top: 20px;">
-        @forkedGists.map { forkedGist =>
-          <div class="block">
-            @helpers.avatar(forkedGist.userName, 20)
-            <a href="@context.path/gist/@forkedGist.userName/@forkedGist.repositoryName">@forkedGist.userName</a>
-            <div class="pull-right">
-              <a href="@context.path/gist/@forkedGist.userName/@forkedGist.repositoryName" class="btn btn-sm btn-default">View Fork</a>
+    <div class="gist-content">
+      @gitbucket.gist.html.header(gist, forkedCount, editable)
+      <div class="content body">
+        @gitbucket.gist.html.menu("forks", gist, repositoryUrl)
+        <div style="padding-top: 20px;">
+          @forkedGists.map { forkedGist =>
+            <div class="block">
+              @helpers.avatar(forkedGist.userName, 20)
+              <a href="@context.path/gist/@forkedGist.userName/@forkedGist.repositoryName">@forkedGist.userName</a>
+              <div class="pull-right">
+                <a href="@context.path/gist/@forkedGist.userName/@forkedGist.repositoryName" class="btn btn-sm btn-default">View Fork</a>
+              </div>
             </div>
-          </div>
-        }
+          }
+        </div>
       </div>
     </div>
   </div>

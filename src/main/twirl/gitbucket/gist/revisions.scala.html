@@ -8,67 +8,69 @@
 @gitbucket.core.html.main(s"Revisions · ${gist.repositoryName}"){
   <link href="@context.path/plugin-assets/gist/style.css" rel="stylesheet">
   <div class="content-wrapper main-center">
-    @gitbucket.gist.html.header(gist, forkedCount, editable)
-    <div class="content body">
-      @gitbucket.gist.html.menu("revision", gist, repositoryUrl)
-      <div style="padding-top: 20px;">
-        @revisions.map { case (revision, diffs) =>
-          <div>
-            <div style="margin-bottom: 8px;">
-              @helpers.avatar(revision, 20) <a href="@context.path/gist/@revision.authorName">@revision.authorName</a> revised this @gitbucket.core.helper.html.datetimeago(revision.authorTime)
-              <div class="pull-right">
-                @if(diffs.isEmpty){
-                  <span class="muted">No changes.</span>
+    <div class="gist-content">
+      @gitbucket.gist.html.header(gist, forkedCount, editable)
+      <div class="content body">
+        @gitbucket.gist.html.menu("revision", gist, repositoryUrl)
+        <div style="padding-top: 20px;">
+          @revisions.map { case (revision, diffs) =>
+            <div>
+              <div style="margin-bottom: 8px;">
+                @helpers.avatar(revision, 20) <a href="@context.path/gist/@revision.authorName">@revision.authorName</a> revised this @gitbucket.core.helper.html.datetimeago(revision.authorTime)
+                <div class="pull-right">
+                  @if(diffs.isEmpty){
+                    <span class="muted">No changes.</span>
+                  }
+                  <a href="@context.path/gist/@gist.userName/@gist.repositoryName/@revision.id" class="monospace">@revision.id.substring(0, 7)</a>
+                </div>
+              </div>
+              <div>
+                @diffs.zipWithIndex.map { case (diff, i) =>
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th style="font-weight: normal; line-height: 27px;" class="box-header">
+                          @diff.changeType match {
+                            case ChangeType.ADD => {
+                              <span class="diffstat">
+                                <i class="octicon octicon-diff-added"></i>
+                              </span> @diff.newPath
+                            }
+                            case ChangeType.MODIFY => {
+                              <span class="diffstat">
+                                <i class="octicon octicon-diff-modified"></i>
+                              </span> @diff.newPath
+                            }
+                            case ChangeType.DELETE => {
+                              <span class="diffstat">
+                                <i class="octicon octicon-diff-removed"></i>
+                              </span> @diff.oldPath
+                            }
+                            case _ => {
+                            }
+                          }
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style="padding: 0;">
+                          @if(diff.newContent != None || diff.oldContent != None){
+                            <div id="diffText-@revision.id.substring(0, 7)-@i"></div>
+                            <textarea id="newText-@revision.id.substring(0, 7)-@i" style="display: none;">@diff.newContent.getOrElse("")</textarea>
+                            <textarea id="oldText-@revision.id.substring(0, 7)-@i" style="display: none;">@diff.oldContent.getOrElse("")</textarea>
+                          } else {
+                            Not supported
+                          }
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 }
-                <a href="@context.path/gist/@gist.userName/@gist.repositoryName/@revision.id" class="monospace">@revision.id.substring(0, 7)</a>
               </div>
             </div>
-            <div>
-              @diffs.zipWithIndex.map { case (diff, i) =>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="font-weight: normal; line-height: 27px;" class="box-header">
-                        @diff.changeType match {
-                          case ChangeType.ADD => {
-                            <span class="diffstat">
-                              <i class="octicon octicon-diff-added"></i>
-                            </span> @diff.newPath
-                          }
-                          case ChangeType.MODIFY => {
-                            <span class="diffstat">
-                              <i class="octicon octicon-diff-modified"></i>
-                            </span> @diff.newPath
-                          }
-                          case ChangeType.DELETE => {
-                            <span class="diffstat">
-                              <i class="octicon octicon-diff-removed"></i>
-                            </span> @diff.oldPath
-                          }
-                          case _ => {
-                          }
-                        }
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td style="padding: 0;">
-                        @if(diff.newContent != None || diff.oldContent != None){
-                          <div id="diffText-@revision.id.substring(0, 7)-@i"></div>
-                          <textarea id="newText-@revision.id.substring(0, 7)-@i" style="display: none;">@diff.newContent.getOrElse("")</textarea>
-                          <textarea id="oldText-@revision.id.substring(0, 7)-@i" style="display: none;">@diff.oldContent.getOrElse("")</textarea>
-                        } else {
-                          Not supported
-                        }
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              }
-            </div>
-          </div>
-        }
+          }
+        </div>
       </div>
     </div>
   </div>
