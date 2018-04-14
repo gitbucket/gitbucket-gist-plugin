@@ -115,6 +115,10 @@
           }
         }
       }
+      if(value == null){
+        displayError('At least one file is required.');
+        return false;
+      }
       return true;
     });
 
