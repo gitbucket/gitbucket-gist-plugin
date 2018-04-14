@@ -2,7 +2,7 @@
   fileName: String,
   content: gitbucket.core.util.JGitUtil.ContentInfo)(implicit context: gitbucket.core.controller.Context)
 @import gitbucket.core.view.helpers
-<div class="panel panel-default">
+<div class="panel panel-default" id="editor-area-@i">
   <div class="panel-heading" style="padding: 6px;">
     <div class="pull-right">
       <select id="wrap-@i" class="form-control" style="margin-bottom: 0px; padding: 0px;">
@@ -12,7 +12,8 @@
         </optgroup>
       </select>
     </div>
-    <input type="text" id="fileName-@i" name="fileName-@i" class="form-control" value="@fileName" placeholder="Name this file..." style="width: 300px; margin-bottom: 0px;">
+    <a href="javascript:void(0);" style="padding-left: 8px; padding-right: 6px;" id="remove-@i" data-index="@i"><span class="octicon octicon-x"></span></a>
+    <input type="text" id="fileName-@i" name="fileName-@i" class="form-control" value="@fileName" placeholder="Name this file..." style="width: 300px; margin-bottom: 0px; display: inline;">
   </div>
   <div class="panel-body">
     <div id="editor-@i" class="editor" data-index="@i" style="width: 100%; height: 400px;"></div>
@@ -38,6 +39,12 @@ $(function(){
       editor.getSession().setUseWrapMode(true);
     } else {
       editor.getSession().setUseWrapMode(false);
+    }
+  });
+
+  $('#remove-@i').click(function(){
+    if(confirm('Remove this file. Are you sure?')){
+      $('#editor-area-@i').remove();
     }
   });
 });

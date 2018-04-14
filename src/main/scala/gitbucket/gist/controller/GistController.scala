@@ -100,7 +100,7 @@ trait GistControllerBase extends ControllerBase {
   post("/gist/_new")(usersOnly {
     if(context.loginAccount.isDefined){
       val loginAccount = context.loginAccount.get
-      val files = getFileParameters(true)
+      val files = getFileParameters()
 
       if(files.isEmpty){
         redirect(s"/gist")
@@ -139,7 +139,7 @@ trait GistControllerBase extends ControllerBase {
     val repoName = params("repoName")
 
     val loginAccount = context.loginAccount.get
-    val files        = getFileParameters(true)
+    val files        = getFileParameters()
     val description  = params("description")
     val mode         = Mode.from(params("mode"))
 
@@ -501,20 +501,12 @@ trait GistControllerBase extends ControllerBase {
     }
   }
 
-  private def getFileParameters(flatten: Boolean): Seq[(String, String)] = {
+  private def getFileParameters(): Seq[(String, String)] = {
     val count = params("count").toInt
-    if(flatten){
-      (0 to count - 1).flatMap { i =>
-        (params.get(s"fileName-${i}"), params.get(s"content-${i}")) match {
-          case (Some(fileName), Some(content)) if(content.nonEmpty) => Some((if(fileName.isEmpty) s"gistfile${i + 1}.txt" else fileName, content))
-          case _ => None
-        }
-      }
-    } else {
-      (0 to count - 1).map { i =>
-        val fileName = request.getParameter(s"fileName-${i}")
-        val content  = request.getParameter(s"content-${i}")
-        (if(fileName.isEmpty) s"gistfile${i + 1}.txt" else fileName, content)
+    (0 to count - 1).flatMap { i =>
+      (params.get(s"fileName-${i}"), params.get(s"content-${i}")) match {
+        case (Some(fileName), Some(content)) if(content.nonEmpty) => Some((if(fileName.isEmpty) s"gistfile${i + 1}.txt" else fileName, content))
+        case _ => None
       }
     }
   }

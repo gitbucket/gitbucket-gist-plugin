@@ -105,12 +105,14 @@
       }
       var value = null;
       for(var i = 0; i < count; i++){
-        value = ace.edit('editor-' + i).getValue();
-        if(value == ''){
-          displayError('Files can\'t be empty.');
-          return false;
-        } else {
-          $('#content-' + i).val(ace.edit('editor-' + i).getValue());
+        if($('#editor-area-' + i).length == 1){
+          value = ace.edit('editor-' + i).getValue();
+          if(value == ''){
+            displayError('Files can\'t be empty.');
+            return false;
+          } else {
+            $('#content-' + i).val(ace.edit('editor-' + i).getValue());
+          }
         }
       }
       return true;
