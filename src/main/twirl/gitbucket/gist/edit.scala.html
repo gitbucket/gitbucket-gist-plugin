@@ -3,7 +3,7 @@
 @import gitbucket.gist.model.Mode
 @import gitbucket.core.view.helpers
 @gitbucket.core.html.main("Snippets"){
-  <link href="@context.path/plugin-assets/gist/style.css" rel="stylesheet">
+  <link href="@context.path/plugin-assets/gist/style.css?@helpers.hashQuery" rel="stylesheet">
   <div class="content-wrapper main-center">
     <div class="gist-content">
       <div class="head">
@@ -22,13 +22,6 @@
               <span class="label label-warning">Private</span>
             }
             <div class="pull-right">
-              @*
-              @if(gist.get.mode == "SECRET"){
-                <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/public" class="btn btn-default">Make public</a>
-              } else {
-                <a href="@path/gist/@gist.get.userName/@gist.get.repositoryName/secret" class="btn btn-default">Make secret</a>
-              }
-              *@
               <a href="@context.path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn btn-danger" id="delete">Delete</a>
             </div>
             <div class="muted" style="margin-left: 30px; font-size: 80%;">

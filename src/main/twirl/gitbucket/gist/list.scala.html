@@ -5,7 +5,7 @@
 @import gitbucket.gist.model.Mode
 @import gitbucket.core.view.helpers
 @gitbucket.core.html.main(gistUser.map(user => s"${user.userName}'s Snippets").getOrElse("Snippets")){
-  <link href="@context.path/plugin-assets/gist/style.css" rel="stylesheet">
+  <link href="@context.path/plugin-assets/gist/style.css?@helpers.hashQuery" rel="stylesheet">
   <div class="content-wrapper main-center">
     <div class="gist-content">
       <div class="head">

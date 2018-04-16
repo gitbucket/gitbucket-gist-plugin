@@ -5,7 +5,7 @@
   editable: Boolean)(implicit context: gitbucket.core.controller.Context)
 @import gitbucket.core.view.helpers
 @gitbucket.core.html.main("Snippets"){
-  <link href="@context.path/plugin-assets/gist/style.css" rel="stylesheet">
+  <link href="@context.path/plugin-assets/gist/style.css?@helpers.hashQuery" rel="stylesheet">
   <div class="content-wrapper main-center">
     <div class="gist-content">
       @gitbucket.gist.html.header(gist, forkedCount, editable)
