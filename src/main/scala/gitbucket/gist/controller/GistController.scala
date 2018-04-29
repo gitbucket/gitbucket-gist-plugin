@@ -394,8 +394,7 @@ trait GistControllerBase extends ControllerBase {
     getGist(userName, repoName).flatMap { gist =>
       getGistComment(userName, repoName, commentId).map { comment =>
         params.get("dataType") collect {
-          case t if t == "html" => gitbucket.gist.html.commentedit(
-            comment.content, comment.commentId, comment.userName, comment.repositoryName)
+          case t if t == "html" => gitbucket.gist.html.commentedit(gist, comment.content, comment.commentId)
         } getOrElse {
           contentType = formats("json")
           org.json4s.jackson.Serialization.write(

@@ -1,9 +1,15 @@
-@(content: String, commentId: Int, userName: String, repoName: String)(implicit context: gitbucket.core.controller.Context)
+@(gist: gitbucket.gist.model.Gist, content: String, commentId: Int)(implicit context: gitbucket.core.controller.Context)
 <span id="error-edit-content-@commentId" class="error"></span>
-<textarea class="form-control" style="height: 100px;" id="edit-content-@commentId">@content</textarea>
-<div style="margin-top: 6px;">
-  <input type="button" id="cancel-comment-@commentId" class="btn btn-danger" value="Cancel"/>
-  <input type="button" id="update-comment-@commentId" class="btn btn-default pull-right" value="Update comment"/>
+@gitbucket.gist.html.commentpreview(
+  gist     = gist,
+  content  = content,
+  style    = "height: 100px; max-height: 150px;",
+  elastic  = true,
+  uid      = commentId
+)
+<div style="margin-top: 6px;" class="text-right">
+  <input type="button" id="cancel-comment-@commentId" class="btn btn-default" value="Cancel"/>
+  <input type="button" id="update-comment-@commentId" class="btn btn-success" value="Update comment"/>
 </div>
 <script>
 $(function(){
@@ -16,11 +22,11 @@ $(function(){
   $('#update-comment-@commentId').click(function(){
     $('#update-comment-@commentId, #cancel-comment-@commentId').attr('disabled', 'disabled');
     $.ajax({
-      url: '@context.path/gist/@userName/@repoName/_comments/@commentId/_update',
+      url: '@context.path/gist/@gist.userName/@gist.repositoryName/_comments/@commentId/_update',
       type: 'POST',
       data: {
         issueId : 0,	// TODO
-        content : $('#edit-content-@commentId').val()
+        content : $('#content@commentId').val()
       }
     }).done(
       callback
@@ -32,7 +38,7 @@ $(function(){
 
   $('#cancel-comment-@commentId').click(function(){
     $('#update-comment-@commentId, #cancel-comment-@commentId').attr('disabled', 'disabled');
-    $.get('@context.path/gist/@userName/@repoName/_comments/@commentId', callback);
+    $.get('@context.path/gist/@gist.userName/@gist.repositoryName/_comments/@commentId', callback);
     return false;
   });
 });
