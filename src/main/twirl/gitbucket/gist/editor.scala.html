@@ -36,7 +36,9 @@ $(function(){
   }
 
   @if(fileName.nonEmpty){
-    editor.getSession().setMode("ace/mode/@helpers.editorType(fileName)");
+    var modelist = ace.require("ace/ext/modelist");
+    var mode = modelist.getModeForPath("@fileName");
+    editor.getSession().setMode(mode.mode);
   }
 
   $('#wrap-@i').change(function(){

@@ -272,6 +272,7 @@ trait GistControllerBase extends ControllerBase {
       html.profile(
         account,
         if(account.isGroupAccount) Nil else getGroupsByUserName(userName),
+        getAccountExtraMailAddresses(userName),
         result._1
       )
     } getOrElse NotFound
