@@ -33,7 +33,7 @@
             Clone with Git using the repository's web address.
           </a>
         </li>
-        @if(context.settings.ssh && context.loginAccount.isDefined){
+        @if(context.settings.ssh.enabled && context.loginAccount.isDefined){
           <li>
             <a href="javascript:void(0);" id="repository-url-ssh">
               <strong>SSH</strong><br>
@@ -116,7 +116,7 @@ $(function(){
     $('#repository-url').val('@repositoryUrl.httpUrl');
     $('#repository-url-copy').attr('data-clipboard-text', $('#repository-url').val());
   });
-@if(context.settings.ssh && context.loginAccount.isDefined){
+@if(context.settings.ssh.enabled && context.loginAccount.isDefined){
   $('#repository-url-ssh').click(function(){
     $('#repository-url-proto').text('SSH');
     $('#repository-url').val('@repositoryUrl.sshUrl(context.loginAccount.get.userName)');

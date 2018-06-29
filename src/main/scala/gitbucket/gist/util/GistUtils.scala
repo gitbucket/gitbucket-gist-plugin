@@ -52,7 +52,7 @@ object GistUtils {
 
     def sshUrl(loginUser: String): String = {
       val host = """^https?://(.+?)(:\d+)?/""".r.findFirstMatchIn(httpUrl).get.group(1)
-      s"ssh://${loginUser}@${host}:${settings.sshPort.getOrElse(SystemSettingsService.DefaultSshPort)}/gist/${gist.userName}/${gist.repositoryName}.git"
+      s"ssh://${loginUser}@${host}:${settings.ssh.sshPort.getOrElse(SystemSettingsService.DefaultSshPort)}/gist/${gist.userName}/${gist.repositoryName}.git"
     }
 
   }
