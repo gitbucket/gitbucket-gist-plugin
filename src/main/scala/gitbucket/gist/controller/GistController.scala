@@ -227,7 +227,7 @@ trait GistControllerBase extends ControllerBase {
         if(gist.mode == "PUBLIC" || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
           JGitUtil.getFileList(git, revision, ".").find(_.name == fileName).map { file =>
             defining(JGitUtil.getContentFromId(git, file.id, false).get){ bytes =>
-              RawData(FileUtil.getContentType(file.name, bytes), bytes)
+              RawData(FileUtil.getMimeType(file.name, bytes), bytes)
             }
           } getOrElse NotFound
         } else Unauthorized
