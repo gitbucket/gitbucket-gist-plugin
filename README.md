@@ -28,7 +28,7 @@ Plugin version | GitBucket version
 
 ## Installation
 
-Download jar file from [the release page](https://github.com/gitbucket/gitbucket-gist-plugin/releases) and put into `GITBUCKET_HOME/plugins`.
+Download jar file from [plugin registry](https://plugins.gitbucket-community.org/releases/gitbucket-gist-plugin) and put into `GITBUCKET_HOME/plugins`.
 
 **Note:** If you had used this plugin with GitBucket 3.x, it does not work after upgrading to GitBucket 4.x. Solution is below:
 
