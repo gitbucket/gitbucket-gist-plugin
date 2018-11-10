@@ -1,6 +1,6 @@
 organization := "io.github.gitbucket"
 name := "gitbucket-gist-plugin"
-version := "4.16.0"
+version := "4.17.0"
 scalaVersion := "2.12.7"
 gitbucketVersion := "4.30.0-SNAPSHOT"
 
