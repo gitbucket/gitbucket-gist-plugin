@@ -38,7 +38,15 @@ object GistUtils {
     commitId
   }
 
-  def getLines(source: String): String = source.split("\n").take(10).mkString("\n")
+  def getLines(fileName: String, source: String): String = {
+    val lines = source.split("\n").map(_.trim).take(10)
+
+    (if((fileName.endsWith(".md") || fileName.endsWith(".markdown")) && lines.count(_ == "```") % 2 != 0) {
+      lines :+ "```"
+    } else {
+      lines
+    }).mkString("\n")
+  }
 
   def isGistFile(fileName: String): Boolean = fileName.matches("gistfile[0-9]+\\.txt")
 

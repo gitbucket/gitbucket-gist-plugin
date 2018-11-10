@@ -56,9 +56,9 @@
             <div class="panel-body">
               <div style="margin-bottom: 10px;">@gist.description</div>
               <div>
-                @if(helpers.isRenderable(gistInfo.fileName)){
+                @if(gistInfo.fileName.toLowerCase.endsWith(".md") || gistInfo.fileName.toLowerCase.endsWith(".markdown")){
                   <div class="list-markup box-content markdown-body">
-                    @helpers.renderMarkup(List(gistInfo.fileName), gistInfo.source, "master", gist.toRepositoryInfo, false, false, false)
+                    @helpers.markdown(gistInfo.source, gist.toRepositoryInfo, "master", false, false, false)
                   </div>
                 } else {
                   <pre class="list-code box-content prettyprint linenums">@gistInfo.source</pre>

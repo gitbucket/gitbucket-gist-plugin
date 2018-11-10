@@ -20,7 +20,7 @@
       </span>
     </div>
     <div class="panel-body issue-content markdown-body" id="commentContent-@comment.commentId">
-      @helpers.markdown(comment.content, repository, false, true, true, hasWritePermission)
+      @helpers.markdown(comment.content, repository, "master", false, true, true, hasWritePermission)
     </div>
   </div>
 }

@@ -58,7 +58,7 @@ trait GistControllerBase extends ControllerBase {
       val files = getGistFiles(userName, repoName)
       val (fileName, source) = files.head
 
-      (gist, GistInfo(fileName, getLines(source), files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
+      (gist, GistInfo(fileName, getLines(fileName, source), files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
     }
 
     html.list(None, gists, page, page * Limit < count)
@@ -351,8 +351,9 @@ trait GistControllerBase extends ControllerBase {
     val repoName = params("repoName")
 
     contentType = "text/html"
-    helpers.markdown(params("content"),
-      RepositoryInfo(
+    helpers.markdown(
+      markdown   = params("content"),
+      repository = RepositoryInfo(
         owner       = userName,
         name        = repoName,
         repository  = null,
@@ -362,7 +363,13 @@ trait GistControllerBase extends ControllerBase {
         branchList  = Nil,
         tags        = Nil,
         managers    = Nil
-      ), false, false, false, false)
+      ),
+      branch           = "master",
+      enableWikiLink   = false,
+      enableRefsLink   = false,
+      enableLineBreaks = false,
+      enableAnchor     = false
+    )
   }
 
   post("/gist/:userName/:repoName/_comment", commentForm)(usersOnly { form =>
@@ -399,7 +406,15 @@ trait GistControllerBase extends ControllerBase {
         } getOrElse {
           contentType = formats("json")
           org.json4s.jackson.Serialization.write(
-            Map("content" -> gitbucket.core.view.Markdown.toHtml(comment.content, gist.toRepositoryInfo, false, true, true, true))
+            Map("content" -> gitbucket.core.view.Markdown.toHtml(
+              markdown         = comment.content,
+              repository       = gist.toRepositoryInfo,
+              branch           = "master",
+              enableWikiLink   = false,
+              enableRefsLink   = true,
+              enableAnchor     = true,
+              enableLineBreaks = true
+            ))
           )
         }
       }
@@ -441,7 +456,7 @@ trait GistControllerBase extends ControllerBase {
           val repoName = gist.repositoryName
           val files = getGistFiles(userName, repoName, revision)
           val (fileName, source) = files.head
-          (gist, GistInfo(fileName, getLines(source), files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
+          (gist, GistInfo(fileName, getLines(fileName, source), files.length, getForkedCount(userName, repoName), getCommentCount(userName, repoName)))
         }
 
         val fullName = getAccountByUserName(userName).get.fullName
