@@ -1,5 +1,6 @@
 @(gist: Option[gitbucket.gist.model.Gist],
-  files: Seq[(String, gitbucket.core.util.JGitUtil.ContentInfo)])(implicit context: gitbucket.core.controller.Context)
+  files: Seq[(String, gitbucket.core.util.JGitUtil.ContentInfo)],
+  userName: Option[String])(implicit context: gitbucket.core.controller.Context)
 @import gitbucket.gist.model.Mode
 @import gitbucket.core.view.helpers
 @gitbucket.core.html.main("Snippets"){
@@ -62,6 +63,9 @@
               }
             </div>
           </div>
+          @userName.map { userName =>
+            <input type="hidden" id="userName" name="userName" value="@userName"/>
+          }
           <input type="hidden" id="count" name="count" value="@files.size"/>
         </form>
       </div>

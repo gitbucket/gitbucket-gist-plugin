@@ -12,9 +12,9 @@ import org.eclipse.jgit.lib.{FileMode, Constants, ObjectId}
 
 object GistUtils {
 
-  def isEditable(userName: String)(implicit context: Context): Boolean = {
+  def isEditable(userName: String, groupNames: Seq[String])(implicit context: Context): Boolean = {
     context.loginAccount.map { loginAccount =>
-      loginAccount.isAdmin || loginAccount.userName == userName
+      loginAccount.isAdmin || loginAccount.userName == userName || groupNames.contains(userName)
     }.getOrElse(false)
   }
 
