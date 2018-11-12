@@ -92,16 +92,17 @@ trait GistControllerBase extends ControllerBase {
         val files: Seq[(String, JGitUtil.ContentInfo)] = JGitUtil.getFileList(git, "master", ".").map { file =>
           (if(isGistFile(file.name)) "" else file.name) -> JGitUtil.getContentInfo(git, file.name, file.id)
         }
-        html.edit(getGist(userName, repoName), files)
+        html.edit(getGist(userName, repoName), files, None)
       }
     }
   })
 
   post("/gist/_new")(usersOnly {
-    if(context.loginAccount.isDefined){
-      val loginAccount = context.loginAccount.get
-      val files = getFileParameters()
+    val loginAccount = context.loginAccount.get
+    val userName     = params.getOrElse("userName", loginAccount.userName)
 
+    if(isEditable(userName, loginUserGroups)) {
+      val files = getFileParameters()
       if(files.isEmpty){
         redirect(s"/gist")
 
@@ -110,14 +111,14 @@ trait GistControllerBase extends ControllerBase {
         val description = params("description")
 
         // Create new repository
-        val repoName = StringUtil.md5(loginAccount.userName + " " + datetime(new java.util.Date()))
-        val gitdir   = new File(GistRepoDir, loginAccount.userName + "/" + repoName)
+        val repoName = StringUtil.md5(userName + " " + datetime(new java.util.Date()))
+        val gitdir   = new File(GistRepoDir, userName + "/" + repoName)
         gitdir.mkdirs()
         JGitUtil.initRepository(gitdir)
 
         // Insert record
         registerGist(
-          loginAccount.userName,
+          userName,
           repoName,
           getTitle(files.head._1, repoName),
           description,
@@ -129,9 +130,9 @@ trait GistControllerBase extends ControllerBase {
           commitFiles(git, loginAccount, "Initial commit", files)
         }
 
-        redirect(s"/gist/${loginAccount.userName}/${repoName}")
+        redirect(s"/gist/${userName}/${repoName}")
       }
-    }
+    } else Unauthorized()
   })
 
   post("/gist/:userName/:repoName/edit")(editorOnly {
@@ -166,14 +167,14 @@ trait GistControllerBase extends ControllerBase {
       refUpdate.update()
     }
 
-    redirect(s"/gist/${loginAccount.userName}/${repoName}")
+    redirect(s"/gist/${userName}/${repoName}")
   })
 
   get("/gist/:userName/:repoName/delete")(editorOnly {
     val userName = params("userName")
     val repoName = params("repoName")
 
-    if(isEditable(userName)){
+    if(isEditable(userName, loginUserGroups)){
       deleteGist(userName, repoName)
 
       val gitdir = new File(GistRepoDir, userName + "/" + repoName)
@@ -205,7 +206,7 @@ trait GistControllerBase extends ControllerBase {
             gist,
             getForkedCount(originUserName, originRepoName),
             GistRepositoryURL(gist, baseUrl, context.settings),
-            isEditable(userName),
+            isEditable(userName, loginUserGroups),
             commits
           )
         }
@@ -268,12 +269,18 @@ trait GistControllerBase extends ControllerBase {
       getUserGists(userName, context.loginAccount.map(_.userName), 0, Limit),
       countUserGists(userName, context.loginAccount.map(_.userName))
     )
+
+    val createSnippet = context.loginAccount.exists { loginAccount =>
+      loginAccount.userName == userName || getGroupsByUserName(loginAccount.userName).contains(userName)
+    }
+
     getAccountByUserName(userName).map { account =>
       html.profile(
-        account,
-        if(account.isGroupAccount) Nil else getGroupsByUserName(userName),
-        getAccountExtraMailAddresses(userName),
-        result._1
+        account            = account,
+        groupNames         = if(account.isGroupAccount) Nil else getGroupsByUserName(userName),
+        extraMailAddresses = getAccountExtraMailAddresses(userName),
+        gists              = result._1,
+        createSnippet      = createSnippet
       )
     } getOrElse NotFound
   }
@@ -283,7 +290,11 @@ trait GistControllerBase extends ControllerBase {
   }
 
   get("/gist/_new")(usersOnly {
-    html.edit(None, Seq(("", JGitUtil.ContentInfo("text", None, None, Some("UTF-8")))))
+    val userName = params.get("userName")
+
+    if(isEditable(userName.getOrElse(context.loginAccount.get.userName), loginUserGroups)){
+      html.edit(None, Seq(("", JGitUtil.ContentInfo("text", None, None, Some("UTF-8")))), userName)
+    } else Unauthorized()
   })
 
   get("/gist/_add"){
@@ -335,7 +346,7 @@ trait GistControllerBase extends ControllerBase {
         getForkedCount(userName, repoName),
         GistRepositoryURL(gist, baseUrl, context.settings),
         getForkedGists(userName, repoName),
-        isEditable(userName)
+        isEditable(userName, loginUserGroups)
       )
     } getOrElse NotFound
   }
@@ -503,7 +514,7 @@ trait GistControllerBase extends ControllerBase {
       revision,
       getGistFiles(userName, repoName, revision),
       getGistComments(userName, repoName),
-      isEditable(userName)
+      isEditable(userName, loginUserGroups)
     )
   }
 
@@ -524,6 +535,12 @@ trait GistControllerBase extends ControllerBase {
         case _ => None
       }
     }
+  }
+
+  private def loginUserGroups: Seq[String] = {
+    context.loginAccount.map { account =>
+      getGroupsByUserName(account.userName)
+    }.getOrElse(Nil)
   }
 
 }
