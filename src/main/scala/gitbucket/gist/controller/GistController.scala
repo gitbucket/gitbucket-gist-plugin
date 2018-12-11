@@ -368,7 +368,8 @@ trait GistControllerBase extends ControllerBase {
       enableWikiLink   = false,
       enableRefsLink   = false,
       enableLineBreaks = false,
-      enableAnchor     = false
+      enableAnchor     = false,
+      enableTaskList   = true
     )
   }
 
