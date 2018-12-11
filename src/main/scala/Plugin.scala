@@ -65,7 +65,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     (context: Context) => Some(Link("snippets", "Snippets", "gist"))
   )
   override val profileTabs = Seq(
-    (account: Account, context: Context) => if(account.isGroupAccount) None else Some(Link("snippets", "Snippets", s"gist/${account.userName}/_profile"))
+    (account: Account, context: Context) => Some(Link("snippets", "Snippets", s"gist/${account.userName}/_profile"))
   )
   override val assetsMappings = Seq("/gist" -> "/gitbucket/gist/assets")
 
