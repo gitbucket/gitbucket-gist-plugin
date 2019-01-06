@@ -1,4 +1,4 @@
-# gitbucket-gist-plugin [![Build Status](https://travis-ci.org/gitbucket/gitbucket-gist-plugin.svg?branch=master)](https://travis-ci.org/gitbucket/gitbucket-gist-plugin)
+# gitbucket-gist-plugin [![Build Status](https://travis-ci.org/gitbucket/gitbucket-gist-plugin.svg?branch=master)](https://travis-ci.org/gitbucket/gitbucket-gist-plugin) [![GitBucket Plugins](https://plugins.gitbucket-community.org/badge/gitbucket-gist-plugin/latest.svg)](https://plugins.gitbucket-community.org/repos/gitbucket-gist-plugin)
 
 This is a GitBucket plug-in which provides code snippet repository like Gist.
 
