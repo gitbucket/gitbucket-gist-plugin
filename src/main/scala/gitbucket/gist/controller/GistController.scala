@@ -25,6 +25,7 @@ import org.eclipse.jgit.lib._
 import org.scalatra.Ok
 import play.twirl.api.Html
 import play.twirl.api.JavaScript
+import scala.util.Using
 
 class GistController extends GistControllerBase with GistService with GistCommentService with AccountService
   with GistEditorAuthenticator with UsersAuthenticator
@@ -88,7 +89,7 @@ trait GistControllerBase extends ControllerBase {
     val repoName = params("repoName")
     val gitdir   = new File(GistRepoDir, userName + "/" + repoName)
     if(gitdir.exists){
-      using(Git.open(gitdir)){ git =>
+      Using.resource(Git.open(gitdir)){ git =>
         val files: Seq[(String, JGitUtil.ContentInfo)] = JGitUtil.getFileList(git, "master", ".").map { file =>
           (if(isGistFile(file.name)) "" else file.name) -> JGitUtil.getContentInfo(git, file.name, file.id)
         }
@@ -126,7 +127,7 @@ trait GistControllerBase extends ControllerBase {
         )
 
         // Commit files
-        using(Git.open(gitdir)){ git =>
+        Using.resource(Git.open(gitdir)){ git =>
           commitFiles(git, loginAccount, "Initial commit", files)
         }
 
@@ -155,7 +156,7 @@ trait GistControllerBase extends ControllerBase {
 
     // Commit files
     val gitdir = new File(GistRepoDir, userName + "/" + repoName)
-    using(Git.open(gitdir)){ git =>
+    Using.resource(Git.open(gitdir)){ git =>
       val commitId = commitFiles(git, loginAccount, "Update", files)
 
       // update refs
@@ -189,7 +190,7 @@ trait GistControllerBase extends ControllerBase {
     val repoName = params("repoName")
     val gitdir = new File(GistRepoDir, userName + "/" + repoName)
 
-    using(Git.open(gitdir)){ git =>
+    Using.resource(Git.open(gitdir)){ git =>
       JGitUtil.getCommitLog(git, "master") match {
         case Right((revisions, hasNext)) => {
           val commits = revisions.map { revision =>
@@ -222,7 +223,7 @@ trait GistControllerBase extends ControllerBase {
     val fileName = params("fileName")
     val gitdir   = new File(GistRepoDir, userName + "/" + repoName)
     if(gitdir.exists){
-      using(Git.open(gitdir)){ git =>
+      Using.resource(Git.open(gitdir)){ git =>
         val gist = getGist(userName, repoName).get
 
         if(gist.mode == "PUBLIC" || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
@@ -245,7 +246,7 @@ trait GistControllerBase extends ControllerBase {
     val userName = params("userName")
     val repoName = params("repoName")
 
-    using(Git.open(new File(GistRepoDir, userName + "/" + repoName))){ git =>
+    Using.resource(Git.open(new File(GistRepoDir, userName + "/" + repoName))){ git =>
       val revCommit = JGitUtil.getRevCommitFromId(git, git.getRepository.resolve("master"))
 
       contentType = "application/octet-stream"
@@ -521,7 +522,7 @@ trait GistControllerBase extends ControllerBase {
 
   private def getGistFiles(userName: String, repoName: String, revision: String = "master"): Seq[(String, String)] = {
     val gitdir = new File(GistRepoDir, userName + "/" + repoName)
-    using(Git.open(gitdir)){ git =>
+    Using.resource(Git.open(gitdir)){ git =>
       JGitUtil.getFileList(git, revision, ".").map { file =>
         file.name -> StringUtil.convertFromByteArray(JGitUtil.getContentFromId(git, file.id, true).get)
       }

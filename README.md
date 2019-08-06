@@ -4,6 +4,7 @@ This is a GitBucket plug-in which provides code snippet repository like Gist.
 
 Plugin version | GitBucket version
 :--------------|:--------------------
+4.18.x         | 4.32.x -
 4.17.x         | 4.30.x -
 4.16.x         | 4.26.x -
 4.15.x         | 4.25.x -
@@ -29,7 +30,7 @@ Plugin version | GitBucket version
 
 ## Installation
 
-Download jar file from [plugin registry](https://plugins.gitbucket-community.org/releases/gitbucket-gist-plugin) and put into `GITBUCKET_HOME/plugins`.
+Download jar file from [Releases page](https://github.com/gitbucket/gitbucket-gist-plugin/releases) and put into `GITBUCKET_HOME/plugins`.
 
 **Note:** If you had used this plugin with GitBucket 3.x, it does not work after upgrading to GitBucket 4.x. Solution is below:
 
