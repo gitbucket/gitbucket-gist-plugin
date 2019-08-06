@@ -35,9 +35,9 @@
         <form id="form" method="POST" action="#">
           <input type="text" name="description" id="description" class="form-control" style="margin-bottom: 8px;" value="@gist.map(_.description)" placeholder="Snippet descriptions..."/>
           <div id="editors">
-            @files.zipWithIndex.map { case ((fileName, content), i) =>
+            @files.zipWithIndex.map { case ((fileName, content), i) => {
               @gitbucket.gist.html.editor(i, fileName, content)
-            }
+            }}
           </div>
           <div>
             <input type="button" value="Add file" class="btn btn-default" id="add_file">
