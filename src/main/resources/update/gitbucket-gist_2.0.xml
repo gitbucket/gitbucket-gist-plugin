@@ -24,14 +24,13 @@
   <createTable tableName="GIST_COMMENT">
     <column name="USER_NAME" type="varchar(100)" nullable="false"/>
     <column name="REPOSITORY_NAME" type="varchar(100)" nullable="false"/>
-    <column name="COMMENT_ID" type="int" nullable="false" autoIncrement="true" unique="true"/>
+    <column name="COMMENT_ID" type="int" nullable="false" autoIncrement="true" unique="true" primaryKeyName="IDX_GIST_COMMENT_PK" primaryKey="true" />
     <column name="COMMENTED_USER_NAME" type="varchar(100)" nullable="false"/>
     <column name="CONTENT" type="text" nullable="false"/>
     <column name="REGISTERED_DATE" type="datetime" nullable="false"/>
     <column name="UPDATED_DATE" type="datetime" nullable="false"/>
   </createTable>
 
-  <addPrimaryKey constraintName="IDX_GIST_COMMENT_PK" tableName="GIST_COMMENT" columnNames="COMMENT_ID"/>
   <addUniqueConstraint constraintName="IDX_GIST_COMMENT_1" tableName="GIST_COMMENT" columnNames="USER_NAME, REPOSITORY_NAME, COMMENT_ID"/>
   <addForeignKeyConstraint constraintName="IDX_GIST_COMMENT_FK0" baseTableName="GIST_COMMENT" baseColumnNames="USER_NAME, REPOSITORY_NAME" referencedTableName="GIST" referencedColumnNames="USER_NAME, REPOSITORY_NAME"/>
   <addForeignKeyConstraint constraintName="IDX_GIST_COMMENT_FK1" baseTableName="GIST_COMMENT" baseColumnNames="COMMENTED_USER_NAME" referencedTableName="ACCOUNT" referencedColumnNames="USER_NAME"/>
