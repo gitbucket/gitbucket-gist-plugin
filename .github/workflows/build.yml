@@ -8,14 +8,25 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        java: [8, 11]
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
+    - name: Cache
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-sbt-libs
+      with:
+        path: |
+          ~/.ivy2/cache
+          ~/.sbt
+          ~/.coursier
+        key: build-${{ env.cache-name }}-${{ hashFiles('build.sbt') }}    
+    - name: Set up JDK
       uses: actions/setup-java@v1
       with:
-        java-version: 1.8
+        java-version: ${{ matrix.java }}
     - name: Run tests
       run: sbt test
