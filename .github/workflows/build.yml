@@ -35,3 +35,12 @@ jobs:
         sbt publishLocal
         cd ../
         sbt test
+    - name: Assembly
+      run: sbt assembly
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifacts-java${{ matrix.java }}-${{ github.sha }}
+        path: ./target/scala-2.13/*.jar
+
+
