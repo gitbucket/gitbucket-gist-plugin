@@ -29,4 +29,9 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
     - name: Run tests
-      run: sbt test
+      run: |
+        git clone https://github.com/gitbucket/gitbucket.git
+        cd gitbucket
+        sbt publishLocal
+        cd ../
+        sbt test
