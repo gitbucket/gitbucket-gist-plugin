@@ -1,4 +1,4 @@
-# gitbucket-gist-plugin [![Build Status](https://travis-ci.org/gitbucket/gitbucket-gist-plugin.svg?branch=master)](https://travis-ci.org/gitbucket/gitbucket-gist-plugin)
+# gitbucket-gist-plugin [![Scala CI](https://github.com/gitbucket/gitbucket-gist-plugin/workflows/Scala%20CI/badge.svg)](https://github.com/gitbucket/gitbucket-gist-plugin/actions?query=workflow%3A%22Scala+CI%22+branch%3Amaster)
 
 This is a GitBucket plug-in which provides code snippet repository like Gist.
 
