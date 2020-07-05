@@ -1,0 +1,46 @@
+name: Scala CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [8, 11]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Cache
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-sbt-libs
+      with:
+        path: |
+          ~/.ivy2/cache
+          ~/.sbt
+          ~/.coursier
+        key: build-${{ env.cache-name }}-${{ hashFiles('build.sbt') }}    
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: ${{ matrix.java }}
+    - name: Run tests
+      run: |
+        git clone https://github.com/gitbucket/gitbucket.git
+        cd gitbucket
+        sbt publishLocal
+        cd ../
+        sbt test
+    - name: Assembly
+      run: sbt assembly
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: gitbucket-gist-plugin-java${{ matrix.java }}-${{ github.sha }}
+        path: ./target/scala-2.13/*.jar
+
+
