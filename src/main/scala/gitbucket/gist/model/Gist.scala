@@ -1,5 +1,7 @@
 package gitbucket.gist.model
 
+import gitbucket.core.issues.milestones.html.milestone
+
 trait GistComponent { self: gitbucket.core.model.Profile =>
   import profile.api._
   import self._
@@ -16,7 +18,7 @@ trait GistComponent { self: gitbucket.core.model.Profile =>
     val originUserName       = column[String]("ORIGIN_USER_NAME")
     val originRepositoryName = column[String]("ORIGIN_REPOSITORY_NAME")
     val mode                 = column[String]("MODE")
-    def * = (userName, repositoryName, title, description, registeredDate, updatedDate, originUserName.?, originRepositoryName.?, mode) <> (Gist.tupled, Gist.unapply)
+    def * = (userName, repositoryName, title, description, registeredDate, updatedDate, originUserName.?, originRepositoryName.?, mode).<>(Gist.tupled, Gist.unapply)
   }
 }
 
@@ -33,15 +35,16 @@ case class Gist(
 ){
   def toRepositoryInfo = {
     gitbucket.core.service.RepositoryService.RepositoryInfo(
-      owner       = userName,
-      name        = repositoryName,
-      repository  = null,
-      issueCount  = 0,
-      pullCount   = 0,
-      forkedCount = 0,
-      branchList  = Nil,
-      tags        = Nil,
-      managers    = Nil
+      owner          = userName,
+      name           = repositoryName,
+      repository     = null,
+      issueCount     = 0,
+      pullCount      = 0,
+      forkedCount    = 0,
+      milestoneCount = 0,
+      branchList     = Nil,
+      tags           = Nil,
+      managers       = Nil
     )
   }
 }

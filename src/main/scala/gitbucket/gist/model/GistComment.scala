@@ -16,7 +16,7 @@ trait GistCommentComponent { self: gitbucket.core.model.Profile =>
     val content           = column[String]("CONTENT")
     val registeredDate    = column[java.util.Date]("REGISTERED_DATE")
     val updatedDate       = column[java.util.Date]("UPDATED_DATE")
-    def * = (userName, repositoryName, commentId, commentedUserName, content, registeredDate, updatedDate) <> (GistComment.tupled, GistComment.unapply)
+    def * = (userName, repositoryName, commentId, commentedUserName, content, registeredDate, updatedDate).<>(GistComment.tupled, GistComment.unapply)
   }
 }
 

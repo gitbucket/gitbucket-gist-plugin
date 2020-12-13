@@ -211,7 +211,7 @@ trait GistControllerBase extends ControllerBase {
             commits
           )
         }
-        case Left(_) => NotFound
+        case Left(_) => NotFound()
       }
     }
   }
@@ -231,10 +231,10 @@ trait GistControllerBase extends ControllerBase {
             defining(JGitUtil.getContentFromId(git, file.id, false).get){ bytes =>
               RawData(FileUtil.getMimeType(file.name, bytes), bytes)
             }
-          } getOrElse NotFound
-        } else Unauthorized
+          } getOrElse NotFound()
+        } else Unauthorized()
       }
-    } else NotFound
+    } else NotFound()
   }
 
   get("/gist/:userName/:repoName/download/*"){
@@ -283,7 +283,7 @@ trait GistControllerBase extends ControllerBase {
         gists              = result._1,
         createSnippet      = createSnippet
       )
-    } getOrElse NotFound
+    } getOrElse NotFound()
   }
 
   get("/gist/:userName"){
@@ -333,7 +333,7 @@ trait GistControllerBase extends ControllerBase {
 
         redirect(s"/gist/${loginAccount.userName}/${repoName}")
 
-      } getOrElse NotFound
+      } getOrElse NotFound()
     }
   })
 
@@ -349,7 +349,7 @@ trait GistControllerBase extends ControllerBase {
         getForkedGists(userName, repoName),
         isEditable(userName, loginUserGroups)
       )
-    } getOrElse NotFound
+    } getOrElse NotFound()
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -366,15 +366,16 @@ trait GistControllerBase extends ControllerBase {
     helpers.markdown(
       markdown   = params("content"),
       repository = RepositoryInfo(
-        owner       = userName,
-        name        = repoName,
-        repository  = null,
-        issueCount  = 0,
-        pullCount   = 0,
-        forkedCount = 0,
-        branchList  = Nil,
-        tags        = Nil,
-        managers    = Nil
+        owner          = userName,
+        name           = repoName,
+        repository     = null,
+        issueCount     = 0,
+        pullCount      = 0,
+        forkedCount    = 0,
+        milestoneCount = 0,
+        branchList     = Nil,
+        tags           = Nil,
+        managers       = Nil
       ),
       branch           = "master",
       enableWikiLink   = false,
@@ -393,7 +394,7 @@ trait GistControllerBase extends ControllerBase {
     getGist(userName, repoName).map { gist =>
       registerGistComment(userName, repoName, form.content, loginAccount.userName)
       redirect(s"/gist/${userName}/${repoName}")
-    } getOrElse NotFound
+    } getOrElse NotFound()
   })
 
   ajaxPost("/gist/:userName/:repoName/_comments/:commentId/_delete")(usersOnly {
@@ -431,7 +432,7 @@ trait GistControllerBase extends ControllerBase {
           )
         }
       }
-    } getOrElse NotFound
+    } getOrElse NotFound()
   })
 
   ajaxPost("/gist/:userName/:repoName/_comments/:commentId/_update", commentForm)(usersOnly { form =>
