@@ -25,6 +25,8 @@ project/plugins/project/
 .ensime_cache/
 
 # Metals
-.metals
-.bloop
-project/metals.sbt
+.bloop/
+.metals/
+.vscode/
+**/metals.sbt
+
