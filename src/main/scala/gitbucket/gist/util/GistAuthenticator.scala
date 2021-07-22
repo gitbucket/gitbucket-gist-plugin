@@ -2,7 +2,6 @@ package gitbucket.gist.util
 
 import gitbucket.core.controller.ControllerBase
 import gitbucket.core.service.AccountService
-import gitbucket.core.util.SyntaxSugars._
 import gitbucket.core.util.Implicits._
 
 /**
@@ -14,14 +13,13 @@ trait GistEditorAuthenticator { self: ControllerBase with AccountService =>
 
   private def authenticate(action: => Any) = {
     {
-      defining(request.paths){ paths =>
-        if(context.loginAccount.map { loginAccount =>
-          loginAccount.isAdmin || loginAccount.userName == paths(1) || getGroupsByUserName(loginAccount.userName).contains(paths(1))
-        }.getOrElse(false)){
-          action
-        } else {
-          Unauthorized()
-        }
+      val paths = request.paths
+      if(context.loginAccount.map { loginAccount =>
+        loginAccount.isAdmin || loginAccount.userName == paths(1) || getGroupsByUserName(loginAccount.userName).contains(paths(1))
+      }.getOrElse(false)){
+        action
+      } else {
+        Unauthorized()
       }
     }
   }

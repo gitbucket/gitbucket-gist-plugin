@@ -8,7 +8,6 @@ import gitbucket.core.controller.ControllerBase
 import gitbucket.core.service.AccountService
 import gitbucket.core.service.RepositoryService.RepositoryInfo
 import gitbucket.core.util._
-import gitbucket.core.util.SyntaxSugars._
 import gitbucket.core.util.Implicits._
 import gitbucket.core.view.helpers._
 
@@ -194,9 +193,7 @@ trait GistControllerBase extends ControllerBase {
       JGitUtil.getCommitLog(git, "master") match {
         case Right((revisions, hasNext)) => {
           val commits = revisions.map { revision =>
-            defining(JGitUtil.getRevCommitFromId(git, git.getRepository.resolve(revision.id))){ revCommit =>
-              (revision, JGitUtil.getDiffs(git, None, revision.id, true, false))
-            }
+            (revision, JGitUtil.getDiffs(git, None, revision.id, true, false))
           }
 
           val gist = getGist(userName, repoName).get
@@ -228,9 +225,8 @@ trait GistControllerBase extends ControllerBase {
 
         if(gist.mode == "PUBLIC" || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
           JGitUtil.getFileList(git, revision, ".").find(_.name == fileName).map { file =>
-            defining(JGitUtil.getContentFromId(git, file.id, false).get){ bytes =>
-              RawData(FileUtil.getMimeType(file.name, bytes), bytes)
-            }
+            val bytes = JGitUtil.getContentFromId(git, file.id, false).get
+            RawData(FileUtil.getMimeType(file.name, bytes), bytes)
           } getOrElse NotFound()
         } else Unauthorized()
       }
