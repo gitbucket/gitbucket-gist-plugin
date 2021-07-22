@@ -91,7 +91,7 @@ trait GistControllerBase extends ControllerBase {
     if(gitdir.exists){
       Using.resource(Git.open(gitdir)){ git =>
         val files: Seq[(String, JGitUtil.ContentInfo)] = JGitUtil.getFileList(git, "master", ".").map { file =>
-          (if(isGistFile(file.name)) "" else file.name) -> JGitUtil.getContentInfo(git, file.name, file.id)
+          (if(isGistFile(file.name)) "" else file.name) -> JGitUtil.getContentInfo(git, file.name, file.id, true)
         }
         html.edit(getGist(userName, repoName), files, None)
       }
