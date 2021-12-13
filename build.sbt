@@ -1,8 +1,8 @@
 organization := "io.github.gitbucket"
 name := "gitbucket-gist-plugin"
-version := "4.21.0"
-scalaVersion := "2.13.5"
-gitbucketVersion := "4.36.0"
+version := "4.22.0"
+scalaVersion := "2.13.7"
+gitbucketVersion := "4.37.0"
 
 scalacOptions := Seq("-deprecation", "-feature", "-language:postfixOps")
 Compile / javacOptions ++= Seq("-target", "8", "-source", "8")
