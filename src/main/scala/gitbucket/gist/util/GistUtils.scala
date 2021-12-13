@@ -55,14 +55,14 @@ object GistUtils {
   case class GistRepositoryURL(gist: Gist, baseUrl: String, settings: SystemSettings){
 
     def httpUrl: String = s"${baseUrl}/git/gist/${gist.userName}/${gist.repositoryName}.git"
-    
+
     def embedUrl: String = s"${baseUrl}/gist/${gist.userName}/${gist.repositoryName}.js"
 
-    def sshUrl(loginUser: String): String = {
-      val host = """^https?://(.+?)(:\d+)?/""".r.findFirstMatchIn(httpUrl).get.group(1)
-      s"ssh://${loginUser}@${host}:${settings.ssh.sshPort.getOrElse(SystemSettingsService.DefaultSshPort)}/gist/${gist.userName}/${gist.repositoryName}.git"
+    def sshUrl: Option[String] = {
+      settings.sshUrl.map { sshUrl =>
+        s"${sshUrl}/gist/${gist.userName}/${gist.repositoryName}.git"
+      }
     }
-
   }
 
 }
