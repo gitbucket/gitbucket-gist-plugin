@@ -21,7 +21,7 @@ jobs:
           ~/.coursier
         key: build-${{ env.cache-name }}-${{ hashFiles('build.sbt') }}    
     - name: Set up JDK
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v3
       with:
         java-version: ${{ matrix.java }}
     - name: Run tests
