@@ -5,6 +5,6 @@ scalaVersion := "2.13.10"
 gitbucketVersion := "4.39.0"
 
 scalacOptions := Seq("-deprecation", "-feature", "-language:postfixOps")
-Compile / javacOptions ++= Seq("-target", "8", "-source", "8")
+Compile / javacOptions ++= Seq("-target", "11", "-source", "11")
 
 useJCenter := true
