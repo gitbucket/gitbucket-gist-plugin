@@ -9,35 +9,34 @@ import gitbucket.gist.model.Profile.dateColumnType
 
 trait GistService {
 
-  def getRecentGists(userName: String, offset: Int, limit: Int)(implicit s: Session): Seq[Gist] =
-    Gists.filter(_.userName === userName.bind).sortBy(_.registeredDate desc).drop(offset).take(limit).list
+  def getVisibleGists(offset: Int, limit: Int, account: Option[Account])(implicit s: Session): Seq[Gist] =
+    visibleHistsQuery(account).sortBy(_.registeredDate desc).drop(offset).take(limit).list
 
-  def getVisibleGists(offset: Int, limit: Int, account: Option[Account])(implicit s: Session): Seq[Gist] = {
-    val query = account.map { x =>
+  def countVisibleGists(account: Option[Account])(implicit s: Session): Int =
+    Query(visibleHistsQuery(account).length).first
+
+  private def visibleHistsQuery(account: Option[Account]): Query[Gists, Gists#TableElementType, Seq] = {
+    account.map { x =>
       Gists.filter { t => (t.mode === "PUBLIC".bind) || (t.userName === x.userName.bind) }
     } getOrElse {
       Gists.filter { t => (t.mode === "PUBLIC".bind) }
     }
-    query.sortBy(_.registeredDate desc).drop(offset).take(limit).list
   }
 
-  def countPublicGists()(implicit s: Session): Int =
-    Query(Gists.filter(_.mode === "PUBLIC".bind).length).first
-
   def getUserGists(userName: String, loginUserName: Option[String], offset: Int, limit: Int)(implicit s: Session): Seq[Gist] =
-    (if(loginUserName.isDefined){
-      Gists filter(t => (t.userName === userName.bind) && ((t.userName === loginUserName.bind) || (t.mode === "PUBLIC".bind)))
-    } else {
-      Gists filter(t => (t.userName === userName.bind) && (t.mode === "PUBLIC".bind))
-    }).sortBy(_.registeredDate desc).drop(offset).take(limit).list
+    userGistsQuery(userName, loginUserName).sortBy(_.registeredDate desc).drop(offset).take(limit).list
 
 
   def countUserGists(userName: String, loginUserName: Option[String])(implicit s: Session): Int =
-    Query((if(loginUserName.isDefined){
-      Gists.filter(t => (t.userName === userName.bind) && ((t.userName === loginUserName.bind) || (t.mode === "PUBLIC".bind)))
+    Query(userGistsQuery(userName, loginUserName).length).first
+
+  private def userGistsQuery(userName: String, loginUserName: Option[String]): Query[Gists, Gists#TableElementType, Seq] = {
+    if (loginUserName.isDefined) {
+      Gists filter (t => (t.userName === userName.bind) && ((t.userName === loginUserName.bind) || (t.mode === "PUBLIC".bind)))
     } else {
-      Gists.filter(t => (t.userName === userName.bind) && (t.mode === "PUBLIC".bind))
-    }).length).first
+      Gists filter (t => (t.userName === userName.bind) && (t.mode === "PUBLIC".bind))
+    }
+  }
 
   def getGist(userName: String, repositoryName: String)(implicit s: Session): Option[Gist] =
     Gists.filter(t => (t.userName === userName.bind) && (t.repositoryName === repositoryName.bind)).firstOption

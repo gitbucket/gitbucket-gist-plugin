@@ -50,7 +50,7 @@ trait GistControllerBase extends ControllerBase {
       case s => s.toInt
     }
     val result = getVisibleGists((page - 1) * Limit, Limit, context.loginAccount)
-    val count  = countPublicGists()
+    val count  = countVisibleGists(context.loginAccount)
 
     val gists: Seq[(Gist, GistInfo)] = result.map { gist =>
       val userName = gist.userName
