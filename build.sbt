@@ -1,7 +1,7 @@
 organization := "io.github.gitbucket"
 name := "gitbucket-gist-plugin"
 version := "4.22.0"
-scalaVersion := "2.13.11"
+scalaVersion := "2.13.12"
 gitbucketVersion := "4.39.0"
 
 scalacOptions := Seq("-deprecation", "-feature", "-language:postfixOps")
