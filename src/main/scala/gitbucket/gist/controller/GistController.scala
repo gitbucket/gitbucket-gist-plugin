@@ -114,7 +114,7 @@ trait GistControllerBase extends ControllerBase {
         val repoName = StringUtil.md5(userName + " " + datetime(new java.util.Date()))
         val gitdir   = new File(GistRepoDir, userName + "/" + repoName)
         gitdir.mkdirs()
-        JGitUtil.initRepository(gitdir)
+        JGitUtil.initRepository(gitdir, "master")
 
         // Insert record
         registerGist(
