@@ -26,6 +26,7 @@ jobs:
       with:
         distribution: temurin
         java-version: ${{ matrix.java }}
+    - uses: sbt/setup-sbt@v1
     - name: Run tests
       run: |
         git clone https://github.com/gitbucket/gitbucket.git
