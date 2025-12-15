@@ -37,7 +37,7 @@ jobs:
     - name: Assembly
       run: sbt assembly
     - name: Upload artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: gitbucket-gist-plugin-java${{ matrix.java }}-${{ github.sha }}
         path: ./target/scala-2.13/*.jar
