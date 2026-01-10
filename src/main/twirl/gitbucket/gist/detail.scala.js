@@ -32,7 +32,17 @@ var _html = (function () {/*4f85e035-2513-453b-b435-33f0a12b2339
             </div>
             @if(helpers.isRenderable(fileName)){
               <div class="panel-body markdown-body" style="padding-left: 16px; padding-right: 16px;">
-                @helpers.renderMarkup(List(fileName), content, "master", gist.toRepositoryInfo, false, false, true)
+                @helpers.renderMarkup(
+                  filePath = List(fileName),
+                  fileContent = content,
+                  branch = "master",
+                  repository = gist.toRepositoryInfo,
+                  enableWikiLink = false,
+                  enableRefsLink = false,
+                  enableAnchor = false,
+                  enableLineBreaks = false,
+                  enableTaskList = true
+                )
               </div>
             } else {
               <div class="panel-body">

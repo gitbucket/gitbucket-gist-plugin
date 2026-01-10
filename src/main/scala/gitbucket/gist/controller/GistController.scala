@@ -376,7 +376,7 @@ trait GistControllerBase extends ControllerBase {
       branch           = "master",
       enableWikiLink   = false,
       enableRefsLink   = false,
-      enableLineBreaks = false,
+      enableLineBreaks = true,
       enableAnchor     = false,
       enableTaskList   = true
     )
