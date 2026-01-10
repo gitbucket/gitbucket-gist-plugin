@@ -58,7 +58,17 @@
               <div>
                 @if(gistInfo.fileName.toLowerCase.endsWith(".md") || gistInfo.fileName.toLowerCase.endsWith(".markdown")){
                   <div class="list-markup box-content markdown-body">
-                    @helpers.markdown(gistInfo.source, gist.toRepositoryInfo, "master", false, false, false)
+                    @helpers.renderMarkup(
+                      filePath = List(gistInfo.fileName),
+                      fileContent = gistInfo.source,
+                      repository = gist.toRepositoryInfo,
+                      branch = "master",
+                      enableWikiLink = false,
+                      enableRefsLink = false,
+                      enableAnchor = true,
+                      enableLineBreaks = false,
+                      enableTaskList = false
+                    )
                   </div>
                 } else {
                   <pre class="list-code box-content prettyprint linenums">@gistInfo.source</pre>
