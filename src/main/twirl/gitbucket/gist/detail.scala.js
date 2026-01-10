@@ -39,9 +39,9 @@ var _html = (function () {/*4f85e035-2513-453b-b435-33f0a12b2339
                   repository = gist.toRepositoryInfo,
                   enableWikiLink = false,
                   enableRefsLink = false,
-                  enableAnchor = false,
+                  enableAnchor = true,
                   enableLineBreaks = false,
-                  enableTaskList = true
+                  enableTaskList = false
                 )
               </div>
             } else {
