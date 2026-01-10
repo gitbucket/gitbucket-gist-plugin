@@ -45,7 +45,8 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     new Version("4.20.0"),
     new Version("4.21.0"),
     new Version("4.22.0"),
-    new Version("4.23.0")
+    new Version("4.23.0"),
+    new Version("4.24.0"),
   )
 
   override def initialize(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Unit = {
@@ -59,21 +60,21 @@ class Plugin extends gitbucket.core.plugin.Plugin {
 
   }
 
-  override val repositoryRoutings = Seq(
+  override val repositoryRoutings: Seq[GitRepositoryRouting] = Seq(
     GitRepositoryRouting("gist/(.+?)/(.+?)\\.git", "gist/$1/$2", new GistRepositoryFilter())
   )
 
-  override val controllers = Seq(
+  override val controllers: Seq[(String, GistController)] = Seq(
     "/*" -> new GistController()
   )
 
-  override val globalMenus = Seq(
+  override val globalMenus: Seq[Context => Option[Link]] = Seq(
     (context: Context) => Some(Link("snippets", "Snippets", "gist"))
   )
-  override val profileTabs = Seq(
+  override val profileTabs: Seq[(Account, Context) => Option[Link]] = Seq(
     (account: Account, context: Context) => Some(Link("snippets", "Snippets", s"gist/${account.userName}/_profile"))
   )
-  override val assetsMappings = Seq("/gist" -> "/gitbucket/gist/assets")
+  override val assetsMappings: Seq[(String, String)] = Seq("/gist" -> "/gitbucket/gist/assets")
 
 //  override def javaScripts(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Seq[(String, String)] = {
 //    // Add Snippet link to the header

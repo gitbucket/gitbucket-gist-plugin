@@ -13,19 +13,21 @@
         @gitbucket.core.helper.html.datetimeago(comment.registeredDate)
       </span>
       <span class="pull-right">
-      @if((hasWritePermission || context.loginAccount.map(_.userName == comment.commentedUserName).getOrElse(false))){
+      @if((hasWritePermission || context.loginAccount.exists(_.userName == comment.commentedUserName))){
         <a href="#" data-comment-id="@comment.commentId"><i class="octicon octicon-pencil" aria-label="Edit"></i></a>&nbsp;
         <a href="#" data-comment-id="@comment.commentId"><i class="octicon octicon-x" aria-label="Remove"></i></a>
       }
       </span>
     </div>
     <div class="panel-body issue-content markdown-body" id="commentContent-@comment.commentId">
-      @helpers.markdown(
-        markdown           = comment.content,
+      @helpers.renderMarkup(
+        filePath           = List("temporary.md"),
+        fileContent        = comment.content,
         repository         = repository,
         branch             = "master",
         enableWikiLink     = false,
         enableRefsLink     = true,
+        enableAnchor       = false,
         enableLineBreaks   = true,
         enableTaskList     = true,
         hasWritePermission = hasWritePermission
