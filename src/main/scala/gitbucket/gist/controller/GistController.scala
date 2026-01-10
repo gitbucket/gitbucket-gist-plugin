@@ -359,9 +359,10 @@ trait GistControllerBase extends ControllerBase {
     val repoName = params("repoName")
 
     contentType = "text/html"
-    helpers.markdown(
-      markdown   = params("content"),
-      repository = RepositoryInfo(
+    helpers.renderMarkup(
+      filePath    = List("temporary.md"),
+      fileContent = params("content"),
+      repository  = RepositoryInfo(
         owner          = userName,
         name           = repoName,
         repository     = null,
