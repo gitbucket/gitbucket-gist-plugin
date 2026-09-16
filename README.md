@@ -1,4 +1,4 @@
-# gitbucket-gist-plugin [![build](https://github.com/gitbucket/gitbucket-gist-plugin/workflows/build/badge.svg?branch=master)](https://github.com/gitbucket/gitbucket-gist-plugin/actions?query=workflow%3Abuild+branch%3Amaster)
+# gitbucket-gist-plugin [![build](https://github.com/gitbucket/gitbucket-gist-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/gitbucket/gitbucket-gist-plugin/actions/workflows/build.yml)
 
 This is a GitBucket plug-in which provides code snippet repository like Gist.
 
