@@ -383,7 +383,7 @@ trait GistControllerBase extends ControllerBase {
     )
   }
 
-  post("/gist/:userName/:repoName/_comment", commentForm)(usersOnly { form =>
+  post("/gist/:userName/:repoName/_comment", commentForm)(usersOnlyWithForm { form =>
     val userName = params("userName")
     val repoName = params("repoName")
     val loginAccount = context.loginAccount.get
@@ -432,7 +432,7 @@ trait GistControllerBase extends ControllerBase {
     } getOrElse NotFound()
   })
 
-  ajaxPost("/gist/:userName/:repoName/_comments/:commentId/_update", commentForm)(usersOnly { form =>
+  ajaxPost("/gist/:userName/:repoName/_comments/:commentId/_update", commentForm)(usersOnlyWithForm { form =>
     val userName  = params("userName")
     val repoName  = params("repoName")
     val commentId = params("commentId").toInt
