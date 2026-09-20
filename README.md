@@ -4,6 +4,7 @@ This is a GitBucket plug-in which provides code snippet repository like Gist.
 
 | Plugin version | GitBucket version |
 |:---------------|:------------------|
+| 4.26.x         | 4.48.x -          |
 | 4.25.x         | 4.47.x -          |
 | 4.24.x         | 4.45.x -          |
 | 4.23.x         | 4.40.x -          |
