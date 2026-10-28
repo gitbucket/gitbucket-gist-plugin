@@ -23,7 +23,9 @@
               <span class="label label-warning">Private</span>
             }
             <div class="pull-right">
-              <a href="@context.path/gist/@gist.get.userName/@gist.get.repositoryName/delete" class="btn btn-danger" id="delete">Delete</a>
+              <a href="javascript:void(0);" class="btn btn-danger" id="delete">Delete</a>
+              <form id="delete-form" method="post" action="@context.path/gist/@gist.get.userName/@gist.get.repositoryName/delete">
+              </form>
             </div>
             <div class="muted" style="margin-left: 30px; font-size: 80%;">
               Created at @gist.get.registeredDate
@@ -121,8 +123,11 @@
       return true;
     });
 
-    $('#delete').click(function(){
-      return confirm('Are you positive you want to delete this Gist?');
+    $('#delete').click(function(e){
+      e.preventDefault();
+      if(confirm('Are you positive you want to delete this Gist?')){
+        $('#delete-form').submit();
+      }
     });
 
     function displayError(message){

@@ -170,7 +170,7 @@ trait GistControllerBase extends ControllerBase {
     redirect(s"/gist/${userName}/${repoName}")
   })
 
-  get("/gist/:userName/:repoName/delete")(editorOnly {
+  post("/gist/:userName/:repoName/delete")(editorOnly {
     val userName = params("userName")
     val repoName = params("repoName")
 
