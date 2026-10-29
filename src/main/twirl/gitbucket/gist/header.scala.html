@@ -16,7 +16,9 @@
   <div class="pull-right">
     @if(editable){
       <a href="@context.path/gist/@gist.userName/@gist.repositoryName/edit" class="btn btn-default">Edit</a>
-      <a href="@context.path/gist/@gist.userName/@gist.repositoryName/delete" class="btn btn-danger" id="delete">Delete</a>
+      <a href="javascript:void(0);" class="btn btn-danger" id="delete">Delete</a>
+      <form id="delete-form" method="post" action="@context.path/gist/@gist.userName/@gist.repositoryName/delete">
+      </form>
     }
     @if(gist.originUserName.isEmpty){
       @if(context.loginAccount.isEmpty){
@@ -43,6 +45,14 @@ $(function(){
     $(document).on("click", "a#fork-link", function(e) {
       e.preventDefault();
       $('#fork-form').submit();
+    });
+  }
+  @if(editable){
+    $('#delete').click(function(e){
+      e.preventDefault();
+      if(confirm('Are you positive you want to delete this Gist?')){
+        $('#delete-form').submit();
+      }
     });
   }
 });
