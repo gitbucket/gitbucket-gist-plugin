@@ -64,6 +64,11 @@ trait GistControllerBase extends ControllerBase {
     html.list(None, gists, page, page * Limit < count)
   }
 
+  // A private gist is visible only to those who can edit it; this covers all pages below a gist
+  before("/gist/:userName/:repoName/*") {
+    getGist(params("userName"), params("repoName")).filterNot(isReadable).foreach(_ => halt(NotFound()))
+  }
+
   get("/gist/:userName/:repoName"){
     _gist(params("userName"), Some(params("repoName")))
   }
@@ -72,9 +77,9 @@ trait GistControllerBase extends ControllerBase {
     val userName = params("userName")
     val repoName = params("repoName")
     getGist(userName, repoName) match {
-      case Some(gist) =>
+      case Some(gist) if isReadable(gist) =>
         _embedJs(gist, userName, repoName, "master")
-      case None =>
+      case _ =>
         NotFound()
     }
   }
@@ -226,7 +231,7 @@ trait GistControllerBase extends ControllerBase {
         if(gist.mode == "PUBLIC" || context.loginAccount.exists(x => x.isAdmin || x.userName == userName)){
           JGitUtil.getFileList(git, revision, ".").find(_.name == fileName).map { file =>
             val bytes = JGitUtil.getContentFromId(git, file.id, false).get
-            RawData(FileUtil.getMimeType(file.name, bytes), bytes)
+            RawData(if (FileUtil.isText(bytes)) "text/plain; charset=UTF-8" else FileUtil.getSafeMimeType(file.name), bytes)
           } getOrElse NotFound()
         } else Unauthorized()
       }
@@ -399,7 +404,7 @@ trait GistControllerBase extends ControllerBase {
     val repoName  = params("repoName")
     val commentId = params("commentId").toInt
 
-    // TODO Access check
+    if (!isCommentEditable(userName, repoName, commentId)) halt(Unauthorized())
 
     Ok(deleteGistComment(userName, repoName, commentId))
   })
@@ -409,7 +414,6 @@ trait GistControllerBase extends ControllerBase {
     val repoName  = params("repoName")
     val commentId = params("commentId").toInt
 
-    // TODO Access check
     getGist(userName, repoName).flatMap { gist =>
       getGistComment(userName, repoName, commentId).map { comment =>
         params.get("dataType") collect {
@@ -437,7 +441,7 @@ trait GistControllerBase extends ControllerBase {
     val repoName  = params("repoName")
     val commentId = params("commentId").toInt
 
-    // TODO Access check
+    if (!isCommentEditable(userName, repoName, commentId)) halt(Unauthorized())
 
     updateGistComment(userName, repoName, commentId, form.content)
     redirect(s"/gist/${userName}/${repoName}/_comments/${commentId}")
@@ -536,6 +540,14 @@ trait GistControllerBase extends ControllerBase {
       }
     }
   }
+
+  private def isReadable(gist: Gist): Boolean =
+    gist.mode != "PRIVATE" || isEditable(gist.userName, loginUserGroups)
+
+  private def isCommentEditable(userName: String, repoName: String, commentId: Int): Boolean =
+    isEditable(userName, loginUserGroups) || getGistComment(userName, repoName, commentId).exists { comment =>
+      context.loginAccount.exists(_.userName == comment.commentedUserName)
+    }
 
   private def loginUserGroups: Seq[String] = {
     context.loginAccount.map { account =>

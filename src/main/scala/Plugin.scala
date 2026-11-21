@@ -1,6 +1,7 @@
 import gitbucket.core.controller.Context
 import gitbucket.core.model._
 import gitbucket.core.service.AccountService
+import gitbucket.gist.service.GistService
 import gitbucket.core.service.SystemSettingsService.SystemSettings
 import gitbucket.gist.controller.GistController
 import gitbucket.core.plugin._
@@ -95,7 +96,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
 //  }
 }
 
-class GistRepositoryFilter extends GitRepositoryFilter with AccountService {
+class GistRepositoryFilter extends GitRepositoryFilter with AccountService with GistService {
 
   override def filter(path: String, userName: Option[String], settings: SystemSettings, isUpdating: Boolean)
                      (implicit session: Session): Boolean = {
@@ -106,7 +107,17 @@ class GistRepositoryFilter extends GitRepositoryFilter with AccountService {
       } yield
         path.startsWith("/" + userName + "/") || account.isAdmin
       ).getOrElse(false)
-    } else true
+    } else {
+      // A private gist only for its owner (or the owner group's members) and admins
+      "^/gist/([^/]+)/([^/]+?)\\.git(/|$)".r.findFirstMatchIn(path).flatMap(m => getGist(m.group(1), m.group(2))) match {
+        case Some(gist) if gist.mode == "PRIVATE" =>
+          userName.flatMap(getAccountByUserName(_)).exists { account =>
+            account.isAdmin || account.userName == gist.userName ||
+              getGroupsByUserName(account.userName).contains(gist.userName)
+          }
+        case _ => true
+      }
+    }
   }
 
 }
